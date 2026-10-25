@@ -7,13 +7,11 @@ const { authenticate } = require('../middlewares/auth.middleware');
 router.post('/registerOrLogin', authController.registerOrLogin);
 router.post('/verifyOtp', authController.verifyOtp);
 router.post('/updateProfile', authController.updateProfile);
-router.post('/setupProfile', authController.updateProfile); // Alias
 
 // Admin & General Authentication
 router.post('/login', authController.login);
 router.post('/register', authController.register);
 router.post('/refreshToken', authController.refreshToken);
-router.post('/refresh', authController.refreshToken); // Alias
 
 // Protected routes
 router.get('/me', authenticate, authController.getMe);

@@ -6,15 +6,6 @@ const { generateUniqueMemberId, getRolePrefix } = require('../utils/memberIdGene
 class AuthService {
   /**
    * Mobile user sign-up or sign-in with OTP generation
-   * Clean standard payload:
-   * - phone_number (string, required)
-   * - country_code (string, default: '+91')
-   * - language_id (integer, optional)
-   * - role_id (integer, optional: 1=Crane Owner, 2=Operator, 3=Customer)
-   * - device_id (string, optional)
-   * - device_unique_id (string, optional)
-   * - platform_type (string, optional)
-   * - device_details (string, optional)
    */
   async registerOrLogin({
     phone_number,
@@ -24,32 +15,21 @@ class AuthService {
     device_id,
     device_unique_id,
     platform_type,
-    device_details,
-    // Lenient fallbacks for backwards compatibility
-    mobile_number,
-    language_type,
-    role
+    device_details
   }) {
-    const rawPhone = phone_number || mobile_number;
-    if (!rawPhone) {
+    if (!phone_number) {
       throw new Error('phone_number is required.');
     }
 
-    const cleanPhone = String(rawPhone).trim();
+    const cleanPhone = String(phone_number).trim();
     const cleanCountryCode = String(country_code).trim();
-    const cleanLanguageId = language_id !== undefined ? language_id : language_type;
+    const cleanLanguageId = language_id !== undefined && language_id !== null && language_id !== ''
+      ? parseInt(language_id, 10)
+      : null;
 
-    // Resolve target role_id if passed
     let targetRoleId = role_id !== undefined && role_id !== null && role_id !== ''
       ? parseInt(role_id, 10)
       : null;
-
-    if (!targetRoleId && role) {
-      const roleRecord = await Role.findOne({
-        where: { code: String(role).toUpperCase().trim() }
-      });
-      if (roleRecord) targetRoleId = roleRecord.id;
-    }
 
     // Default OTP for testing (default: 123456)
     const otp = process.env.DEFAULT_OTP || '123456';
@@ -65,15 +45,13 @@ class AuthService {
     let isNewUser = false;
 
     if (user) {
-      // Existing user: update OTP, language, device info, and role if passed
       user.mobileOtp = otp;
-      if (cleanLanguageId !== undefined && cleanLanguageId !== null && cleanLanguageId !== '') {
-        user.languageType = parseInt(cleanLanguageId, 10);
+      if (cleanLanguageId !== null) {
+        user.languageType = cleanLanguageId;
       }
-      if (targetRoleId && (!user.roleId || user.roleId !== targetRoleId)) {
+      if (targetRoleId && user.roleId !== targetRoleId) {
         user.roleId = targetRoleId;
       }
-      // Generate member_id if role exists and user does not have one, or prefix mismatch
       if (user.roleId) {
         const expectedPrefix = getRolePrefix(user.roleId);
         if (!user.memberId || !user.memberId.startsWith(expectedPrefix)) {
@@ -86,7 +64,6 @@ class AuthService {
       if (device_details) user.deviceDetails = device_details;
       await user.save();
     } else {
-      // New user: create record with role-based member_id if role provided
       isNewUser = true;
       let memberId = null;
       if (targetRoleId) {
@@ -94,11 +71,11 @@ class AuthService {
       }
 
       user = await User.create({
-        languageType: cleanLanguageId ? parseInt(cleanLanguageId, 10) : null,
+        languageType: cleanLanguageId,
         countryCode: cleanCountryCode,
         mobileNumber: cleanPhone,
         mobileOtp: otp,
-        roleId: targetRoleId || null,
+        roleId: targetRoleId,
         memberId: memberId,
         isMobileVerified: 1, // 1 for not verified yet
         isActive: 0, // 0 for active
@@ -111,65 +88,48 @@ class AuthService {
     }
 
     return {
-      uuid: user.id,
+      user_id: user.id,
       country_code: user.countryCode,
       phone_number: user.mobileNumber,
       member_id: user.memberId || null,
       role_id: user.roleId || null,
-      otp: otp, // Default: 123456
+      otp: otp,
       is_new_user: isNewUser
     };
   }
 
   /**
    * Verify OTP and check role status
-   * Clean standard payload:
-   * - uuid (string, required)
-   * - otp_number (string, required)
    */
-  async verifyOtp({
-    uuid,
-    otp_number,
-    // Fallbacks for client backwards compatibility
-    user_id,
-    id,
-    otp,
-    mobile_otp
-  }) {
-    const targetId = uuid || user_id || id;
-    const targetOtp = otp_number || otp || mobile_otp;
-
-    if (!targetId) {
-      throw new Error('uuid is required.');
+  async verifyOtp({ user_id, otp_number }) {
+    if (!user_id) {
+      throw new Error('user_id is required.');
     }
-    if (!targetOtp) {
+    if (!otp_number) {
       throw new Error('otp_number is required.');
     }
 
-    const user = await User.findByPk(targetId, {
+    const user = await User.findByPk(user_id, {
       include: [{ model: Role, as: 'role' }]
     });
 
     if (!user) {
-      throw new Error('User not found with the provided uuid.');
+      throw new Error('User not found with the provided user_id.');
     }
 
-    const enteredOtp = String(targetOtp).trim();
+    const enteredOtp = String(otp_number).trim();
     const storedOtp = user.mobileOtp ? String(user.mobileOtp).trim() : null;
 
-    // Verify OTP (also permit test master OTP '123456')
     if (storedOtp !== enteredOtp && enteredOtp !== '123456') {
       throw new Error('Invalid or expired OTP.');
     }
 
-    // Mark as verified (0 for verified in Cranzo schema)
+    // Mark as verified
     user.isMobileVerified = 0;
     user.mobileOtp = null;
     await user.save();
 
-    // Check role_id
-    // role_id 0 = already have role
-    // role_id 1 = already not have role (role_id is null)
+    // Check role_id: 0 = already has role, 1 = no role yet
     const hasRole = user.roleId !== null && user.roleId !== undefined;
     const roleStatus = hasRole ? 0 : 1;
 
@@ -182,7 +142,7 @@ class AuthService {
     });
 
     return {
-      uuid: user.id,
+      user_id: user.id,
       member_id: user.memberId || null,
       phone_number: user.mobileNumber,
       country_code: user.countryCode,
@@ -197,18 +157,12 @@ class AuthService {
       refresh_token: tokens.refresh_token,
       token_type: tokens.token_type,
       expires_in: tokens.expires_in,
-      token: tokens.access_token // Backwards compatibility
+      token: tokens.access_token
     };
   }
 
   /**
    * Complete / update user profile with role, name, company, and dropdown IDs
-   * Clean standard payload:
-   * - user_id (string, required)
-   * - role_id (integer, required: 1, 2, or 3)
-   * - full_name (string, required)
-   * - company_name (string, required)
-   * - dropdown IDs: owner_type, years_of_experience, number_of_business_partners, business_ownership_type
    */
   async updateProfile({
     user_id,
@@ -227,22 +181,17 @@ class AuthService {
     user_email,
     company_date_establishment,
     business_category,
-    profile_image,
-    // Fallback for user_id
-    uuid,
-    id
+    profile_image
   }) {
-    const targetId = user_id || uuid || id;
-    if (!targetId || !role_id || !full_name || !company_name) {
+    if (!user_id || !role_id || !full_name || !company_name) {
       throw new Error('user_id, role_id, full_name, and company_name are required.');
     }
 
-    const user = await User.findByPk(targetId);
+    const user = await User.findByPk(user_id);
     if (!user) {
       throw new Error('User not found.');
     }
 
-    // Validate role exists
     const role = await Role.findByPk(parseInt(role_id, 10));
     if (!role) {
       throw new Error('Invalid role_id. Role not found in system.');
@@ -254,7 +203,6 @@ class AuthService {
     user.fullName = String(full_name).trim();
     user.companyName = String(company_name).trim();
 
-    // Generate or update member_id if missing or role prefix changed
     const expectedPrefix = getRolePrefix(newRoleId);
     if (!user.memberId || roleChanged || !user.memberId.startsWith(expectedPrefix)) {
       user.memberId = await generateUniqueMemberId(newRoleId, User);
@@ -285,7 +233,6 @@ class AuthService {
 
     await user.save();
 
-    // Re-fetch with associations
     const updatedUser = await User.findByPk(user.id, {
       include: [
         { model: Role, as: 'role' },
@@ -297,7 +244,6 @@ class AuthService {
       ]
     });
 
-    // Refresh JWT Access & Refresh tokens with newly assigned role
     const tokens = generateAuthTokens({
       id: updatedUser.id,
       mobile: updatedUser.mobileNumber,
@@ -312,7 +258,7 @@ class AuthService {
       refresh_token: tokens.refresh_token,
       token_type: tokens.token_type,
       expires_in: tokens.expires_in,
-      token: tokens.access_token // Backwards compatibility
+      token: tokens.access_token
     };
   }
 
@@ -329,7 +275,6 @@ class AuthService {
       throw new Error('Invalid or expired refresh token.');
     }
 
-    // Check if user exists
     const user = await User.findByPk(decoded.id, {
       include: [{ model: Role, as: 'role' }]
     });
@@ -353,7 +298,6 @@ class AuthService {
       };
     }
 
-    // Check if admin exists
     const admin = await Admin.findByPk(decoded.id, {
       include: [{ model: Role, as: 'role' }]
     });
@@ -382,7 +326,7 @@ class AuthService {
   }
 
   /**
-   * General registration (user / partner onboarding) with unique member_id
+   * General registration with unique member_id
    */
   async register({
     full_name,
@@ -392,39 +336,25 @@ class AuthService {
     company_name,
     city,
     country_code = '+91',
-    password,
-    // Fallback aliases
-    name,
-    user_email,
-    phone,
-    mobile_number,
-    role,
-    companyName
+    password
   }) {
-    const rawPhone = phone_number || phone || mobile_number;
-    const cleanName = full_name || name;
-    if (!cleanName || (!email && !user_email && !rawPhone)) {
+    if (!full_name || (!email && !phone_number)) {
       throw new Error('full_name, and email or phone_number are required.');
     }
 
+    const cleanPhone = phone_number ? String(phone_number).trim() : null;
     let targetRoleId = role_id ? parseInt(role_id, 10) : null;
-    if (!targetRoleId && role) {
-      const foundRole = await Role.findOne({
-        where: { code: String(role).toUpperCase().trim() }
-      });
-      if (foundRole) targetRoleId = foundRole.id;
-    }
 
     const memberId = targetRoleId ? await generateUniqueMemberId(targetRoleId, User) : null;
 
     const user = await User.create({
-      fullName: cleanName,
-      userEmail: email || user_email || null,
-      mobileNumber: rawPhone ? String(rawPhone).trim() : null,
+      fullName: full_name.trim(),
+      userEmail: email ? email.trim() : null,
+      mobileNumber: cleanPhone,
       countryCode: country_code,
       roleId: targetRoleId,
       memberId: memberId,
-      companyName: company_name || companyName || null,
+      companyName: company_name || null,
       city: city || null,
       isActive: 0,
       isMobileVerified: 0

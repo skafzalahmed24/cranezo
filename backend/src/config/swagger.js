@@ -122,7 +122,7 @@ ${defaultToken}
                     data: {
                       type: 'object',
                       properties: {
-                        uuid: { type: 'string', example: '11111111-1111-1111-1111-111111111111' },
+                        user_id: { type: 'string', format: 'uuid', example: '11111111-1111-1111-1111-111111111111' },
                         country_code: { type: 'string', example: '+91' },
                         phone_number: { type: 'string', example: '9876543210' },
                         member_id: { type: 'string', example: 'ONR659897', description: 'Unique member ID (OP/CUST/ONR + 6 digits)' },
@@ -151,9 +151,9 @@ ${defaultToken}
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['uuid', 'otp_number'],
+                required: ['user_id', 'otp_number'],
                 properties: {
-                  uuid: { type: 'string', format: 'uuid', example: '11111111-1111-1111-1111-111111111111' },
+                  user_id: { type: 'string', format: 'uuid', example: '11111111-1111-1111-1111-111111111111' },
                   otp_number: { type: 'string', example: '123456' }
                 }
               }
@@ -173,9 +173,9 @@ ${defaultToken}
                     data: {
                       type: 'object',
                       properties: {
-                        uuid: { type: 'string', example: '11111111-1111-1111-1111-111111111111' },
+                        user_id: { type: 'string', format: 'uuid', example: '11111111-1111-1111-1111-111111111111' },
                         member_id: { type: 'string', example: 'ONR659897' },
-                        mobile_number: { type: 'string', example: '9876543210' },
+                        phone_number: { type: 'string', example: '9876543210' },
                         is_mobile_verified: { type: 'integer', example: 0 },
                         role_id_status: { type: 'integer', example: 0, description: '0 for already have role, 1 for does not have role' },
                         has_role: { type: 'integer', example: 0 },

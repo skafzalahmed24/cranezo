@@ -21,7 +21,11 @@ class AuthController {
    */
   async verifyOtp(req, res) {
     try {
-      const result = await authService.verifyOtp(req.body);
+      const payload = {
+        user_id: req.body.user_id || req.body.uuid,
+        otp_number: req.body.otp_number
+      };
+      const result = await authService.verifyOtp(payload);
       return successResponse(res, 'OTP verified successfully.', result, 200);
     } catch (error) {
       return errorResponse(res, error.message, null, 400);
@@ -30,11 +34,10 @@ class AuthController {
 
   /**
    * Mobile user onboarding Step 3: Complete / Update Profile with role_id, full_name, company_name
-   * POST /api/auth/updateProfile (or /api/auth/setupProfile)
+   * POST /api/auth/updateProfile
    */
   async updateProfile(req, res) {
     try {
-      // Allow user_id from req.body or authenticated req.user.id
       const payload = {
         ...req.body,
         user_id: req.body.user_id || req.user?.id
@@ -65,27 +68,12 @@ class AuthController {
   }
 
   /**
-   * Admin / general register
+   * General register
    * POST /api/auth/register
    */
   async register(req, res) {
     try {
-      const { name, email, phone, password, role, companyName, licenseNumber, city } = req.body;
-      if (!name || !email || !password) {
-        return errorResponse(res, 'Name, email, and password are required.', null, 400);
-      }
-
-      const result = await authService.register({
-        name,
-        email,
-        phone,
-        password,
-        role,
-        companyName,
-        licenseNumber,
-        city
-      });
-
+      const result = await authService.register(req.body);
       return successResponse(res, 'Registration successful.', result, 201);
     } catch (error) {
       return errorResponse(res, error.message, null, 400);
