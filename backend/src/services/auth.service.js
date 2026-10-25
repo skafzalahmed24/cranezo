@@ -26,8 +26,8 @@ class AuthService {
     const cleanCountryCode = String(country_code).trim();
     const cleanLanguageId = language_id !== undefined ? language_id : language_type;
 
-    // Generate random 6-digit numeric OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // Default OTP for testing (default: 123456)
+    const otp = process.env.DEFAULT_OTP || '123456';
 
     let user = await User.findOne({
       where: {
