@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+src/.env
+
+# Logs
+logs/
+*.log
+
+# Uploads
+src/public/uploads/*
+!src/public/uploads/.gitkeep
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

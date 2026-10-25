@@ -1,0 +1,63 @@
+/* ==========================================================================
+   CARD COMPONENT STYLES
+   Translucent glassmorphic card container
+   ========================================================================== */
+
+.cranzo-card {
+  width: 100%;
+  max-width: var(--card-max-width, 530px);
+  background: var(--card-bg-glass, rgba(3, 8, 20, 0.65));
+  backdrop-filter: blur(var(--card-backdrop-blur, 20px)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--card-backdrop-blur, 20px)) saturate(180%);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--card-radius, 40px);
+  box-shadow: var(--shadow-card, 0 25px 50px -12px rgba(0, 0, 0, 0.7));
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Subtle glowing top line */
+.cranzo-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(245, 166, 35, 0.35) 50%,
+    rgba(255, 255, 255, 0.2) 80%,
+    transparent 100%
+  );
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
+}
+
+.cranzo-card__inner {
+  padding: 44px 40px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .cranzo-card {
+    border-radius: 28px;
+  }
+
+  .cranzo-card::before {
+    border-top-left-radius: 28px;
+    border-top-right-radius: 28px;
+  }
+
+  .cranzo-card__inner {
+    padding: 32px 22px;
+  }
+}

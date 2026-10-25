@@ -1,0 +1,87 @@
+/* ==========================================================================
+   CRANZO DESIGN TOKENS & SYSTEM VARIABLES (PURE CSS)
+   ========================================================================== */
+
+:root {
+  /* Brand Color Palette */
+  --brand-orange-primary: #f5a623;
+  --brand-orange-light: #fbbf24;
+  --brand-orange-dark: #ea580c;
+  --brand-orange-gradient: linear-gradient(90deg, #f5a623 0%, #ea580c 100%);
+  --brand-orange-gradient-hover: linear-gradient(90deg, #fbbf24 0%, #f97316 100%);
+  --brand-orange-glow: rgba(245, 166, 35, 0.35);
+
+  --brand-blue: #2563eb;
+  --brand-blue-dark: #1d4ed8;
+
+  /* Background & Surface System */
+  --bg-app-dark: #040810;
+  --card-bg-glass: rgba(3, 8, 20, 0.65);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --card-border-glow: rgba(245, 166, 35, 0.2);
+  --card-backdrop-blur: 20px;
+  --card-max-width: 530px;
+  --card-radius: 40px;
+
+  /* Input Surfaces */
+  --input-bg: rgba(9, 16, 30, 0.7);
+  --input-bg-hover: rgba(14, 24, 44, 0.78);
+  --input-bg-focus: rgba(14, 24, 44, 0.88);
+  --input-border: rgba(255, 255, 255, 0.12);
+  --input-border-hover: rgba(255, 255, 255, 0.25);
+  --input-border-focus: #f5a623;
+  --input-shadow-focus: 0 0 0 3px rgba(245, 166, 35, 0.18);
+  --input-text: #ffffff;
+  --input-placeholder: #64748b;
+  --input-icon-color: #64748b;
+  --input-icon-focus: #f5a623;
+
+  /* Typography Colors */
+  --text-white: #ffffff;
+  --text-heading: #ffffff;
+  --text-body: #e2e8f0;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+  --text-link: #f5a623;
+  --text-link-hover: #fbbf24;
+  --text-button: #0b101b;
+
+  /* Status Colors */
+  --color-success: #10b981;
+  --color-success-bg: rgba(16, 185, 129, 0.15);
+  --color-error: #ef4444;
+  --color-error-bg: rgba(239, 68, 68, 0.15);
+
+  /* Typography Tokens */
+  --font-family-primary: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --font-title-size: 38px;
+  --font-title-line-height: 46px;
+  --font-title-letter-spacing: -1px;
+  --font-title-weight: 700;
+
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+
+  /* Border Radii */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 40px;
+  --radius-pill: 9999px;
+
+  /* Shadows */
+  --shadow-card: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  --shadow-button: 0 4px 20px rgba(234, 88, 12, 0.35);
+  --shadow-button-hover: 0 6px 28px rgba(245, 166, 35, 0.5);
+
+  /* Transitions */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}

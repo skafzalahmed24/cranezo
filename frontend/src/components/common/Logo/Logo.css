@@ -1,0 +1,43 @@
+/* ==========================================================================
+   LOGO COMPONENT STYLES
+   ========================================================================== */
+
+.cranzo-logo-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: transform var(--transition-fast);
+}
+
+.cranzo-logo--clickable {
+  cursor: pointer;
+}
+
+.cranzo-logo--clickable:hover {
+  transform: scale(1.03);
+}
+
+.cranzo-logo-img {
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+}
+
+.cranzo-logo--sm .cranzo-logo-img {
+  width: 140px;
+}
+
+.cranzo-logo--md .cranzo-logo-img {
+  width: 180px;
+}
+
+.cranzo-logo--lg .cranzo-logo-img {
+  width: 220px;
+}
+
+@media (max-width: 640px) {
+  .cranzo-logo--lg .cranzo-logo-img {
+    width: 190px;
+  }
+}
