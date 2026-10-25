@@ -93,6 +93,23 @@ class AuthController {
   }
 
   /**
+   * Refresh JWT access token
+   * POST /api/auth/refreshToken
+   */
+  async refreshToken(req, res) {
+    try {
+      const { refresh_token } = req.body;
+      if (!refresh_token) {
+        return errorResponse(res, 'refresh_token is required.', null, 400);
+      }
+      const result = await authService.refreshToken(refresh_token);
+      return successResponse(res, 'Token refreshed successfully.', result, 200);
+    } catch (error) {
+      return errorResponse(res, error.message, null, 401);
+    }
+  }
+
+  /**
    * Get current profile
    * GET /api/auth/me
    */

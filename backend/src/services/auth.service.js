@@ -1,36 +1,49 @@
 const { Admin, User, Role, StaticDropdown } = require('../models');
 const { comparePassword } = require('../utils/password');
-const { generateToken } = require('../utils/jwt');
+const { generateAuthTokens, verifyRefreshToken } = require('../utils/jwt');
 const { generateUniqueMemberId, getRolePrefix } = require('../utils/memberIdGenerator');
 
 class AuthService {
   /**
    * Mobile user sign-up or sign-in with OTP generation
+   * Clean standard payload:
+   * - phone_number (string, required)
+   * - country_code (string, default: '+91')
+   * - language_id (integer, optional)
+   * - role_id (integer, optional: 1=Crane Owner, 2=Operator, 3=Customer)
+   * - device_id (string, optional)
+   * - device_unique_id (string, optional)
+   * - platform_type (string, optional)
+   * - device_details (string, optional)
    */
   async registerOrLogin({
-    language_id,
-    language_type,
-    country_code = '+91',
     phone_number,
-    mobile_number,
+    country_code = '+91',
+    language_id,
     role_id,
-    role,
     device_id,
     device_unique_id,
     platform_type,
-    device_details
+    device_details,
+    // Lenient fallbacks for backwards compatibility
+    mobile_number,
+    language_type,
+    role
   }) {
     const rawPhone = phone_number || mobile_number;
     if (!rawPhone) {
-      throw new Error('phone_number (or mobile_number) is required.');
+      throw new Error('phone_number is required.');
     }
 
     const cleanPhone = String(rawPhone).trim();
     const cleanCountryCode = String(country_code).trim();
     const cleanLanguageId = language_id !== undefined ? language_id : language_type;
 
-    // Resolve role if passed
-    let targetRoleId = role_id ? parseInt(role_id, 10) : null;
+    // Resolve target role_id if passed
+    let targetRoleId = role_id !== undefined && role_id !== null && role_id !== ''
+      ? parseInt(role_id, 10)
+      : null;
+
     if (!targetRoleId && role) {
       const roleRecord = await Role.findOne({
         where: { code: String(role).toUpperCase().trim() }
@@ -52,7 +65,7 @@ class AuthService {
     let isNewUser = false;
 
     if (user) {
-      // Existing user: update OTP, language, and device info
+      // Existing user: update OTP, language, device info, and role if passed
       user.mobileOtp = otp;
       if (cleanLanguageId !== undefined && cleanLanguageId !== null && cleanLanguageId !== '') {
         user.languageType = parseInt(cleanLanguageId, 10);
@@ -103,20 +116,31 @@ class AuthService {
       phone_number: user.mobileNumber,
       member_id: user.memberId || null,
       role_id: user.roleId || null,
-      otp: otp, // Returned for dev/testing ease
+      otp: otp, // Default: 123456
       is_new_user: isNewUser
     };
   }
 
   /**
    * Verify OTP and check role status
+   * Clean standard payload:
+   * - uuid (string, required)
+   * - otp_number (string, required)
    */
-  async verifyOtp({ uuid, user_id, id, otp_number, otp, mobile_otp }) {
+  async verifyOtp({
+    uuid,
+    otp_number,
+    // Fallbacks for client backwards compatibility
+    user_id,
+    id,
+    otp,
+    mobile_otp
+  }) {
     const targetId = uuid || user_id || id;
     const targetOtp = otp_number || otp || mobile_otp;
 
     if (!targetId) {
-      throw new Error('uuid (user id) is required.');
+      throw new Error('uuid is required.');
     }
     if (!targetOtp) {
       throw new Error('otp_number is required.');
@@ -149,8 +173,8 @@ class AuthService {
     const hasRole = user.roleId !== null && user.roleId !== undefined;
     const roleStatus = hasRole ? 0 : 1;
 
-    // Generate JWT token
-    const token = generateToken({
+    // Generate JWT Access & Refresh Tokens
+    const tokens = generateAuthTokens({
       id: user.id,
       mobile: user.mobileNumber,
       roleId: user.roleId,
@@ -160,7 +184,7 @@ class AuthService {
     return {
       uuid: user.id,
       member_id: user.memberId || null,
-      mobile_number: user.mobileNumber,
+      phone_number: user.mobileNumber,
       country_code: user.countryCode,
       is_mobile_verified: user.isMobileVerified, // 0
       role_id_status: roleStatus, // 0 for already have, 1 for not have
@@ -169,17 +193,25 @@ class AuthService {
       role_name: user.role ? user.role.name : null,
       full_name: user.fullName || null,
       company_name: user.companyName || null,
-      token
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      token_type: tokens.token_type,
+      expires_in: tokens.expires_in,
+      token: tokens.access_token // Backwards compatibility
     };
   }
 
   /**
    * Complete / update user profile with role, name, company, and dropdown IDs
+   * Clean standard payload:
+   * - user_id (string, required)
+   * - role_id (integer, required: 1, 2, or 3)
+   * - full_name (string, required)
+   * - company_name (string, required)
+   * - dropdown IDs: owner_type, years_of_experience, number_of_business_partners, business_ownership_type
    */
   async updateProfile({
     user_id,
-    uuid,
-    id,
     role_id,
     full_name,
     company_name,
@@ -195,7 +227,10 @@ class AuthService {
     user_email,
     company_date_establishment,
     business_category,
-    profile_image
+    profile_image,
+    // Fallback for user_id
+    uuid,
+    id
   }) {
     const targetId = user_id || uuid || id;
     if (!targetId || !role_id || !full_name || !company_name) {
@@ -262,8 +297,8 @@ class AuthService {
       ]
     });
 
-    // Refresh JWT with newly assigned role
-    const token = generateToken({
+    // Refresh JWT Access & Refresh tokens with newly assigned role
+    const tokens = generateAuthTokens({
       id: updatedUser.id,
       mobile: updatedUser.mobileNumber,
       roleId: updatedUser.roleId,
@@ -273,33 +308,103 @@ class AuthService {
     return {
       user: updatedUser,
       member_id: updatedUser.memberId,
-      token
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      token_type: tokens.token_type,
+      expires_in: tokens.expires_in,
+      token: tokens.access_token // Backwards compatibility
     };
+  }
+
+  /**
+   * Refresh JWT token pair using refresh_token
+   */
+  async refreshToken(refresh_token) {
+    if (!refresh_token) {
+      throw new Error('refresh_token is required.');
+    }
+
+    const decoded = verifyRefreshToken(refresh_token);
+    if (!decoded || !decoded.id) {
+      throw new Error('Invalid or expired refresh token.');
+    }
+
+    // Check if user exists
+    const user = await User.findByPk(decoded.id, {
+      include: [{ model: Role, as: 'role' }]
+    });
+
+    if (user) {
+      if (user.isActive === 1 || user.isDeleted === 1) {
+        throw new Error('User account is deactivated.');
+      }
+      const tokens = generateAuthTokens({
+        id: user.id,
+        mobile: user.mobileNumber,
+        roleId: user.roleId,
+        role: user.role ? user.role.code : null
+      });
+      return {
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        token_type: tokens.token_type,
+        expires_in: tokens.expires_in,
+        token: tokens.access_token
+      };
+    }
+
+    // Check if admin exists
+    const admin = await Admin.findByPk(decoded.id, {
+      include: [{ model: Role, as: 'role' }]
+    });
+
+    if (admin) {
+      if (!admin.isActive) {
+        throw new Error('Admin account is deactivated.');
+      }
+      const roleCode = admin.role ? admin.role.code : 'SUPER_ADMIN';
+      const tokens = generateAuthTokens({
+        id: admin.id,
+        email: admin.email,
+        role: roleCode,
+        roleId: admin.roleId
+      });
+      return {
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        token_type: tokens.token_type,
+        expires_in: tokens.expires_in,
+        token: tokens.access_token
+      };
+    }
+
+    throw new Error('Account associated with refresh token not found.');
   }
 
   /**
    * General registration (user / partner onboarding) with unique member_id
    */
   async register({
-    name,
     full_name,
     email,
+    phone_number,
+    role_id,
+    company_name,
+    city,
+    country_code = '+91',
+    password,
+    // Fallback aliases
+    name,
     user_email,
     phone,
     mobile_number,
-    country_code = '+91',
-    password,
     role,
-    role_id,
-    companyName,
-    company_name,
-    licenseNumber,
-    city
+    companyName
   }) {
-    const rawPhone = phone || mobile_number;
-    const cleanName = name || full_name;
-    if (!cleanName || (!email && !rawPhone)) {
-      throw new Error('Name, and email or phone number are required.');
+    const rawPhone = phone_number || phone || mobile_number;
+    const cleanName = full_name || name;
+    if (!cleanName || (!email && !user_email && !rawPhone)) {
+      throw new Error('full_name, and email or phone_number are required.');
     }
 
     let targetRoleId = role_id ? parseInt(role_id, 10) : null;
@@ -319,14 +424,14 @@ class AuthService {
       countryCode: country_code,
       roleId: targetRoleId,
       memberId: memberId,
-      companyName: companyName || company_name || null,
+      companyName: company_name || companyName || null,
       city: city || null,
       isActive: 0,
       isMobileVerified: 0
     });
 
     const roleRecord = targetRoleId ? await Role.findByPk(targetRoleId) : null;
-    const token = generateToken({
+    const tokens = generateAuthTokens({
       id: user.id,
       mobile: user.mobileNumber,
       roleId: user.roleId,
@@ -336,7 +441,11 @@ class AuthService {
     return {
       user,
       member_id: memberId,
-      token
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      token_type: tokens.token_type,
+      expires_in: tokens.expires_in,
+      token: tokens.access_token
     };
   }
 
@@ -368,8 +477,8 @@ class AuthService {
 
     const roleCode = admin.role ? admin.role.code : 'SUPER_ADMIN';
 
-    // Generate JWT token
-    const token = generateToken({
+    // Generate JWT Access & Refresh tokens
+    const tokens = generateAuthTokens({
       id: admin.id,
       email: admin.email,
       role: roleCode,
@@ -384,7 +493,11 @@ class AuthService {
         roleId: admin.roleId,
         role: roleCode
       },
-      token
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      token_type: tokens.token_type,
+      expires_in: tokens.expires_in,
+      token: tokens.access_token
     };
   }
 

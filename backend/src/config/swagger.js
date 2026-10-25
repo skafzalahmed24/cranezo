@@ -183,6 +183,10 @@ ${defaultToken}
                         role_name: { type: 'string', example: 'Crane Owner' },
                         full_name: { type: 'string', example: 'Vikram Reddy' },
                         company_name: { type: 'string', example: 'Reddy Heavy Crane Logistics Pvt Ltd' },
+                        access_token: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+                        refresh_token: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+                        token_type: { type: 'string', example: 'Bearer' },
+                        expires_in: { type: 'string', example: '1d' },
                         token: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' }
                       }
                     }
@@ -241,6 +245,10 @@ ${defaultToken}
                       properties: {
                         user: { type: 'object' },
                         member_id: { type: 'string', example: 'ONR659897' },
+                        access_token: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+                        refresh_token: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+                        token_type: { type: 'string', example: 'Bearer' },
+                        expires_in: { type: 'string', example: '1d' },
                         token: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' }
                       }
                     }
@@ -250,6 +258,53 @@ ${defaultToken}
             }
           },
           400: { description: 'Missing required fields or invalid role' }
+        }
+      }
+    },
+    '/api/auth/refreshToken': {
+      post: {
+        tags: ['Authentication'],
+        summary: 'Refresh JWT Access Token',
+        description: 'Provide valid refresh_token to obtain a new access_token and refresh_token pair.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['refresh_token'],
+                properties: {
+                  refresh_token: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: 'Token refreshed successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    status: { type: 'integer', example: 1 },
+                    message: { type: 'string', example: 'Token refreshed successfully.' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        access_token: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+                        refresh_token: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+                        token_type: { type: 'string', example: 'Bearer' },
+                        expires_in: { type: 'string', example: '1d' }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          401: { description: 'Invalid or expired refresh token' }
         }
       }
     },

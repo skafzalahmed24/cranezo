@@ -12,6 +12,8 @@ router.post('/setupProfile', authController.updateProfile); // Alias
 // Admin & General Authentication
 router.post('/login', authController.login);
 router.post('/register', authController.register);
+router.post('/refreshToken', authController.refreshToken);
+router.post('/refresh', authController.refreshToken); // Alias
 
 // Protected routes
 router.get('/me', authenticate, authController.getMe);
