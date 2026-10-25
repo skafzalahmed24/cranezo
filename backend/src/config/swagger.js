@@ -125,7 +125,9 @@ ${defaultToken}
                         uuid: { type: 'string', example: '11111111-1111-1111-1111-111111111111' },
                         country_code: { type: 'string', example: '+91' },
                         phone_number: { type: 'string', example: '9876543210' },
-                        otp: { type: 'string', example: '739201' },
+                        member_id: { type: 'string', example: 'ONR659897', description: 'Unique member ID (OP/CUST/ONR + 6 digits)' },
+                        role_id: { type: 'integer', example: 1 },
+                        otp: { type: 'string', example: '123456' },
                         is_new_user: { type: 'boolean', example: false }
                       }
                     }
@@ -172,6 +174,7 @@ ${defaultToken}
                       type: 'object',
                       properties: {
                         uuid: { type: 'string', example: '11111111-1111-1111-1111-111111111111' },
+                        member_id: { type: 'string', example: 'ONR659897' },
                         mobile_number: { type: 'string', example: '9876543210' },
                         is_mobile_verified: { type: 'integer', example: 0 },
                         role_id_status: { type: 'integer', example: 0, description: '0 for already have role, 1 for does not have role' },
@@ -237,6 +240,7 @@ ${defaultToken}
                       type: 'object',
                       properties: {
                         user: { type: 'object' },
+                        member_id: { type: 'string', example: 'ONR659897' },
                         token: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' }
                       }
                     }

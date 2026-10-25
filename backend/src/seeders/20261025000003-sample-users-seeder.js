@@ -22,6 +22,7 @@ module.exports = {
         mobile_otp: '123456',
         is_mobile_verified: 0,
         role_id: 1, // Fleet Owner
+        member_id: 'ONR100001',
         profile_image: '/public/roles/owner.png',
         full_name: 'Vikram Reddy',
         company_name: 'Reddy Heavy Crane Logistics Pvt Ltd',

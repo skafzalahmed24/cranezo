@@ -42,6 +42,18 @@ module.exports = (sequelize) => {
       allowNull: true,
       field: 'role_id'
     },
+    memberId: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      unique: true,
+      field: 'member_id'
+    },
+    member_id: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.getDataValue('memberId') || null;
+      }
+    },
     profileImage: {
       type: DataTypes.STRING,
       allowNull: true,

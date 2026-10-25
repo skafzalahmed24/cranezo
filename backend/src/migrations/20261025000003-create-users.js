@@ -49,6 +49,11 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
       },
+      member_id: {
+        type: Sequelize.STRING(50),
+        allowNull: true,
+        unique: true
+      },
       profile_image: {
         type: Sequelize.STRING(255),
         allowNull: true

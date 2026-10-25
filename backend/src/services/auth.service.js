@@ -1,6 +1,7 @@
 const { Admin, User, Role, StaticDropdown } = require('../models');
 const { comparePassword } = require('../utils/password');
 const { generateToken } = require('../utils/jwt');
+const { generateUniqueMemberId, getRolePrefix } = require('../utils/memberIdGenerator');
 
 class AuthService {
   /**
@@ -12,6 +13,8 @@ class AuthService {
     country_code = '+91',
     phone_number,
     mobile_number,
+    role_id,
+    role,
     device_id,
     device_unique_id,
     platform_type,
@@ -25,6 +28,15 @@ class AuthService {
     const cleanPhone = String(rawPhone).trim();
     const cleanCountryCode = String(country_code).trim();
     const cleanLanguageId = language_id !== undefined ? language_id : language_type;
+
+    // Resolve role if passed
+    let targetRoleId = role_id ? parseInt(role_id, 10) : null;
+    if (!targetRoleId && role) {
+      const roleRecord = await Role.findOne({
+        where: { code: String(role).toUpperCase().trim() }
+      });
+      if (roleRecord) targetRoleId = roleRecord.id;
+    }
 
     // Default OTP for testing (default: 123456)
     const otp = process.env.DEFAULT_OTP || '123456';
@@ -45,19 +57,36 @@ class AuthService {
       if (cleanLanguageId !== undefined && cleanLanguageId !== null && cleanLanguageId !== '') {
         user.languageType = parseInt(cleanLanguageId, 10);
       }
+      if (targetRoleId && (!user.roleId || user.roleId !== targetRoleId)) {
+        user.roleId = targetRoleId;
+      }
+      // Generate member_id if role exists and user does not have one, or prefix mismatch
+      if (user.roleId) {
+        const expectedPrefix = getRolePrefix(user.roleId);
+        if (!user.memberId || !user.memberId.startsWith(expectedPrefix)) {
+          user.memberId = await generateUniqueMemberId(user.roleId, User);
+        }
+      }
       if (device_id) user.deviceId = device_id;
       if (device_unique_id) user.deviceUniqueId = device_unique_id;
       if (platform_type) user.platformType = platform_type;
       if (device_details) user.deviceDetails = device_details;
       await user.save();
     } else {
-      // New user: create record
+      // New user: create record with role-based member_id if role provided
       isNewUser = true;
+      let memberId = null;
+      if (targetRoleId) {
+        memberId = await generateUniqueMemberId(targetRoleId, User);
+      }
+
       user = await User.create({
         languageType: cleanLanguageId ? parseInt(cleanLanguageId, 10) : null,
         countryCode: cleanCountryCode,
         mobileNumber: cleanPhone,
         mobileOtp: otp,
+        roleId: targetRoleId || null,
+        memberId: memberId,
         isMobileVerified: 1, // 1 for not verified yet
         isActive: 0, // 0 for active
         isDeleted: 0, // 0 for not deleted
@@ -72,6 +101,8 @@ class AuthService {
       uuid: user.id,
       country_code: user.countryCode,
       phone_number: user.mobileNumber,
+      member_id: user.memberId || null,
+      role_id: user.roleId || null,
       otp: otp, // Returned for dev/testing ease
       is_new_user: isNewUser
     };
@@ -128,6 +159,7 @@ class AuthService {
 
     return {
       uuid: user.id,
+      member_id: user.memberId || null,
       mobile_number: user.mobileNumber,
       country_code: user.countryCode,
       is_mobile_verified: user.isMobileVerified, // 0
@@ -181,9 +213,17 @@ class AuthService {
       throw new Error('Invalid role_id. Role not found in system.');
     }
 
-    user.roleId = parseInt(role_id, 10);
+    const newRoleId = parseInt(role_id, 10);
+    const roleChanged = user.roleId !== newRoleId;
+    user.roleId = newRoleId;
     user.fullName = String(full_name).trim();
     user.companyName = String(company_name).trim();
+
+    // Generate or update member_id if missing or role prefix changed
+    const expectedPrefix = getRolePrefix(newRoleId);
+    if (!user.memberId || roleChanged || !user.memberId.startsWith(expectedPrefix)) {
+      user.memberId = await generateUniqueMemberId(newRoleId, User);
+    }
 
     if (owner_type !== undefined && owner_type !== null && owner_type !== '') {
       user.ownerType = parseInt(owner_type, 10);
@@ -232,6 +272,70 @@ class AuthService {
 
     return {
       user: updatedUser,
+      member_id: updatedUser.memberId,
+      token
+    };
+  }
+
+  /**
+   * General registration (user / partner onboarding) with unique member_id
+   */
+  async register({
+    name,
+    full_name,
+    email,
+    user_email,
+    phone,
+    mobile_number,
+    country_code = '+91',
+    password,
+    role,
+    role_id,
+    companyName,
+    company_name,
+    licenseNumber,
+    city
+  }) {
+    const rawPhone = phone || mobile_number;
+    const cleanName = name || full_name;
+    if (!cleanName || (!email && !rawPhone)) {
+      throw new Error('Name, and email or phone number are required.');
+    }
+
+    let targetRoleId = role_id ? parseInt(role_id, 10) : null;
+    if (!targetRoleId && role) {
+      const foundRole = await Role.findOne({
+        where: { code: String(role).toUpperCase().trim() }
+      });
+      if (foundRole) targetRoleId = foundRole.id;
+    }
+
+    const memberId = targetRoleId ? await generateUniqueMemberId(targetRoleId, User) : null;
+
+    const user = await User.create({
+      fullName: cleanName,
+      userEmail: email || user_email || null,
+      mobileNumber: rawPhone ? String(rawPhone).trim() : null,
+      countryCode: country_code,
+      roleId: targetRoleId,
+      memberId: memberId,
+      companyName: companyName || company_name || null,
+      city: city || null,
+      isActive: 0,
+      isMobileVerified: 0
+    });
+
+    const roleRecord = targetRoleId ? await Role.findByPk(targetRoleId) : null;
+    const token = generateToken({
+      id: user.id,
+      mobile: user.mobileNumber,
+      roleId: user.roleId,
+      role: roleRecord ? roleRecord.code : null
+    });
+
+    return {
+      user,
+      member_id: memberId,
       token
     };
   }
@@ -310,6 +414,7 @@ class AuthService {
     if (user) {
       return {
         id: user.id,
+        member_id: user.memberId || null,
         name: user.fullName,
         mobileNumber: user.mobileNumber,
         companyName: user.companyName,
