@@ -91,7 +91,11 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
                 const IconComponent = item.icon;
                 const isActive =
                   activeView === item.id ||
-                  (item.id === 'users' && activeView === 'user-details');
+                  (item.id === 'users' && activeView === 'user-details') ||
+                  (item.id === 'owners' && activeView === 'owner-details') ||
+                  (item.id === 'operators' && activeView === 'operator-details') ||
+                  (item.id === 'cranes' && activeView === 'crane-details') ||
+                  (item.id === 'bookings' && activeView === 'crane-matching');
                 return (
                   <li key={item.id}>
                     <button

@@ -14,7 +14,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-export const UsersList = ({ onSelectUser, onAddUserClick }) => {
+export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [selectedLocation, setSelectedLocation] = useState('All');
@@ -156,11 +156,15 @@ export const UsersList = ({ onSelectUser, onAddUserClick }) => {
     },
   ];
 
+  // Combine dynamically added custom users with initial users
+  const allUsers = [...customUsers, ...initialUsers];
+
   // Filtering
-  const filteredUsers = initialUsers.filter((user) => {
+  const filteredUsers = allUsers.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.contact.includes(searchQuery) ||
+      (user.company && user.company.toLowerCase().includes(searchQuery.toLowerCase())) ||
       user.location.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus =

@@ -73,6 +73,7 @@
   padding: 20px 22px;
   box-shadow: var(--dash-shadow);
   box-sizing: border-box;
+  display: block;
   transition: background 0.25s ease, border-color 0.25s ease;
 }
 
@@ -893,23 +894,184 @@
   box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
 }
 
-.cranzo-btn-primary-amber:hover {
-  background: #fbbf24;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+.cranzo-filter-card {
+  background: var(--dash-card);
+  border: 1px solid var(--dash-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px;
+  width: 100% !important;
+  box-sizing: border-box;
 }
 
-.cranzo-filter-toolbar {
+.cranzo-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.cranzo-filter-search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 2;
+  min-width: 220px;
+}
+
+.cranzo-filter-search-field svg {
+  position: absolute;
+  left: 12px;
+  color: var(--dash-text-subtle);
+  pointer-events: none;
+}
+
+.cranzo-filter-search-field input {
+  width: 100%;
+  height: 38px;
+  background: var(--dash-input-bg);
+  border: 1px solid var(--dash-input-border);
+  border-radius: 8px;
+  color: var(--dash-text-title);
+  font-size: 13px;
+  padding: 0 12px 0 36px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.cranzo-filter-search-field input:focus {
+  border-color: #f59e0b;
+}
+
+.cranzo-filter-dropdown {
+  height: 38px;
+  flex: 1;
+  min-width: 130px;
+  background-color: var(--dash-input-bg);
+  border: 1px solid var(--dash-input-border);
+  border-radius: 8px;
+  color: var(--dash-text-body);
+  font-size: 12.5px;
+  padding: 0 30px 0 12px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: var(--dash-dropdown-arrow);
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.cranzo-filter-dropdown:focus {
+  border-color: #f59e0b;
+}
+
+.cranzo-filter-dropdown option {
+  background: #080f20;
+  color: #ffffff;
+  padding: 8px;
+}
+
+.cranzo-filter-reset-btn {
+  background: transparent;
+  border: none;
+  color: #f59e0b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 12px;
+  margin-left: auto;
+  transition: opacity 0.15s ease;
+}
+
+.cranzo-filter-reset-btn:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.cranzo-filter-toolbar,
+.cranzo-filter-bar {
   background: var(--dash-card);
   border: 1px solid var(--dash-border);
   border-radius: 10px;
   padding: 12px 16px;
-  display: flex;
+  display: flex !important;
+  flex-direction: row !important;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
   width: 100%;
   box-sizing: border-box;
+}
+
+.cranzo-filter-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 240px;
+  min-width: 200px;
+}
+
+.cranzo-filter-search-wrap svg {
+  position: absolute;
+  left: 12px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.cranzo-filter-input {
+  width: 100%;
+  height: 38px;
+  background: #070D17;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  padding: 0 12px 0 36px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.cranzo-filter-input:focus {
+  border-color: #f59e0b;
+}
+
+.cranzo-filter-select {
+  height: 38px;
+  background: #070D17;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #cbd5e1;
+  font-size: 12.5px;
+  padding: 0 32px 0 12px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: var(--dash-dropdown-arrow);
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.cranzo-filter-select:focus {
+  border-color: #f59e0b;
+}
+
+.cranzo-filter-select option {
+  background: #0B131F;
+  color: #ffffff;
+  padding: 8px;
 }
 
 .cranzo-filter-search-box {
@@ -1363,22 +1525,573 @@
 }
 
 /* --------------------------------------------------------------------------
-   Add User Modal
+   Add User Modal (Figma High-Fidelity Implementation)
    -------------------------------------------------------------------------- */
 .cranzo-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(3, 7, 18, 0.75);
+  background: rgba(4, 8, 16, 0.82);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
-  animation: fadeIn 0.2s ease-out;
-  padding: 16px;
+  z-index: 9999;
+  animation: cranzoModalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 20px;
   box-sizing: border-box;
 }
 
+@keyframes cranzoModalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.cranzo-add-user-modal-dialog {
+  background: #0B131F;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 880px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 28px 32px 28px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Custom scrollbar for modal */
+.cranzo-add-user-modal-dialog::-webkit-scrollbar {
+  width: 6px;
+}
+.cranzo-add-user-modal-dialog::-webkit-scrollbar-track {
+  background: transparent;
+}
+.cranzo-add-user-modal-dialog::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+.cranzo-add-user-modal-dialog::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Modal Header */
+.cranzo-modal-header-v2 {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cranzo-modal-title-v2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.cranzo-modal-subtitle-v2 {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 4px 0 0 0;
+  line-height: 1.4;
+}
+
+.cranzo-modal-close-icon-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.cranzo-modal-close-icon-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Photo Upload Area */
+.cranzo-photo-upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: 2px 0 10px 0;
+}
+
+.cranzo-photo-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.cranzo-photo-subtext {
+  font-size: 11.5px;
+  color: #64748b;
+  margin-top: 2px;
+  margin-bottom: 12px;
+}
+
+.cranzo-avatar-upload-circle {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  border: 1.5px dashed #334155;
+  background: rgba(15, 23, 42, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.cranzo-avatar-upload-circle:hover {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.04);
+}
+
+.cranzo-avatar-upload-circle:hover .cranzo-avatar-camera-icon,
+.cranzo-avatar-upload-circle:hover .cranzo-avatar-add-text {
+  color: #f59e0b;
+}
+
+.cranzo-avatar-camera-icon {
+  color: #94a3b8;
+  transition: color 0.15s ease;
+}
+
+.cranzo-avatar-add-text {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.cranzo-avatar-preview-box {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+}
+
+.cranzo-avatar-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cranzo-avatar-remove-btn {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+}
+
+.cranzo-avatar-preview-box:hover .cranzo-avatar-remove-btn {
+  opacity: 1;
+}
+
+.cranzo-avatar-plus-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f59e0b;
+  color: #0b111e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #0B131F;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease;
+}
+
+.cranzo-avatar-upload-circle:hover .cranzo-avatar-plus-badge {
+  transform: scale(1.1);
+  background: #fbbf24;
+}
+
+/* Error Banner */
+.cranzo-form-error-banner {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  animation: cranzoModalFadeIn 0.2s ease;
+}
+
+/* Two Column Form Grid */
+.cranzo-add-user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cranzo-form-two-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+}
+
+.cranzo-form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Input Groups (Scoped to Add User Modal) */
+.cranzo-modal-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.cranzo-modal-field-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cranzo-req-star {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.cranzo-modal-input-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  height: auto !important;
+}
+
+.cranzo-field-icon {
+  position: absolute;
+  left: 13px;
+  color: #64748b;
+  pointer-events: none;
+  transition: color 0.15s ease;
+  z-index: 2;
+}
+
+.cranzo-modal-text-field {
+  width: 100%;
+  height: 42px;
+  background: #080E18;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  padding: 0 14px 0 38px;
+  outline: none !important;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cranzo-modal-text-field::placeholder {
+  color: #475569;
+}
+
+.cranzo-modal-text-field:focus {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 1px #f59e0b !important;
+  outline: none !important;
+}
+
+.cranzo-modal-input-box:focus-within .cranzo-field-icon {
+  color: #f59e0b;
+}
+
+/* Verified Badge in Mobile Field */
+.cranzo-modal-text-field.has-verified-badge {
+  padding-right: 90px;
+}
+
+.cranzo-verified-badge {
+  position: absolute;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  z-index: 3;
+}
+
+.cranzo-verified-badge.verified {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  color: #10b981;
+}
+
+.cranzo-verified-badge.unverified {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  color: #f59e0b;
+}
+
+/* Radio buttons for User Type */
+.cranzo-radio-options-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 42px;
+}
+
+.cranzo-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px;
+  color: #94a3b8;
+  transition: color 0.15s ease;
+}
+
+.cranzo-radio-label.selected {
+  color: #ffffff;
+}
+
+.cranzo-radio-circle {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: 1.5px solid #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.cranzo-radio-label:hover .cranzo-radio-circle {
+  border-color: #94a3b8;
+}
+
+.cranzo-radio-label.selected .cranzo-radio-circle {
+  border-color: #f59e0b;
+}
+
+.cranzo-radio-inner-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+}
+
+/* Select Dropdown */
+.cranzo-modal-select-field {
+  width: 100%;
+  height: 42px;
+  background: #080E18;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  padding: 0 34px 0 38px;
+  outline: none !important;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cranzo-modal-select-field:focus {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 1px #f59e0b !important;
+  outline: none !important;
+}
+
+.cranzo-modal-select-field option {
+  background: #0B131F;
+  color: #ffffff;
+  padding: 8px;
+}
+
+.cranzo-select-arrow {
+  position: absolute;
+  right: 12px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+/* Date Input */
+.cranzo-modal-date-field {
+  padding-right: 38px;
+  color-scheme: dark;
+}
+
+.cranzo-date-right-icon {
+  position: absolute;
+  right: 12px;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.cranzo-date-right-icon:hover {
+  color: #f59e0b;
+}
+
+/* Strict override for any lingering .cranzo-input-wrapper inside the dialog */
+.cranzo-add-user-modal-dialog .cranzo-input-wrapper {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  height: auto !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.cranzo-add-user-modal-dialog .cranzo-input-wrapper:focus-within {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Modal Footer Actions */
+.cranzo-modal-footer-v2 {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cranzo-modal-cancel-btn {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cranzo-modal-cancel-btn:hover {
+  background: #1e293b;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.cranzo-modal-submit-btn {
+  height: 40px;
+  padding: 0 22px;
+  border-radius: 8px;
+  background: #f59e0b;
+  border: none;
+  color: #0b111e;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.25);
+}
+
+.cranzo-modal-submit-btn:hover {
+  background: #fbbf24;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+  transform: translateY(-1px);
+}
+
+.cranzo-modal-submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Success State Screen */
+.cranzo-modal-success-state {
+  padding: 40px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.cranzo-success-icon-bubble {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: cranzoModalFadeIn 0.3s ease;
+}
+
+.cranzo-success-title {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 6px 0 0 0;
+}
+
+.cranzo-success-desc {
+  color: #94a3b8;
+  font-size: 13.5px;
+  margin: 0;
+}
+
+/* Legacy Support */
 .cranzo-modal-dialog {
   background: var(--dash-card);
   border: 1px solid var(--dash-border);
@@ -1393,67 +2106,24 @@
   box-sizing: border-box;
 }
 
-.cranzo-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.cranzo-modal-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--dash-text-title);
-  margin: 0;
-}
-
-.cranzo-modal-close-btn {
-  background: transparent;
-  border: none;
-  color: var(--dash-text-muted);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
-}
-
-.cranzo-modal-close-btn:hover {
-  color: var(--dash-text-title);
-  background: var(--dash-table-hover);
-}
-
-.cranzo-form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.cranzo-form-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--dash-text-body);
-}
-
-.cranzo-form-input {
-  height: 40px;
-  background: var(--dash-input-bg);
-  border: 1px solid var(--dash-input-border);
-  border-radius: 8px;
-  padding: 0 14px;
-  font-size: 13.5px;
-  color: var(--dash-text-title);
-  box-sizing: border-box;
-}
-
-.cranzo-form-input:focus {
-  border-color: #f59e0b;
-  outline: none;
-}
-
 .cranzo-modal-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
   margin-top: 10px;
+}
+
+/* Mobile & Tablet Responsiveness for Modal */
+@media (max-width: 768px) {
+  .cranzo-add-user-modal-dialog {
+    padding: 20px;
+    max-height: 95vh;
+  }
+  .cranzo-form-two-cols {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
 }
 
 /* --------------------------------------------------------------------------

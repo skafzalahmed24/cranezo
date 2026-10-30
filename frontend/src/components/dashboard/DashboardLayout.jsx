@@ -4,14 +4,51 @@ import Header from './Header';
 import DashboardOverview from './DashboardOverview';
 import UsersList from './UsersList';
 import UserDetails from './UserDetails';
+import OwnersList from './OwnersList';
+import OwnerDetails from './OwnerDetails';
+import OperatorsList from './OperatorsList';
+import OperatorDetails from './OperatorDetails';
+import CranesList from './CranesList';
+import CraneDetails from './CraneDetails';
+import BookingsList from './BookingsList';
+import CraneMatching from './CraneMatching';
 import AddUserModal from './AddUserModal';
+import AddCraneModal from './AddCraneModal';
 import '../../styles/dashboard.css';
 
 export const DashboardLayout = ({ userSession, onLogout }) => {
-  const [activeView, setActiveView] = useState('users'); // defaulted to users or dashboard
+  const [activeView, setActiveView] = useState('cranes'); // Default to cranes as requested
   const [selectedUserId, setSelectedUserId] = useState('USR-10245');
+  const [selectedOwnerId, setSelectedOwnerId] = useState('OWN-1001');
+  const [selectedOperatorId, setSelectedOperatorId] = useState('OPR-1003');
+  const [selectedCraneId, setSelectedCraneId] = useState('CRN-1045');
+  const [selectedBookingId, setSelectedBookingId] = useState('CRZ10245');
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const [isAddCraneModalOpen, setIsAddCraneModalOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // Custom added users state persisted to localStorage
+  const [customUsers, setCustomUsers] = useState(() => {
+    try {
+      const saved = localStorage.getItem('cranzo_custom_users');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const handleUserAdded = (newUser) => {
+    const updated = [newUser, ...customUsers];
+    setCustomUsers(updated);
+    try {
+      localStorage.setItem('cranzo_custom_users', JSON.stringify(updated));
+    } catch (e) {}
+    setActiveView('users');
+  };
+
+  const handleCraneAdded = (newCrane) => {
+    setActiveView('cranes');
+  };
 
   // Theme state: defaults to dark or saved preference
   const [theme, setTheme] = useState(() => {
@@ -46,6 +83,46 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
 
   const handleBackToUsers = () => {
     setActiveView('users');
+  };
+
+  const handleSelectOwner = (ownerId) => {
+    setSelectedOwnerId(ownerId || 'OWN-1001');
+    setActiveView('owner-details');
+    setMobileSidebarOpen(false);
+  };
+
+  const handleBackToOwners = () => {
+    setActiveView('owners');
+  };
+
+  const handleSelectOperator = (operatorId) => {
+    setSelectedOperatorId(operatorId || 'OPR-1003');
+    setActiveView('operator-details');
+    setMobileSidebarOpen(false);
+  };
+
+  const handleBackToOperators = () => {
+    setActiveView('operators');
+  };
+
+  const handleSelectCrane = (craneId) => {
+    setSelectedCraneId(craneId || 'CRN-1045');
+    setActiveView('crane-details');
+    setMobileSidebarOpen(false);
+  };
+
+  const handleBackToCranes = () => {
+    setActiveView('cranes');
+  };
+
+  const handleSelectBooking = (bookingId) => {
+    setSelectedBookingId(bookingId || 'CRZ10245');
+    setActiveView('crane-matching');
+    setMobileSidebarOpen(false);
+  };
+
+  const handleBackToBookings = () => {
+    setActiveView('bookings');
   };
 
   return (
@@ -87,6 +164,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
 
           {activeView === 'users' && (
             <UsersList
+              customUsers={customUsers}
               onSelectUser={handleSelectUser}
               onAddUserClick={() => setIsAddUserModalOpen(true)}
             />
@@ -99,8 +177,69 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
             />
           )}
 
+          {activeView === 'owners' && (
+            <OwnersList onSelectOwner={handleSelectOwner} />
+          )}
+
+          {activeView === 'owner-details' && (
+            <OwnerDetails
+              ownerId={selectedOwnerId}
+              onBack={handleBackToOwners}
+            />
+          )}
+
+          {activeView === 'operators' && (
+            <OperatorsList onSelectOperator={handleSelectOperator} />
+          )}
+
+          {activeView === 'operator-details' && (
+            <OperatorDetails
+              operatorId={selectedOperatorId}
+              onBack={handleBackToOperators}
+            />
+          )}
+
+          {activeView === 'cranes' && (
+            <CranesList
+              onSelectCrane={handleSelectCrane}
+              onAddCrane={() => setIsAddCraneModalOpen(true)}
+            />
+          )}
+
+          {activeView === 'crane-details' && (
+            <CraneDetails
+              craneId={selectedCraneId}
+              onBack={handleBackToCranes}
+              onNavigateToBookings={() => setActiveView('bookings')}
+            />
+          )}
+
+          {activeView === 'bookings' && (
+            <BookingsList onSelectBooking={handleSelectBooking} />
+          )}
+
+          {activeView === 'crane-matching' && (
+            <CraneMatching
+              bookingId={selectedBookingId}
+              onBack={handleBackToBookings}
+              onSelectCraneDetails={handleSelectCrane}
+            />
+          )}
+
           {/* Placeholders for other subpages while keeping navigation active */}
-          {!['dashboard', 'users', 'user-details'].includes(activeView) && (
+          {![
+            'dashboard',
+            'users',
+            'user-details',
+            'owners',
+            'owner-details',
+            'operators',
+            'operator-details',
+            'cranes',
+            'crane-details',
+            'bookings',
+            'crane-matching',
+          ].includes(activeView) && (
             <div className="cranzo-content-view animate-fade-in">
               <div className="cranzo-card" style={{ padding: '40px', textAlign: 'center' }}>
                 <h3 className="cranzo-card-title" style={{ fontSize: '20px', textTransform: 'capitalize' }}>
@@ -128,9 +267,14 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
       <AddUserModal
         isOpen={isAddUserModalOpen}
         onClose={() => setIsAddUserModalOpen(false)}
-        onUserAdded={() => {
-          setActiveView('users');
-        }}
+        onUserAdded={handleUserAdded}
+      />
+
+      {/* Add Crane Modal */}
+      <AddCraneModal
+        isOpen={isAddCraneModalOpen}
+        onClose={() => setIsAddCraneModalOpen(false)}
+        onCraneAdded={handleCraneAdded}
       />
     </div>
   );
