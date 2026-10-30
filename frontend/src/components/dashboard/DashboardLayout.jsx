@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import DashboardOverview from './DashboardOverview';
@@ -10,10 +10,13 @@ import OperatorsList from './OperatorsList';
 import OperatorDetails from './OperatorDetails';
 import CranesList from './CranesList';
 import CraneDetails from './CraneDetails';
+import CraneApprovals from './CraneApprovals';
+import SettingsDropdowns from './SettingsDropdowns';
 import BookingsList from './BookingsList';
 import CraneMatching from './CraneMatching';
 import AddUserModal from './AddUserModal';
 import AddCraneModal from './AddCraneModal';
+import { apiRequest } from '../../utils/api';
 import '../../styles/dashboard.css';
 
 export const DashboardLayout = ({ userSession, onLogout }) => {
@@ -26,6 +29,27 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isAddCraneModalOpen, setIsAddCraneModalOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // Crane approvals waiting for review, shown as a badge in the sidebar
+  const [pendingCranes, setPendingCranes] = useState(0);
+
+  const refreshPendingCranes = useCallback(async () => {
+    try {
+      const res = await apiRequest('/admin/cranes/summary', { method: 'POST' });
+      setPendingCranes(res.data.under_review);
+    } catch (e) {
+      // badge is cosmetic; ignore when the API is unreachable or not signed in
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshPendingCranes();
+  }, [activeView, refreshPendingCranes]);
+
+  useEffect(() => {
+    const timer = setInterval(refreshPendingCranes, 60000);
+    return () => clearInterval(timer);
+  }, [refreshPendingCranes]);
 
   // Custom added users state persisted to localStorage
   const [customUsers, setCustomUsers] = useState(() => {
@@ -140,6 +164,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
         onLogout={onLogout}
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
+        badges={{ 'crane-approvals': pendingCranes }}
       />
 
       {/* Main Content Area (offset by fixed sidebar) */}
@@ -226,6 +251,10 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
             />
           )}
 
+          {activeView === 'crane-approvals' && <CraneApprovals onReviewed={refreshPendingCranes} />}
+
+          {activeView === 'settings' && <SettingsDropdowns />}
+
           {/* Placeholders for other subpages while keeping navigation active */}
           {![
             'dashboard',
@@ -239,6 +268,8 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
             'crane-details',
             'bookings',
             'crane-matching',
+            'crane-approvals',
+            'settings',
           ].includes(activeView) && (
             <div className="cranzo-content-view animate-fade-in">
               <div className="cranzo-card" style={{ padding: '40px', textAlign: 'center' }}>

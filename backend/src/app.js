@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
+const swaggerGroups = require('./config/swagger.groups');
 const routes = require('./routes');
 const { errorHandler } = require('./middlewares/error.middleware');
 
@@ -29,6 +30,26 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static public assets (e.g. /public/roles/...)
 app.use('/public', express.static(path.join(__dirname, 'public')));
+
+// Separate Swagger docs: /api/docs/auth, /api/docs/admin, /api/docs/user (+ .json)
+Object.values(swaggerGroups).forEach(({ path: docsPath, title, spec }) => {
+  app.get(`${docsPath}.json`, (req, res) => res.json(spec));
+  app.use(
+    docsPath,
+    swaggerUi.serveFiles(spec, { swaggerOptions: { persistAuthorization: true } }),
+    swaggerUi.setup(spec, {
+      customSiteTitle: `${title} | Swagger UI`,
+      customCss: '.swagger-ui section.models { display: none !important; }',
+      swaggerOptions: {
+        persistAuthorization: true,
+        displayRequestDuration: true,
+        docExpansion: 'list',
+        filter: true,
+        defaultModelsExpandDepth: -1
+      }
+    })
+  );
+});
 
 // Swagger API Documentation endpoint
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {

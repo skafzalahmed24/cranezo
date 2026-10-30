@@ -42,6 +42,12 @@ module.exports = (sequelize) => {
       allowNull: true,
       field: 'role_id'
     },
+    ownerId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: 'owner_id',
+      comment: 'Crane owner (users.id) who added this operator; NULL for self-registered users'
+    },
     memberId: {
       type: DataTypes.STRING(50),
       allowNull: true,

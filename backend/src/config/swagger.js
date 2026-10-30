@@ -623,4 +623,9 @@ ${defaultToken}
   }
 };
 
+const craneDocs = require('./swagger.cranes');
+
+swaggerDefinition.tags.push(...craneDocs.tags);
+Object.assign(swaggerDefinition.paths, craneDocs.paths);
+
 module.exports = swaggerDefinition;

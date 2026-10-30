@@ -2,6 +2,7 @@ const ROLES = {
   SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',
   OWNER: 'OWNER',
+  CRANE_OWNER: 'CRANE_OWNER',
   OPERATOR: 'OPERATOR',
   CUSTOMER: 'CUSTOMER'
 };
@@ -38,3 +39,34 @@ module.exports = {
   BOOKING_STATUS,
   PAYMENT_STATUS
 };
+
+// Crane listing review (cranes.approval_status)
+const CRANE_APPROVAL_STATUS = {
+  UNDER_REVIEW: 0,
+  VERIFIED: 1,
+  REJECTED: 2
+};
+
+const CRANE_APPROVAL_LABELS = {
+  0: 'Under Review',
+  1: 'Verified',
+  2: 'Rejected'
+};
+
+// cranes.availability_status (0 = good, matches project convention)
+const CRANE_AVAILABILITY = {
+  AVAILABLE: 0,
+  NOT_AVAILABLE: 1
+};
+
+// Admin reviews a submitted crane within this window
+const CRANE_REVIEW_HOURS_MIN = 24;
+const CRANE_REVIEW_HOURS_MAX = 48;
+
+Object.assign(module.exports, {
+  CRANE_APPROVAL_STATUS,
+  CRANE_APPROVAL_LABELS,
+  CRANE_AVAILABILITY,
+  CRANE_REVIEW_HOURS_MIN,
+  CRANE_REVIEW_HOURS_MAX
+});

@@ -5,6 +5,7 @@ import {
   Briefcase,
   HardHat,
   Construction,
+  ShieldCheck,
   CalendarCheck2,
   CreditCard,
   Star,
@@ -16,7 +17,7 @@ import {
 } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
 
-export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseMobile }) => {
+export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseMobile, badges = {} }) => {
   const navSections = [
     {
       title: null,
@@ -31,6 +32,7 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
         { id: 'owners', label: 'Owners', icon: Briefcase },
         { id: 'operators', label: 'Operators', icon: HardHat },
         { id: 'cranes', label: 'Cranes', icon: Construction },
+        { id: 'crane-approvals', label: 'Crane Approvals', icon: ShieldCheck },
       ],
     },
     {
@@ -105,6 +107,11 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
                     >
                       <IconComponent size={18} />
                       <span>{item.label}</span>
+                      {badges[item.id] > 0 && (
+                        <span className="cranzo-nav-badge" title={`${badges[item.id]} pending`}>
+                          {badges[item.id] > 99 ? '99+' : badges[item.id]}
+                        </span>
+                      )}
                     </button>
                   </li>
                 );

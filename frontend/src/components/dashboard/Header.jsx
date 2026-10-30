@@ -33,6 +33,8 @@ export const Header = ({
         return 'Owners Management';
       case 'operators':
         return 'Operators Management';
+      case 'crane-approvals':
+        return 'Crane Approvals';
       case 'cranes':
         return 'Crane Fleet';
       case 'bookings':
