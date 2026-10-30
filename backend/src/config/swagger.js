@@ -465,11 +465,6 @@ ${defaultToken}
                     type: 'integer',
                     example: 2,
                     description: 'Dropdown category type (1: Languages, 2: Owner Type, 3: Years of Experience, 4: Partner Tiers, 5: Ownership Types)'
-                  },
-                  status: {
-                    type: 'integer',
-                    example: 0,
-                    description: 'Dropdown status filter (0: active, 1: inactive)'
                   }
                 }
               }

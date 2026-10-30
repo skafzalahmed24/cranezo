@@ -756,3 +756,5 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
     </div>
   );
 };
+
+export default CraneDetails;

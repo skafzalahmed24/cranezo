@@ -856,3 +856,5 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
     </div>
   );
 };
+
+export default CraneMatching;

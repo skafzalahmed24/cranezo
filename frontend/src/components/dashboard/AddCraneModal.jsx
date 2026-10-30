@@ -885,3 +885,5 @@ export const AddCraneModal = ({ isOpen, onClose, onCraneAdded }) => {
     </div>
   );
 };
+
+export default AddCraneModal;

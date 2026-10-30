@@ -7,15 +7,12 @@ class DropdownController {
     try {
       // Support input body params, route path params, and query params
       const rawType = req.body?.type ?? req.body?.dropdown_type ?? req.params?.type ?? req.query?.type;
-      const rawStatus = req.body?.status ?? req.body?.dropdown_type_status ?? req.params?.status ?? req.query?.status;
 
-      const whereClause = {};
+      // Status is not accepted in the payload; always return active (0) dropdowns
+      const whereClause = { dropdown_type_status: 0 };
 
       if (rawType !== undefined && rawType !== null && rawType !== '') {
         whereClause.dropdown_type = parseInt(rawType, 10);
-      }
-      if (rawStatus !== undefined && rawStatus !== null && rawStatus !== '') {
-        whereClause.dropdown_type_status = parseInt(rawStatus, 10);
       }
 
       const dropdowns = await StaticDropdown.findAll({

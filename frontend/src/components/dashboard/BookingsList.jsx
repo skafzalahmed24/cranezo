@@ -667,3 +667,5 @@ export const BookingsList = ({ onSelectBooking }) => {
     </div>
   );
 };
+
+export default BookingsList;
