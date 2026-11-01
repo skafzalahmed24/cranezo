@@ -404,6 +404,15 @@ class CraneService {
     }
   }
 
+  /** Cranes assigned to an operator; pass craneId for one (404 when it is not theirs) */
+  async listOperatorCranes(operatorId, craneId = null) {
+    const where = { operatorId };
+    if (craneId) where.id = craneId;
+    const cranes = await Crane.findAll({ where, include: craneIncludes, order: [['createdAt', 'DESC']] });
+    if (craneId && !cranes.length) throw new ServiceError('Crane not found.', 404);
+    return cranes.map(formatCrane);
+  }
+
   async listOwnerCranes(ownerId = null, { offset = 0, limit = 10 } = {}) {
     const where = {};
     if (ownerId) where.ownerId = ownerId;
@@ -553,7 +562,10 @@ class CraneService {
       group: ['approvalStatus'],
       raw: true
     });
-    const summary = { under_review: 0, verified: 0, rejected: 0 };
+    const summary = { total: 0, available: 0, not_available: 0, under_review: 0, verified: 0, rejected: 0 };
+    summary.total = await Crane.count();
+    summary.available = await Crane.count({ where: { approvalStatus: CRANE_APPROVAL_STATUS.VERIFIED, availabilityStatus: 0 } });
+    summary.not_available = await Crane.count({ where: { approvalStatus: CRANE_APPROVAL_STATUS.VERIFIED, availabilityStatus: 1 } });
     counts.forEach((r) => {
       const key = { 0: 'under_review', 1: 'verified', 2: 'rejected' }[r.approvalStatus];
       if (key) summary[key] = Number(r.total);

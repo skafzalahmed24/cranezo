@@ -9,6 +9,8 @@ const customerRoutes = require('./customer.routes');
 const dropdownRoutes = require('./dropdown.routes');
 const roleRoutes = require('./role.routes');
 const uploadRoutes = require('./upload.routes');
+const profileRoutes = require('./profile.routes');
+const contentRoutes = require('./content.routes');
 
 // Mount routes
 router.use('/auth', authRoutes);
@@ -19,6 +21,8 @@ router.use('/customer', customerRoutes);
 router.use('/dropdowns', dropdownRoutes);
 router.use('/roles', roleRoutes);
 router.use('/upload', uploadRoutes);
+router.use('/profile', profileRoutes);
+router.use('/content', contentRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

@@ -42,7 +42,16 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
+/** Mobile app accounts only (customer, operator, owner), not admin panel accounts */
+const appUserOnly = (req, res, next) => {
+  if (req.admin) {
+    return errorResponse(res, 'This API is for app users, not admin accounts.', null, 403);
+  }
+  next();
+};
+
 module.exports = {
   authorize,
-  requireAdmin
+  requireAdmin,
+  appUserOnly
 };

@@ -6,6 +6,7 @@ const defineUser = require('./User');
 const defineCrane = require('./Crane');
 const defineCranePhoto = require('./CranePhoto');
 const defineCraneDocument = require('./CraneDocument');
+const defineLegalPage = require('./LegalPage');
 
 const Role = defineRole(sequelize);
 const Admin = defineAdmin(sequelize);
@@ -14,6 +15,7 @@ const User = defineUser(sequelize);
 const Crane = defineCrane(sequelize);
 const CranePhoto = defineCranePhoto(sequelize);
 const CraneDocument = defineCraneDocument(sequelize);
+const LegalPage = defineLegalPage(sequelize);
 
 // Associations
 Admin.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
@@ -27,6 +29,13 @@ User.belongsTo(StaticDropdown, { foreignKey: 'owner_type', as: 'ownerTypeInfo' }
 User.belongsTo(StaticDropdown, { foreignKey: 'years_of_experience', as: 'experienceInfo' });
 User.belongsTo(StaticDropdown, { foreignKey: 'number_of_business_partners', as: 'partnersInfo' });
 User.belongsTo(StaticDropdown, { foreignKey: 'business_ownership_type', as: 'ownershipTypeInfo' });
+
+User.belongsTo(User, { foreignKey: 'ownerId', as: 'ownerAccount' });
+User.belongsTo(StaticDropdown, { foreignKey: 'operatorType', as: 'operatorTypeInfo' });
+User.belongsTo(StaticDropdown, { foreignKey: 'customerType', as: 'customerTypeInfo' });
+User.belongsTo(StaticDropdown, { foreignKey: 'constitution', as: 'constitutionInfo' });
+User.belongsTo(StaticDropdown, { foreignKey: 'natureOfBusiness', as: 'natureOfBusinessInfo' });
+User.belongsTo(StaticDropdown, { foreignKey: 'stateId', as: 'stateInfo' });
 
 Crane.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
 User.hasMany(Crane, { foreignKey: 'ownerId', as: 'cranes' });
@@ -49,5 +58,6 @@ module.exports = {
   User,
   Crane,
   CranePhoto,
-  CraneDocument
+  CraneDocument,
+  LegalPage
 };

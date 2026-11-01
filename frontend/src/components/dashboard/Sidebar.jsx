@@ -6,6 +6,7 @@ import {
   HardHat,
   Construction,
   ShieldCheck,
+  FileText,
   CalendarCheck2,
   CreditCard,
   Star,
@@ -53,6 +54,7 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
       title: 'SYSTEM',
       items: [
         { id: 'notifications', label: 'Notifications', icon: Bell },
+        { id: 'legal', label: 'Legal Pages', icon: FileText },
         { id: 'settings', label: 'Settings', icon: Settings },
       ],
     },

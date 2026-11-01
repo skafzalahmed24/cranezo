@@ -3,6 +3,8 @@ const router = express.Router();
 const adminController = require('../controllers/admin.controller');
 const craneController = require('../controllers/crane.controller');
 const settingsController = require('../controllers/settings.controller');
+const memberController = require('../controllers/member.controller');
+const legalController = require('../controllers/legal.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
 const { requireAdmin } = require('../middlewares/role.middleware');
 
@@ -17,6 +19,17 @@ router.post('/cranes/list', adminOnly, craneController.adminList);
 router.post('/cranes/get', adminOnly, craneController.adminGet);
 router.put('/cranes/:id/approve', adminOnly, craneController.adminApprove);
 router.put('/cranes/:id/reject', adminOnly, craneController.adminReject);
+
+// Users (role 3), Owners (role 1) and Operators (role 2): pass role_id in the body
+router.post('/members/list', adminOnly, memberController.list);
+router.post('/members/summary', adminOnly, memberController.summary);
+router.post('/members/get', adminOnly, memberController.get);
+router.put('/members/:id/status', adminOnly, memberController.setStatus);
+
+// Legal pages shown in the apps (Terms & Conditions, Privacy Policy)
+router.post('/legal/list', adminOnly, legalController.list);
+router.post('/legal/get', adminOnly, legalController.get);
+router.put('/legal/:type', adminOnly, legalController.update);
 
 // Settings: dropdown values (add + edit only, no delete)
 router.post('/settings/dropdown-types', adminOnly, settingsController.listTypes);

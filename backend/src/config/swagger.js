@@ -203,14 +203,24 @@ ${defaultToken}
       post: {
         tags: ['Authentication'],
         summary: 'Update / Complete Profile with Role',
-        description: 'Complete user onboarding profile. user_id, role_id, full_name, and company_name are required. Accepts optional dropdown IDs (owner_type, years_of_experience, number_of_business_partners, business_ownership_type). Refreshes JWT token with new role.',
+        description: [
+          'Complete user onboarding profile. user_id, role_id and full_name are always required. The remaining required fields depend on role_id. Refreshes the JWT token with the new role.',
+          '',
+          '**Crane Owner (role_id 1):** company_name required. Optional: owner_type, years_of_experience, number_of_business_partners, business_ownership_type, business_address, city, state, pincode, user_email.',
+          '',
+          '**Operator (role_id 2):** operator_license_number, license_expiry_date (YYYY-MM-DD, must not be expired), years_of_experience (dropdown type 3), operator_type (dropdown type 10), operator_license_front and operator_license_back (file urls from POST /api/upload). If operator_type is *Owner Based*, owner_id (the crane owner member id, e.g. ONR123456) is required. Optional: profile_image, aadhar_card_file, pan_card_file, other_document_file.',
+          '',
+          '**Customer (role_id 3):** customer_type (dropdown type 11) required. *Business User*: company_name, business_address, constitution (type 12), company_date_establishment, gst_number, nature_of_business (type 13); optional directors_details, finance_head_details, branch_offices_details. *Individual User*: aadhar_number (12 digits), pan_number, city, state_id (type 14).',
+          '',
+          'Fetch every dropdown with POST /api/dropdowns { "type": N }.'
+        ].join('\n'),
         requestBody: {
           required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['user_id', 'role_id', 'full_name', 'company_name'],
+                required: ['user_id', 'role_id', 'full_name'],
                 properties: {
                   user_id: { type: 'string', format: 'uuid', example: '11111111-1111-1111-1111-111111111111' },
                   role_id: { type: 'integer', example: 1, description: '1: Crane Owner, 2: Operator, 3: Customer' },
@@ -224,7 +234,30 @@ ${defaultToken}
                   city: { type: 'string', example: 'Hyderabad' },
                   state: { type: 'string', example: 'Telangana' },
                   pincode: { type: 'string', example: '502319' },
-                  user_email: { type: 'string', format: 'email', example: 'vikram@reddycranes.com' }
+                  user_email: { type: 'string', format: 'email', example: 'vikram@reddycranes.com' },
+                  profile_image: { type: 'string', example: '/public/uploads/profile.png', description: 'Optional photo url from POST /api/upload' },
+
+                  operator_license_number: { type: 'string', example: 'TS0920190012345', description: 'Operator only' },
+                  license_expiry_date: { type: 'string', format: 'date', example: '2030-05-20', description: 'Operator only' },
+                  operator_type: { type: 'integer', example: 50, description: 'Operator only. Dropdown type 10: Individual Operator / Owner Based' },
+                  owner_id: { type: 'string', example: 'ONR659897', description: 'Operator only, required when Owner Based. Crane owner member id' },
+                  operator_license_front: { type: 'string', example: '/public/uploads/license-front.png', description: 'Operator only' },
+                  operator_license_back: { type: 'string', example: '/public/uploads/license-back.png', description: 'Operator only' },
+                  aadhar_card_file: { type: 'string', example: '/public/uploads/aadhar.png', description: 'Operator only, optional' },
+                  pan_card_file: { type: 'string', example: '/public/uploads/pan.png', description: 'Operator only, optional' },
+                  other_document_file: { type: 'string', example: '/public/uploads/other.pdf', description: 'Operator only, optional' },
+
+                  customer_type: { type: 'integer', example: 53, description: 'Customer only. Dropdown type 11: Individual User / Business User' },
+                  constitution: { type: 'integer', example: 56, description: 'Business customer. Dropdown type 12' },
+                  nature_of_business: { type: 'integer', example: 61, description: 'Business customer. Dropdown type 13' },
+                  company_date_establishment: { type: 'string', format: 'date', example: '2015-04-01', description: 'Business customer' },
+                  gst_number: { type: 'string', example: '36ABCDE1234F1Z5', description: 'Business customer' },
+                  directors_details: { type: 'string', description: 'Business customer, optional. Name and address of directors / partners' },
+                  finance_head_details: { type: 'string', description: 'Business customer, optional. Accounts / finance head details' },
+                  branch_offices_details: { type: 'string', description: 'Business customer, optional' },
+                  aadhar_number: { type: 'string', example: '123412341234', description: 'Individual customer' },
+                  pan_number: { type: 'string', example: 'ABCDE1234F', description: 'Individual customer' },
+                  state_id: { type: 'integer', example: 70, description: 'Individual customer. Dropdown type 14 (state)' }
                 }
               }
             }
@@ -624,8 +657,9 @@ ${defaultToken}
 };
 
 const craneDocs = require('./swagger.cranes');
+const profileDocs = require('./swagger.profile');
 
-swaggerDefinition.tags.push(...craneDocs.tags);
-Object.assign(swaggerDefinition.paths, craneDocs.paths);
+swaggerDefinition.tags.push(...craneDocs.tags, ...profileDocs.tags);
+Object.assign(swaggerDefinition.paths, craneDocs.paths, profileDocs.paths);
 
 module.exports = swaggerDefinition;

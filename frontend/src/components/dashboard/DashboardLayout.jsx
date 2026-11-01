@@ -2,16 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import DashboardOverview from './DashboardOverview';
-import UsersList from './UsersList';
 import UserDetails from './UserDetails';
-import OwnersList from './OwnersList';
-import OwnerDetails from './OwnerDetails';
-import OperatorsList from './OperatorsList';
-import OperatorDetails from './OperatorDetails';
-import CranesList from './CranesList';
 import CraneDetails from './CraneDetails';
 import CraneApprovals from './CraneApprovals';
+import DirectoryList from './DirectoryList';
+import MemberDetails from './MemberDetails';
+import CraneDetailsLive from './CraneDetailsLive';
 import SettingsDropdowns from './SettingsDropdowns';
+import LegalPagesEditor from './LegalPagesEditor';
 import BookingsList from './BookingsList';
 import CraneMatching from './CraneMatching';
 import AddUserModal from './AddUserModal';
@@ -21,10 +19,13 @@ import '../../styles/dashboard.css';
 
 export const DashboardLayout = ({ userSession, onLogout }) => {
   const [activeView, setActiveView] = useState('cranes'); // Default to cranes as requested
-  const [selectedUserId, setSelectedUserId] = useState('USR-10245');
-  const [selectedOwnerId, setSelectedOwnerId] = useState('OWN-1001');
-  const [selectedOperatorId, setSelectedOperatorId] = useState('OPR-1003');
-  const [selectedCraneId, setSelectedCraneId] = useState('CRN-1045');
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [selectedOwnerId, setSelectedOwnerId] = useState(null);
+  const [selectedOperatorId, setSelectedOperatorId] = useState(null);
+  const [selectedCraneId, setSelectedCraneId] = useState(null);
+  // where the Back button of a details screen returns to
+  const [memberBack, setMemberBack] = useState('users');
+  const [craneBack, setCraneBack] = useState('cranes');
   const [selectedBookingId, setSelectedBookingId] = useState('CRZ10245');
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isAddCraneModalOpen, setIsAddCraneModalOpen] = useState(false);
@@ -100,7 +101,8 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
   };
 
   const handleSelectUser = (userId) => {
-    setSelectedUserId(userId || 'USR-10245');
+    setSelectedUserId(userId);
+    setMemberBack('users');
     setActiveView('user-details');
     setMobileSidebarOpen(false);
   };
@@ -109,8 +111,9 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
     setActiveView('users');
   };
 
-  const handleSelectOwner = (ownerId) => {
-    setSelectedOwnerId(ownerId || 'OWN-1001');
+  const handleSelectOwner = (ownerId, back = 'owners') => {
+    setSelectedOwnerId(ownerId);
+    setMemberBack(back);
     setActiveView('owner-details');
     setMobileSidebarOpen(false);
   };
@@ -119,8 +122,9 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
     setActiveView('owners');
   };
 
-  const handleSelectOperator = (operatorId) => {
-    setSelectedOperatorId(operatorId || 'OPR-1003');
+  const handleSelectOperator = (operatorId, back = 'operators') => {
+    setSelectedOperatorId(operatorId);
+    setMemberBack(back);
     setActiveView('operator-details');
     setMobileSidebarOpen(false);
   };
@@ -129,15 +133,25 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
     setActiveView('operators');
   };
 
-  const handleSelectCrane = (craneId) => {
-    setSelectedCraneId(craneId || 'CRN-1045');
+  const handleSelectCrane = (craneId, back = 'cranes') => {
+    setSelectedCraneId(craneId);
+    setCraneBack(back);
     setActiveView('crane-details');
     setMobileSidebarOpen(false);
   };
 
   const handleBackToCranes = () => {
-    setActiveView('cranes');
+    setActiveView(craneBack);
   };
+
+  // Crane details -> its owner or operator
+  const handleOpenCraneMember = (id, kind) => {
+    if (kind === 'owner') handleSelectOwner(id, 'crane-details');
+    else handleSelectOperator(id, 'crane-details');
+  };
+
+  // Mock screens (dashboard overview, bookings) still pass sample ids such as USR-10245
+  const isRealId = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(String(id || ''));
 
   const handleSelectBooking = (bookingId) => {
     setSelectedBookingId(bookingId || 'CRZ10245');
@@ -188,55 +202,64 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
           )}
 
           {activeView === 'users' && (
-            <UsersList
-              customUsers={customUsers}
-              onSelectUser={handleSelectUser}
-              onAddUserClick={() => setIsAddUserModalOpen(true)}
-            />
+            <DirectoryList kind="users" onSelect={handleSelectUser} />
           )}
 
           {activeView === 'user-details' && (
-            <UserDetails
-              userId={selectedUserId}
-              onBack={handleBackToUsers}
-            />
+            isRealId(selectedUserId) ? (
+              <MemberDetails
+                userId={selectedUserId}
+                onBack={() => setActiveView(memberBack)}
+                onSelectCrane={(id) => handleSelectCrane(id, 'user-details')}
+              />
+            ) : (
+              <UserDetails userId={selectedUserId || undefined} onBack={handleBackToUsers} />
+            )
           )}
 
           {activeView === 'owners' && (
-            <OwnersList onSelectOwner={handleSelectOwner} />
+            <DirectoryList kind="owners" onSelect={handleSelectOwner} />
           )}
 
           {activeView === 'owner-details' && (
-            <OwnerDetails
-              ownerId={selectedOwnerId}
-              onBack={handleBackToOwners}
+            <MemberDetails
+              userId={selectedOwnerId}
+              onBack={() => setActiveView(memberBack)}
+              onSelectCrane={(id) => handleSelectCrane(id, 'owner-details')}
             />
           )}
 
           {activeView === 'operators' && (
-            <OperatorsList onSelectOperator={handleSelectOperator} />
+            <DirectoryList kind="operators" onSelect={handleSelectOperator} />
           )}
 
           {activeView === 'operator-details' && (
-            <OperatorDetails
-              operatorId={selectedOperatorId}
-              onBack={handleBackToOperators}
+            <MemberDetails
+              userId={selectedOperatorId}
+              onBack={() => setActiveView(memberBack)}
+              onSelectCrane={(id) => handleSelectCrane(id, 'operator-details')}
             />
           )}
 
           {activeView === 'cranes' && (
-            <CranesList
-              onSelectCrane={handleSelectCrane}
-              onAddCrane={() => setIsAddCraneModalOpen(true)}
-            />
+            <DirectoryList kind="cranes" onSelect={handleSelectCrane} />
           )}
 
           {activeView === 'crane-details' && (
-            <CraneDetails
-              craneId={selectedCraneId}
-              onBack={handleBackToCranes}
-              onNavigateToBookings={() => setActiveView('bookings')}
-            />
+            isRealId(selectedCraneId) ? (
+              <CraneDetailsLive
+                craneId={selectedCraneId}
+                onBack={handleBackToCranes}
+                onSelectMember={handleOpenCraneMember}
+                onReviewed={refreshPendingCranes}
+              />
+            ) : (
+              <CraneDetails
+                craneId={selectedCraneId || undefined}
+                onBack={handleBackToCranes}
+                onNavigateToBookings={() => setActiveView('bookings')}
+              />
+            )
           )}
 
           {activeView === 'bookings' && (
@@ -255,6 +278,8 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
 
           {activeView === 'settings' && <SettingsDropdowns />}
 
+          {activeView === 'legal' && <LegalPagesEditor />}
+
           {/* Placeholders for other subpages while keeping navigation active */}
           {![
             'dashboard',
@@ -269,6 +294,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
             'bookings',
             'crane-matching',
             'crane-approvals',
+            'legal',
             'settings',
           ].includes(activeView) && (
             <div className="cranzo-content-view animate-fade-in">

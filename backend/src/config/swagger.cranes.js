@@ -58,7 +58,8 @@ module.exports = {
   tags: [
     { name: 'Owner Cranes', description: 'Crane Owner: add, view, edit cranes, manage operators, re-upload documents' },
     { name: 'Admin Crane Approvals', description: 'Admin review of submitted cranes (24-48 hrs): approve or reject with reason' },
-    { name: 'Admin Settings', description: 'Manage dropdown values (add and edit only, no delete)' }
+    { name: 'Admin Settings', description: 'Manage dropdown values (add and edit only, no delete)' },
+    { name: 'Admin Members', description: 'Users (customers), Owners and Operators: list, details, block / unblock' }
   ],
   paths: {
     '/api/owner/cranes/form-options': {
@@ -198,6 +199,53 @@ module.exports = {
         parameters: [idParam],
         requestBody: { required: true, ...json({ reason: { type: 'string', example: 'RC copy is not readable' } }, ['reason']) },
         responses: ok('Rejected')
+      }
+    },
+    '/api/admin/members/list': {
+      post: {
+        tags: ['Admin Members'],
+        summary: 'List users, owners or operators',
+        description: 'role_id 3 = Users (customers), 1 = Owners, 2 = Operators. Owners include cranes_total and cranes_verified. Operators include owner, assigned_crane and availability_label. bookings / total_spent are 0 until the bookings module exists.',
+        security: secured,
+        requestBody: {
+          required: true,
+          ...json({
+            role_id: { type: 'integer', enum: [1, 2, 3], example: 1 },
+            search: { type: 'string', description: 'name, company, mobile, email, member id or city' },
+            status: { type: 'integer', enum: [0, 1], description: '0 active, 1 blocked' },
+            ...rangeProps
+          }, ['role_id'])
+        },
+        responses: ok('Members with pagination { min, max, count, total, has_more }')
+      }
+    },
+    '/api/admin/members/summary': {
+      post: {
+        tags: ['Admin Members'],
+        summary: 'KPI counts for a role',
+        security: secured,
+        requestBody: { required: true, ...json({ role_id: { type: 'integer', enum: [1, 2, 3], example: 1 } }, ['role_id']) },
+        responses: ok('{ total, active, blocked, new_this_month, mobile_verified }')
+      }
+    },
+    '/api/admin/members/get': {
+      post: {
+        tags: ['Admin Members'],
+        summary: 'Full details of one user, owner or operator',
+        description: 'Includes profile, role specific fields (owner: cranes and operators; operator: license, documents, owner, assigned cranes; customer: business or individual details).',
+        security: secured,
+        requestBody: { required: true, ...json({ user_id: { type: 'string', format: 'uuid' } }, ['user_id']) },
+        responses: { ...ok('Member details'), 404: { description: 'Not found' } }
+      }
+    },
+    '/api/admin/members/{id}/status': {
+      put: {
+        tags: ['Admin Members'],
+        summary: 'Block or unblock a member',
+        security: secured,
+        parameters: [idParam],
+        requestBody: { required: true, ...json({ status: { type: 'integer', enum: [0, 1], description: '0 active, 1 blocked' } }, ['status']) },
+        responses: ok('Updated member')
       }
     },
     '/api/admin/settings/dropdown-types': {

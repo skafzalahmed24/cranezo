@@ -1,6 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { successResponse } = require('../utils/apiResponse');
+const profileController = require('../controllers/profile.controller');
+const { authenticate } = require('../middlewares/auth.middleware');
+const { authorize } = require('../middlewares/role.middleware');
+const { ROLES } = require('../constants/roles');
+
+// Cranes assigned to the signed-in operator (pass crane_id for one). POST with JSON payload.
+router.post('/getAssignedCranes', authenticate, authorize(ROLES.OPERATOR), profileController.assignedCranes);
 
 // Operator routes (placeholder structure)
 router.get('/my-jobs', (req, res) => {

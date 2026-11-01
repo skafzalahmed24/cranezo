@@ -2,6 +2,7 @@ const { Admin, User, Role, StaticDropdown } = require('../models');
 const { comparePassword } = require('../utils/password');
 const { generateAuthTokens, verifyRefreshToken } = require('../utils/jwt');
 const { generateUniqueMemberId, getRolePrefix } = require('../utils/memberIdGenerator');
+const { ROLE_OWNER, ROLE_OPERATOR, ROLE_CUSTOMER, applyOperatorProfile, applyCustomerProfile } = require('./profile.service');
 
 class AuthService {
   /**
@@ -164,27 +165,33 @@ class AuthService {
   /**
    * Complete / update user profile with role, name, company, and dropdown IDs
    */
-  async updateProfile({
-    user_id,
-    role_id,
-    full_name,
-    company_name,
-    owner_type,
-    years_of_experience,
-    number_of_business_partners,
-    business_ownership_type,
-    business_address,
-    city,
-    state,
-    country,
-    pincode,
-    user_email,
-    company_date_establishment,
-    business_category,
-    profile_image
-  }) {
-    if (!user_id || !role_id || !full_name || !company_name) {
-      throw new Error('user_id, role_id, full_name, and company_name are required.');
+  async updateProfile(input = {}) {
+    const {
+      user_id,
+      role_id,
+      full_name,
+      company_name,
+      owner_type,
+      years_of_experience,
+      number_of_business_partners,
+      business_ownership_type,
+      business_address,
+      city,
+      state,
+      country,
+      pincode,
+      user_email,
+      company_date_establishment,
+      business_category,
+      profile_image
+    } = input;
+
+    if (!user_id || !role_id || !full_name) {
+      throw new Error('user_id, role_id, and full_name are required.');
+    }
+    // Crane owners register a company; operators and customers have their own required fields
+    if (parseInt(role_id, 10) === ROLE_OWNER && !company_name) {
+      throw new Error('company_name is required for crane owners.');
     }
 
     const user = await User.findByPk(user_id);
@@ -201,17 +208,23 @@ class AuthService {
     const roleChanged = user.roleId !== newRoleId;
     user.roleId = newRoleId;
     user.fullName = String(full_name).trim();
-    user.companyName = String(company_name).trim();
+    if (company_name) user.companyName = String(company_name).trim();
 
     const expectedPrefix = getRolePrefix(newRoleId);
     if (!user.memberId || roleChanged || !user.memberId.startsWith(expectedPrefix)) {
       user.memberId = await generateUniqueMemberId(newRoleId, User);
     }
 
+    if (newRoleId === ROLE_OPERATOR) {
+      await applyOperatorProfile(user, input);
+    } else if (newRoleId === ROLE_CUSTOMER) {
+      await applyCustomerProfile(user, input);
+    }
+
     if (owner_type !== undefined && owner_type !== null && owner_type !== '') {
       user.ownerType = parseInt(owner_type, 10);
     }
-    if (years_of_experience !== undefined && years_of_experience !== null && years_of_experience !== '') {
+    if (newRoleId !== ROLE_OPERATOR && years_of_experience !== undefined && years_of_experience !== null && years_of_experience !== '') {
       user.yearsOfExperience = parseInt(years_of_experience, 10);
     }
     if (number_of_business_partners !== undefined && number_of_business_partners !== null && number_of_business_partners !== '') {
@@ -221,13 +234,15 @@ class AuthService {
       user.businessOwnershipType = parseInt(business_ownership_type, 10);
     }
 
-    if (business_address !== undefined) user.businessAddress = business_address;
-    if (city !== undefined) user.city = city;
-    if (state !== undefined) user.state = state;
+    if (newRoleId !== ROLE_CUSTOMER) {
+      if (business_address !== undefined) user.businessAddress = business_address;
+      if (city !== undefined) user.city = city;
+      if (state !== undefined) user.state = state;
+    }
     if (country !== undefined) user.country = country;
     if (pincode !== undefined) user.pincode = pincode;
     if (user_email !== undefined) user.userEmail = user_email;
-    if (company_date_establishment !== undefined) user.companyDateEstablishment = company_date_establishment;
+    if (newRoleId !== ROLE_CUSTOMER && company_date_establishment !== undefined) user.companyDateEstablishment = company_date_establishment;
     if (business_category !== undefined) user.businessCategory = business_category;
     if (profile_image !== undefined) user.profileImage = profile_image;
 
@@ -240,7 +255,13 @@ class AuthService {
         { model: StaticDropdown, as: 'ownerTypeInfo' },
         { model: StaticDropdown, as: 'experienceInfo' },
         { model: StaticDropdown, as: 'partnersInfo' },
-        { model: StaticDropdown, as: 'ownershipTypeInfo' }
+        { model: StaticDropdown, as: 'ownershipTypeInfo' },
+        { model: StaticDropdown, as: 'operatorTypeInfo' },
+        { model: StaticDropdown, as: 'customerTypeInfo' },
+        { model: StaticDropdown, as: 'constitutionInfo' },
+        { model: StaticDropdown, as: 'natureOfBusinessInfo' },
+        { model: StaticDropdown, as: 'stateInfo' },
+        { model: User, as: 'ownerAccount', attributes: ['id', 'memberId', 'fullName', 'companyName'] }
       ]
     });
 

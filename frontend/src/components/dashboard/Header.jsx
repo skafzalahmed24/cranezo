@@ -47,6 +47,8 @@ export const Header = ({
         return 'Reports & Analytics';
       case 'notifications':
         return 'System Notifications';
+      case 'legal':
+        return 'Legal Pages';
       case 'settings':
         return 'System Settings';
       default:

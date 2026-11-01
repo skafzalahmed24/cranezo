@@ -8,7 +8,12 @@ const DROPDOWN_TYPES = {
   CRANE_TYPE: 6,
   CRANE_CAPACITY: 7,
   FUEL_TYPE: 8,
-  CRANE_DOCUMENT_TYPE: 9
+  CRANE_DOCUMENT_TYPE: 9,
+  OPERATOR_TYPE: 10,
+  CUSTOMER_TYPE: 11,
+  CONSTITUTION: 12,
+  NATURE_OF_BUSINESS: 13,
+  STATE: 14
 };
 
 // Labels shown in Admin > Settings
@@ -21,7 +26,12 @@ const DROPDOWN_TYPE_LABELS = {
   6: 'Crane Type',
   7: 'Crane Capacity',
   8: 'Fuel Type',
-  9: 'Crane Document Type'
+  9: 'Crane Document Type',
+  10: 'Operator Type',
+  11: 'Customer Type',
+  12: 'Constitution',
+  13: 'Nature of Business',
+  14: 'State'
 };
 
 module.exports = { DROPDOWN_TYPES, DROPDOWN_TYPE_LABELS };

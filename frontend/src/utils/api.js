@@ -1,4 +1,10 @@
-export const API_BASE = 'http://localhost:5000';
+// Backend origin. `npm run dev` talks to the local backend; a production build calls the
+// same domain it is served from (so cranezo.com -> https://cranezo.com/api).
+// Override either with VITE_API_URL (e.g. VITE_API_URL=https://api.example.com).
+export const API_BASE = (
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:5000' : window.location.origin)
+).replace(/\/+$/, '');
 
 /** Authenticated JSON request to the Cranzo API; throws Error(message) on failure */
 export const apiRequest = async (path, { method = 'GET', body } = {}) => {

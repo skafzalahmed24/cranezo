@@ -3,6 +3,7 @@ import { Mail, Lock, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react'
 import Input from '../common/Input/Input';
 import Button from '../common/Button/Button';
 import Checkbox from '../common/Checkbox/Checkbox';
+import { API_BASE } from '../../utils/api';
 import './AuthStyles.css';
 
 /**
@@ -57,7 +58,7 @@ export const LoginForm = ({ onForgotPassword, onLoginSuccess }) => {
     setStatusMessage(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
