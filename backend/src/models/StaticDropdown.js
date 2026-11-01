@@ -23,6 +23,7 @@ module.exports = (sequelize) => {
       allowNull: false,
       field: 'dropdown_type'
     },
+    image: { type: DataTypes.STRING, allowNull: true, comment: 'optional picture, e.g. crane type photo' },
     dropdownTypeStatus: {
       type: DataTypes.INTEGER,
       allowNull: false,

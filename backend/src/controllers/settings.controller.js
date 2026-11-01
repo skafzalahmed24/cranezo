@@ -8,6 +8,7 @@ const formatDropdown = (d) => ({
   id: d.id,
   name: d.dropdownName,
   description: d.dropdownDescription,
+  image: d.image,
   type: d.dropdownType,
   type_name: DROPDOWN_TYPE_LABELS[d.dropdownType] || `Type ${d.dropdownType}`,
   status: d.dropdownTypeStatus,
@@ -72,7 +73,7 @@ class SettingsController {
 
   async createDropdown(req, res) {
     try {
-      const { name, description } = req.body || {};
+      const { name, description, image } = req.body || {};
       const type = parseType(req.body && req.body.type);
       if (type === null) return errorResponse(res, 'A valid dropdown type is required.', null, 400);
       if (!name || !String(name).trim()) return errorResponse(res, 'name is required.', null, 400);
@@ -87,6 +88,7 @@ class SettingsController {
       const row = await StaticDropdown.create({
         dropdownName: clean,
         dropdownDescription: description ? String(description).trim() : clean,
+        image: image ? String(image).trim() : null,
         dropdownType: type,
         dropdownTypeStatus: 0
       });
@@ -103,7 +105,7 @@ class SettingsController {
       const row = await StaticDropdown.findByPk(id);
       if (!row) return errorResponse(res, 'Dropdown value not found.', null, 404);
 
-      const { name, description, status } = req.body || {};
+      const { name, description, status, image } = req.body || {};
       const updates = {};
       if (name !== undefined) {
         const clean = String(name).trim();
@@ -116,6 +118,7 @@ class SettingsController {
         updates.dropdownName = clean;
       }
       if (description !== undefined) updates.dropdownDescription = description;
+      if (image !== undefined) updates.image = image ? String(image).trim() : null;
       if (status !== undefined) {
         if (![0, 1].includes(Number(status))) return errorResponse(res, 'status must be 0 (active) or 1 (inactive).', null, 400);
         updates.dropdownTypeStatus = Number(status);

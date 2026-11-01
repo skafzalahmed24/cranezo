@@ -8,6 +8,12 @@ const startServer = async () => {
   // Test PostgreSQL database connection
   await testConnection();
 
+  // Owner requests nobody answered become "Expired" and the customer is told (also checked on every read)
+  const { bookingService } = require('./src/services/booking.service');
+  setInterval(() => {
+    bookingService.expireStaleRequests().catch((error) => console.warn('[Bookings] expiry check failed: ' + error.message));
+  }, 60 * 1000).unref();
+
   app.listen(PORT, () => {
     console.log(`[Cranzo Server] Heavy Lifting API running on http://localhost:${PORT}`);
     console.log(`[Cranzo Server] Swagger Documentation: http://localhost:${PORT}/api/docs`);

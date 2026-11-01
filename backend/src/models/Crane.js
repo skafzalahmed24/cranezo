@@ -22,6 +22,10 @@ module.exports = (sequelize) => {
     submittedAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW, field: 'submitted_at' },
     reviewedAt: { type: DataTypes.DATE, allowNull: true, field: 'reviewed_at' },
     reviewedBy: { type: DataTypes.UUID, allowNull: true, field: 'reviewed_by' },
+    description: { type: DataTypes.TEXT, allowNull: true },
+    currentLatitude: { type: DataTypes.DECIMAL(10, 7), allowNull: true, field: 'current_latitude' },
+    currentLongitude: { type: DataTypes.DECIMAL(10, 7), allowNull: true, field: 'current_longitude' },
+    locationUpdatedAt: { type: DataTypes.DATE, allowNull: true, field: 'location_updated_at' },
     isActive: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0, field: 'is_active', comment: '0 active, 1 deactive' }
   }, {
     tableName: 'cranes',

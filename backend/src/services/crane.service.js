@@ -3,6 +3,7 @@ const {
   sequelize, Crane, CranePhoto, CraneDocument, StaticDropdown, User
 } = require('../models');
 const { DROPDOWN_TYPES } = require('../constants/dropdownTypes');
+const { BOOKING_CONFIG } = require('../constants/booking');
 const { generateUniqueMemberId } = require('../utils/memberIdGenerator');
 const {
   CRANE_APPROVAL_STATUS,
@@ -71,6 +72,7 @@ const formatCrane = (crane) => {
     model_name: c.modelName,
     registration_number: c.registrationNumber,
     location: c.location,
+    description: c.description || null,
     latitude: c.latitude !== null && c.latitude !== undefined ? Number(c.latitude) : null,
     longitude: c.longitude !== null && c.longitude !== undefined ? Number(c.longitude) : null,
     hourly_rate: Number(c.hourlyRate),
@@ -171,6 +173,20 @@ async function normalizeDocuments(documents) {
     out.push({ documentType, fileUrl: doc.file_url, expiryDate: doc.expiry_date || null });
   }
   return out;
+}
+
+/** latitude / longitude are needed so customers within 20 km can find the crane */
+function parseCoordinates(input, required) {
+  const hasLat = input.latitude !== undefined && input.latitude !== null && input.latitude !== '';
+  const hasLng = input.longitude !== undefined && input.longitude !== null && input.longitude !== '';
+  if (!hasLat && !hasLng && !required) return { latitude: null, longitude: null };
+  if (!hasLat || !hasLng) throw new ServiceError('latitude and longitude are required so customers near you can find this crane.');
+  const latitude = Number(input.latitude);
+  const longitude = Number(input.longitude);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+    throw new ServiceError('latitude or longitude is not valid.');
+  }
+  return { latitude, longitude };
 }
 
 function normalizePhotos(photos) {
@@ -349,11 +365,14 @@ class CraneService {
     const registrationNumber = String(body.registration_number || '').trim().toUpperCase();
     if (!registrationNumber) throw new ServiceError('registration_number is required.');
     if (!body.location || !String(body.location).trim()) throw new ServiceError('location is required.');
+    const coords = parseCoordinates(body, true);
 
     const hourlyRate = Number(body.hourly_rate);
     if (!Number.isFinite(hourlyRate) || hourlyRate <= 0) throw new ServiceError('hourly_rate must be greater than 0.');
     const minimumHours = body.minimum_hours === undefined || body.minimum_hours === '' ? 4 : toInt(body.minimum_hours);
-    if (!Number.isInteger(minimumHours) || minimumHours < 1) throw new ServiceError('minimum_hours must be at least 1.');
+    if (!Number.isInteger(minimumHours) || minimumHours < 1 || minimumHours > BOOKING_CONFIG.MAX_HOURS) {
+      throw new ServiceError(`minimum_hours must be between 1 and ${BOOKING_CONFIG.MAX_HOURS}.`);
+    }
 
     const availability = body.availability_status === undefined ? 0 : toInt(body.availability_status);
     if (![0, 1].includes(availability)) throw new ServiceError('availability_status must be 0 (available) or 1 (not available).');
@@ -377,8 +396,9 @@ class CraneService {
             modelName: body.model_name || null,
             registrationNumber,
             location: String(body.location).trim(),
-            latitude: body.latitude ?? null,
-            longitude: body.longitude ?? null,
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            description: body.description ? String(body.description).trim() : null,
             hourlyRate,
             minimumHours,
             operatorId: body.operator_id || null,
@@ -467,8 +487,12 @@ class CraneService {
       if (!String(body.location).trim()) throw new ServiceError('location cannot be empty.');
       updates.location = String(body.location).trim();
     }
-    if (body.latitude !== undefined) updates.latitude = body.latitude;
-    if (body.longitude !== undefined) updates.longitude = body.longitude;
+    if (body.latitude !== undefined || body.longitude !== undefined) {
+      const coords = parseCoordinates({ latitude: body.latitude ?? crane.latitude, longitude: body.longitude ?? crane.longitude }, true);
+      updates.latitude = coords.latitude;
+      updates.longitude = coords.longitude;
+    }
+    if (body.description !== undefined) updates.description = body.description ? String(body.description).trim() : null;
     if (body.hourly_rate !== undefined) {
       const rate = Number(body.hourly_rate);
       if (!Number.isFinite(rate) || rate <= 0) throw new ServiceError('hourly_rate must be greater than 0.');
@@ -476,7 +500,9 @@ class CraneService {
     }
     if (body.minimum_hours !== undefined) {
       const hrs = toInt(body.minimum_hours);
-      if (!Number.isInteger(hrs) || hrs < 1) throw new ServiceError('minimum_hours must be at least 1.');
+      if (!Number.isInteger(hrs) || hrs < 1 || hrs > BOOKING_CONFIG.MAX_HOURS) {
+        throw new ServiceError(`minimum_hours must be between 1 and ${BOOKING_CONFIG.MAX_HOURS}.`);
+      }
       updates.minimumHours = hrs;
     }
     if (body.operator_id !== undefined) {

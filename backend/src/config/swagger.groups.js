@@ -18,7 +18,7 @@ const GROUPS = {
     path: '/api/docs/user',
     title: 'Cranzo User API',
     description: 'Endpoints used by the mobile apps (Crane Owner, Operator, Customer): my profile, settings, crane management, dropdowns, roles and uploads.',
-    tags: ['My Profile', 'App Content', 'Operator', 'Owner Cranes', 'Dropdowns & Metadata', 'Roles', 'File Upload']
+    tags: ['Book a Crane', 'Crane Requests', 'Notifications', 'My Profile', 'App Content', 'Operator', 'Owner Cranes', 'Dropdowns & Metadata', 'Roles', 'File Upload']
   }
 };
 

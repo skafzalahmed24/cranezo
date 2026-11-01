@@ -165,6 +165,8 @@ module.exports = (sequelize) => {
     aadharStatus: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0, field: 'aadhar_status', comment: '0 pending, 1 verified, 2 rejected' },
     panStatus: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0, field: 'pan_status', comment: '0 pending, 1 verified, 2 rejected' },
     otherDocumentStatus: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0, field: 'other_document_status', comment: '0 pending, 1 verified, 2 rejected' },
+    pushToken: { type: DataTypes.STRING(512), allowNull: true, field: 'push_token' },
+    pushPlatform: { type: DataTypes.STRING(20), allowNull: true, field: 'push_platform' },
     appearance: { type: DataTypes.STRING(10), allowNull: false, defaultValue: 'system', comment: 'light, dark or system' },
     notificationPreferences: { type: DataTypes.JSONB, allowNull: true, field: 'notification_preferences' },
     isActive: {

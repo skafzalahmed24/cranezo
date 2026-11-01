@@ -7,6 +7,8 @@ const defineCrane = require('./Crane');
 const defineCranePhoto = require('./CranePhoto');
 const defineCraneDocument = require('./CraneDocument');
 const defineLegalPage = require('./LegalPage');
+const defineBooking = require('./Booking');
+const defineNotification = require('./Notification');
 
 const Role = defineRole(sequelize);
 const Admin = defineAdmin(sequelize);
@@ -16,6 +18,8 @@ const Crane = defineCrane(sequelize);
 const CranePhoto = defineCranePhoto(sequelize);
 const CraneDocument = defineCraneDocument(sequelize);
 const LegalPage = defineLegalPage(sequelize);
+const Booking = defineBooking(sequelize);
+const Notification = defineNotification(sequelize);
 
 // Associations
 Admin.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
@@ -50,6 +54,15 @@ Crane.hasMany(CraneDocument, { foreignKey: 'craneId', as: 'documents' });
 CraneDocument.belongsTo(Crane, { foreignKey: 'craneId', as: 'crane' });
 CraneDocument.belongsTo(StaticDropdown, { foreignKey: 'documentType', as: 'documentTypeInfo' });
 
+Booking.belongsTo(Crane, { foreignKey: 'craneId', as: 'crane' });
+Crane.hasMany(Booking, { foreignKey: 'craneId', as: 'bookings' });
+Booking.belongsTo(User, { foreignKey: 'customerId', as: 'customer' });
+Booking.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
+Booking.belongsTo(User, { foreignKey: 'operatorId', as: 'operator' });
+Booking.belongsTo(StaticDropdown, { foreignKey: 'craneType', as: 'craneTypeInfo' });
+Booking.belongsTo(StaticDropdown, { foreignKey: 'capacity', as: 'capacityInfo' });
+Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 module.exports = {
   sequelize,
   Role,
@@ -59,5 +72,7 @@ module.exports = {
   Crane,
   CranePhoto,
   CraneDocument,
-  LegalPage
+  LegalPage,
+  Booking,
+  Notification
 };

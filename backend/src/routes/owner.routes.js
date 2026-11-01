@@ -7,6 +7,14 @@ const { authorize } = require('../middlewares/role.middleware');
 const { ROLES } = require('../constants/roles');
 
 const ownerOnly = [authenticate, authorize(ROLES.CRANE_OWNER)];
+const bookingController = require('../controllers/booking.controller');
+
+// Incoming crane requests (the buzzer opens these). All POST with a JSON payload.
+router.post('/requests/list', ownerOnly, bookingController.ownerList);
+router.post('/requests/summary', ownerOnly, bookingController.ownerSummary);
+router.post('/requests/get', ownerOnly, bookingController.ownerGet);
+router.post('/requests/accept', ownerOnly, bookingController.ownerAccept);
+router.post('/requests/decline', ownerOnly, bookingController.ownerDecline);
 
 // Crane management (Crane Owner)
 router.post('/cranes/form-options', ownerOnly, craneController.getFormOptions);

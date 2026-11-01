@@ -658,8 +658,9 @@ ${defaultToken}
 
 const craneDocs = require('./swagger.cranes');
 const profileDocs = require('./swagger.profile');
+const bookingDocs = require('./swagger.booking');
 
-swaggerDefinition.tags.push(...craneDocs.tags, ...profileDocs.tags);
-Object.assign(swaggerDefinition.paths, craneDocs.paths, profileDocs.paths);
+swaggerDefinition.tags.push(...craneDocs.tags, ...profileDocs.tags, ...bookingDocs.tags);
+Object.assign(swaggerDefinition.paths, craneDocs.paths, profileDocs.paths, bookingDocs.paths);
 
 module.exports = swaggerDefinition;
