@@ -121,7 +121,9 @@ class AuthService {
     const enteredOtp = String(otp_number).trim();
     const storedOtp = user.mobileOtp ? String(user.mobileOtp).trim() : null;
 
-    if (storedOtp !== enteredOtp && enteredOtp !== '123456') {
+    // The fixed test code is accepted only outside production, until an SMS provider sends real codes
+    const testCodeAllowed = process.env.NODE_ENV !== 'production' && enteredOtp === (process.env.DEFAULT_OTP || '123456');
+    if (storedOtp !== enteredOtp && !testCodeAllowed) {
       throw new Error('Invalid or expired OTP.');
     }
 

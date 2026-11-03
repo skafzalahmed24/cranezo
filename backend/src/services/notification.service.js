@@ -36,6 +36,9 @@ const getMessaging = () => {
   return messaging;
 };
 
+// Must match the channel ids the Android app creates (PushNotifications.kt)
+const URGENT_TYPES = new Set(['booking_request', 'job_assigned', 'operator_arrived', 'completion_requested', 'extension_requested', 'breakdown_reported', 'emergency']);
+
 const sendPush = async (user, { title, body, data }) => {
   const fcm = getMessaging();
   if (!fcm || !user.pushToken) return false;
@@ -45,7 +48,8 @@ const sendPush = async (user, { title, body, data }) => {
       notification: { title, body: body || '' },
       // FCM data values must be strings
       data: Object.fromEntries(Object.entries(data || {}).map(([k, v]) => [k, String(v)])),
-      android: { priority: 'high' },
+      // job alerts (new request, operator arrived, emergency) use the loud channel; the rest the normal one
+      android: { priority: 'high', notification: { channelId: URGENT_TYPES.has(data && data.type) ? 'cranezo_urgent' : 'cranezo_updates', sound: 'default' } },
       apns: { headers: { 'apns-priority': '10' } }
     });
     return true;
@@ -66,7 +70,7 @@ class NotificationService {
     try {
       const user = await User.findByPk(userId, { attributes: ['id', 'pushToken', 'notificationPreferences'] });
       const muted = preferenceKey && user && user.notificationPreferences && user.notificationPreferences[preferenceKey] === false;
-      if (user && !muted) await sendPush(user, { title, body, data: { type, ...(data || {}) } });
+      if (user && !muted) await sendPush(user, { title, body, data: { type, screen: metaFor(type).screen || '', ...(data || {}) } });
     } catch (error) {
       console.warn(`[Push] ${error.message}`);
     }
@@ -147,7 +151,7 @@ class NotificationService {
         for (const user of users) {
           const prefs = user.notificationPreferences || {};
           // eslint-disable-next-line no-await-in-loop
-          if (prefs.important_announcements !== false) await sendPush(user, { title, body, data: { type, ...(data || {}) } });
+          if (prefs.important_announcements !== false) await sendPush(user, { title, body, data: { type, screen: metaFor(type).screen || '', ...(data || {}) } });
         }
       } catch (error) {
         console.warn(`[Push] broadcast: ${error.message}`);

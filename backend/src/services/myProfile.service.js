@@ -388,7 +388,7 @@ class MyProfileService {
    * Here we only detach this device so push notifications stop going to it.
    */
   async logout(userId) {
-    await User.update({ deviceId: null, deviceUniqueId: null }, { where: { id: userId } });
+    await User.update({ deviceId: null, deviceUniqueId: null, pushToken: null, pushPlatform: null }, { where: { id: userId } });
   }
 }
 

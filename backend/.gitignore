@@ -20,3 +20,7 @@ src/public/uploads/*
 Thumbs.db
 .vscode/
 .idea/
+
+# Firebase service account key (secret)
+firebase-service-account.json
+*-firebase-adminsdk-*.json
