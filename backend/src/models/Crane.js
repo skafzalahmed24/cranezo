@@ -23,6 +23,8 @@ module.exports = (sequelize) => {
     reviewedAt: { type: DataTypes.DATE, allowNull: true, field: 'reviewed_at' },
     reviewedBy: { type: DataTypes.UUID, allowNull: true, field: 'reviewed_by' },
     description: { type: DataTypes.TEXT, allowNull: true },
+    ratingAverage: { type: DataTypes.DECIMAL(3, 2), allowNull: true, field: 'rating_average' },
+    ratingCount: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0, field: 'rating_count' },
     currentLatitude: { type: DataTypes.DECIMAL(10, 7), allowNull: true, field: 'current_latitude' },
     currentLongitude: { type: DataTypes.DECIMAL(10, 7), allowNull: true, field: 'current_longitude' },
     locationUpdatedAt: { type: DataTypes.DATE, allowNull: true, field: 'location_updated_at' },

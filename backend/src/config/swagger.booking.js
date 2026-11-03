@@ -99,6 +99,7 @@ module.exports = {
             site_name: { type: 'string', example: 'Construction Site, Kakinada' },
             site_address: { type: 'string', example: '14-2-5, Radhalapeta, Kalyana Mandapam, Pithapuram, Andhra Pradesh 533450' },
             payment_method: { type: 'string', enum: ['COD'], default: 'COD' },
+            special_requirements: { type: 'string', example: 'Heavy lifting equipment required. Site access available.', description: 'Optional note for the operator (up to 1000 characters)' },
             ...requirement
           }, ['crane_id', 'site_address', 'latitude', 'longitude', 'duration'])
         },

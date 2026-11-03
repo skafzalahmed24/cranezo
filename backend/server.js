@@ -12,6 +12,8 @@ const startServer = async () => {
   const { bookingService } = require('./src/services/booking.service');
   setInterval(() => {
     bookingService.expireStaleRequests().catch((error) => console.warn('[Bookings] expiry check failed: ' + error.message));
+    require('./src/services/extension.service').extensionService.expireStale()
+      .catch((error) => console.warn('[Extra time] expiry check failed: ' + error.message));
   }, 60 * 1000).unref();
 
   app.listen(PORT, () => {

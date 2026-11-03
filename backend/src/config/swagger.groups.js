@@ -12,13 +12,13 @@ const GROUPS = {
     path: '/api/docs/admin',
     title: 'Cranzo Admin API',
     description: 'Admin dashboard, crane approvals and settings (dropdown management). Requires an admin Bearer token.',
-    tags: ['Admin', 'Admin Crane Approvals', 'Admin Members', 'Admin Legal Pages', 'Admin Settings']
+    tags: ['Admin', 'Admin Crane Approvals', 'Admin Members', 'Admin Banners', 'Admin Support', 'Admin Legal Pages', 'Admin Settings']
   },
   user: {
     path: '/api/docs/user',
     title: 'Cranzo User API',
     description: 'Endpoints used by the mobile apps (Crane Owner, Operator, Customer): my profile, settings, crane management, dropdowns, roles and uploads.',
-    tags: ['Book a Crane', 'Crane Requests', 'Notifications', 'My Profile', 'App Content', 'Operator', 'Owner Cranes', 'Dropdowns & Metadata', 'Roles', 'File Upload']
+    tags: ['Home', 'Help & Support', 'Book a Crane', 'Crane Requests', 'Owner Jobs', 'Owner Earnings', 'Operator Jobs', 'Operator Earnings', 'Notifications', 'My Profile', 'App Content', 'Operator', 'Owner Cranes', 'Dropdowns & Metadata', 'Roles', 'File Upload']
   }
 };
 

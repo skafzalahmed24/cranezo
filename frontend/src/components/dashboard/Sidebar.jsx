@@ -7,6 +7,9 @@ import {
   Construction,
   ShieldCheck,
   FileText,
+  LifeBuoy,
+  Images,
+  Megaphone,
   CalendarCheck2,
   CreditCard,
   Star,
@@ -17,6 +20,8 @@ import {
   X,
 } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
+
+const badgeCount = (badge) => (badge && typeof badge === 'object' ? badge.count : badge) || 0;
 
 export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseMobile, badges = {} }) => {
   const navSections = [
@@ -54,6 +59,9 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
       title: 'SYSTEM',
       items: [
         { id: 'notifications', label: 'Notifications', icon: Bell },
+        { id: 'banners', label: 'Banners', icon: Images },
+        { id: 'support', label: 'Support', icon: LifeBuoy },
+        { id: 'announcements', label: 'Announcements', icon: Megaphone },
         { id: 'legal', label: 'Legal Pages', icon: FileText },
         { id: 'settings', label: 'Settings', icon: Settings },
       ],
@@ -109,9 +117,12 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
                     >
                       <IconComponent size={18} />
                       <span>{item.label}</span>
-                      {badges[item.id] > 0 && (
-                        <span className="cranzo-nav-badge" title={`${badges[item.id]} pending`}>
-                          {badges[item.id] > 99 ? '99+' : badges[item.id]}
+                      {badgeCount(badges[item.id]) > 0 && (
+                        <span
+                          className={`cranzo-nav-badge ${badges[item.id] && badges[item.id].danger ? 'danger' : ''}`}
+                          title={`${badgeCount(badges[item.id])} pending`}
+                        >
+                          {badgeCount(badges[item.id]) > 99 ? '99+' : badgeCount(badges[item.id])}
                         </span>
                       )}
                     </button>

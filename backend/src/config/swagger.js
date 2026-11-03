@@ -659,8 +659,14 @@ ${defaultToken}
 const craneDocs = require('./swagger.cranes');
 const profileDocs = require('./swagger.profile');
 const bookingDocs = require('./swagger.booking');
+const operatorDocs = require('./swagger.operator');
+const ownerJobDocs = require('./swagger.ownerjobs');
+const customerJobDocs = require('./swagger.customerjobs');
+const supportDocs = require('./swagger.support');
+const homeDocs = require('./swagger.home');
 
-swaggerDefinition.tags.push(...craneDocs.tags, ...profileDocs.tags, ...bookingDocs.tags);
-Object.assign(swaggerDefinition.paths, craneDocs.paths, profileDocs.paths, bookingDocs.paths);
+swaggerDefinition.tags.push(...craneDocs.tags, ...profileDocs.tags, ...bookingDocs.tags, ...operatorDocs.tags, ...ownerJobDocs.tags, ...supportDocs.tags, ...homeDocs.tags);
+// customerJobDocs goes last: it replaces the older booking/list and booking/get entries
+Object.assign(swaggerDefinition.paths, craneDocs.paths, profileDocs.paths, bookingDocs.paths, operatorDocs.paths, ownerJobDocs.paths, customerJobDocs.paths, supportDocs.paths, homeDocs.paths);
 
 module.exports = swaggerDefinition;

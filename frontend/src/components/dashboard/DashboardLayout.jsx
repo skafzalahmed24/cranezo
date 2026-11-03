@@ -10,6 +10,9 @@ import MemberDetails from './MemberDetails';
 import CraneDetailsLive from './CraneDetailsLive';
 import SettingsDropdowns from './SettingsDropdowns';
 import LegalPagesEditor from './LegalPagesEditor';
+import SupportCenter from './SupportCenter';
+import Announcements from './Announcements';
+import Banners from './Banners';
 import BookingsList from './BookingsList';
 import CraneMatching from './CraneMatching';
 import AddUserModal from './AddUserModal';
@@ -33,6 +36,8 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
 
   // Crane approvals waiting for review, shown as a badge in the sidebar
   const [pendingCranes, setPendingCranes] = useState(0);
+  // Support requests that need an answer; danger = an emergency is open
+  const [pendingSupport, setPendingSupport] = useState({ count: 0, danger: false });
 
   const refreshPendingCranes = useCallback(async () => {
     try {
@@ -40,6 +45,12 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
       setPendingCranes(res.data.under_review);
     } catch (e) {
       // badge is cosmetic; ignore when the API is unreachable or not signed in
+    }
+    try {
+      const res = await apiRequest('/admin/support/tickets/summary', { method: 'POST' });
+      setPendingSupport({ count: res.data.needs_attention, danger: res.data.emergency_open > 0 });
+    } catch (e) {
+      // same: cosmetic
     }
   }, []);
 
@@ -178,7 +189,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
         onLogout={onLogout}
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
-        badges={{ 'crane-approvals': pendingCranes }}
+        badges={{ 'crane-approvals': pendingCranes, support: pendingSupport }}
       />
 
       {/* Main Content Area (offset by fixed sidebar) */}
@@ -280,6 +291,12 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
 
           {activeView === 'legal' && <LegalPagesEditor />}
 
+          {activeView === 'support' && <SupportCenter onChanged={refreshPendingCranes} />}
+
+          {activeView === 'announcements' && <Announcements />}
+
+          {activeView === 'banners' && <Banners />}
+
           {/* Placeholders for other subpages while keeping navigation active */}
           {![
             'dashboard',
@@ -295,6 +312,9 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
             'crane-matching',
             'crane-approvals',
             'legal',
+            'support',
+            'announcements',
+            'banners',
             'settings',
           ].includes(activeView) && (
             <div className="cranzo-content-view animate-fade-in">

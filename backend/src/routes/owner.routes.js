@@ -15,6 +15,18 @@ router.post('/requests/summary', ownerOnly, bookingController.ownerSummary);
 router.post('/requests/get', ownerOnly, bookingController.ownerGet);
 router.post('/requests/accept', ownerOnly, bookingController.ownerAccept);
 router.post('/requests/decline', ownerOnly, bookingController.ownerDecline);
+router.post('/requests/assign-operator', ownerOnly, require('../controllers/job.controller').ownerAssignOperator);
+
+// Owner Jobs tabs, job details, live location, evidence and Earnings. All POST with a JSON payload.
+const ownerJobController = require('../controllers/ownerJob.controller');
+router.post('/jobs/summary', ownerOnly, ownerJobController.summary);
+router.post('/jobs/list', ownerOnly, ownerJobController.list);
+router.post('/jobs/get', ownerOnly, ownerJobController.get);
+router.post('/jobs/track', ownerOnly, ownerJobController.track);
+router.post('/jobs/evidence', ownerOnly, ownerJobController.evidence);
+router.post('/earnings/summary', ownerOnly, ownerJobController.earningsSummary);
+router.post('/earnings/trend', ownerOnly, ownerJobController.earningsTrend);
+router.post('/earnings/jobs', ownerOnly, ownerJobController.earningsJobs);
 
 // Crane management (Crane Owner)
 router.post('/cranes/form-options', ownerOnly, craneController.getFormOptions);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AuthLayout from './layouts/AuthLayout';
 import { WelcomePage, LoginPage, ForgotPasswordPage } from './pages';
 import DashboardLayout from './components/dashboard/DashboardLayout';
+import { AUTH_EXPIRED_EVENT } from './utils/api';
 
 function App() {
   const [currentPath, setCurrentPath] = useState(() => {
@@ -43,6 +44,17 @@ function App() {
     setUserSession(null);
     navigate('/admin/login');
   };
+
+  // The API answered 401 (token expired or invalid): drop the session and show the login page
+  useEffect(() => {
+    const onAuthExpired = () => {
+      setUserSession(null);
+      window.history.replaceState({}, '', '/admin/login');
+      setCurrentPath('/admin/login');
+    };
+    window.addEventListener(AUTH_EXPIRED_EVENT, onAuthExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, onAuthExpired);
+  }, []);
 
   // Route 1: Welcome / Coming Soon Landing Page at "/"
   if (currentPath === '/' || currentPath === '/welcome') {

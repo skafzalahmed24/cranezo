@@ -9,6 +9,17 @@ const defineCraneDocument = require('./CraneDocument');
 const defineLegalPage = require('./LegalPage');
 const defineBooking = require('./Booking');
 const defineNotification = require('./Notification');
+const defineJobPhoto = require('./JobPhoto');
+const defineJobIssue = require('./JobIssue');
+const defineBookingExtension = require('./BookingExtension');
+const defineBookingRating = require('./BookingRating');
+const defineSupportSettings = require('./SupportSettings');
+const defineFaqCategory = require('./FaqCategory');
+const defineFaq = require('./Faq');
+const defineSupportTicket = require('./SupportTicket');
+const defineSupportMessage = require('./SupportMessage');
+const defineAnnouncement = require('./Announcement');
+const defineBanner = require('./Banner');
 
 const Role = defineRole(sequelize);
 const Admin = defineAdmin(sequelize);
@@ -20,6 +31,17 @@ const CraneDocument = defineCraneDocument(sequelize);
 const LegalPage = defineLegalPage(sequelize);
 const Booking = defineBooking(sequelize);
 const Notification = defineNotification(sequelize);
+const JobPhoto = defineJobPhoto(sequelize);
+const JobIssue = defineJobIssue(sequelize);
+const BookingExtension = defineBookingExtension(sequelize);
+const BookingRating = defineBookingRating(sequelize);
+const SupportSettings = defineSupportSettings(sequelize);
+const FaqCategory = defineFaqCategory(sequelize);
+const Faq = defineFaq(sequelize);
+const SupportTicket = defineSupportTicket(sequelize);
+const SupportMessage = defineSupportMessage(sequelize);
+const Announcement = defineAnnouncement(sequelize);
+const Banner = defineBanner(sequelize);
 
 // Associations
 Admin.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
@@ -62,6 +84,25 @@ Booking.belongsTo(User, { foreignKey: 'operatorId', as: 'operator' });
 Booking.belongsTo(StaticDropdown, { foreignKey: 'craneType', as: 'craneTypeInfo' });
 Booking.belongsTo(StaticDropdown, { foreignKey: 'capacity', as: 'capacityInfo' });
 Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+FaqCategory.hasMany(Faq, { foreignKey: 'categoryId', as: 'faqs' });
+Faq.belongsTo(FaqCategory, { foreignKey: 'categoryId', as: 'category' });
+SupportTicket.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+SupportTicket.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
+SupportTicket.belongsTo(Admin, { foreignKey: 'assignedAdminId', as: 'assignee' });
+SupportTicket.hasMany(SupportMessage, { foreignKey: 'ticketId', as: 'messages' });
+SupportMessage.belongsTo(SupportTicket, { foreignKey: 'ticketId', as: 'ticket' });
+Announcement.belongsTo(Admin, { foreignKey: 'createdBy', as: 'creator' });
+
+Booking.hasMany(BookingExtension, { foreignKey: 'bookingId', as: 'extensions' });
+BookingExtension.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
+Booking.hasOne(BookingRating, { foreignKey: 'bookingId', as: 'rating' });
+BookingRating.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
+Booking.hasMany(JobPhoto, { foreignKey: 'bookingId', as: 'jobPhotos' });
+JobPhoto.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
+Booking.hasMany(JobIssue, { foreignKey: 'bookingId', as: 'issues' });
+JobIssue.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
+JobIssue.belongsTo(User, { foreignKey: 'reportedBy', as: 'reporter' });
+JobIssue.belongsTo(StaticDropdown, { foreignKey: 'breakdownType', as: 'breakdownTypeInfo' });
 
 module.exports = {
   sequelize,
@@ -74,5 +115,16 @@ module.exports = {
   CraneDocument,
   LegalPage,
   Booking,
-  Notification
+  Notification,
+  JobPhoto,
+  JobIssue,
+  BookingExtension,
+  BookingRating,
+  SupportSettings,
+  FaqCategory,
+  Faq,
+  SupportTicket,
+  SupportMessage,
+  Announcement,
+  Banner
 };

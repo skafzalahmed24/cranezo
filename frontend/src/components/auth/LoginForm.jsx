@@ -3,7 +3,7 @@ import { Mail, Lock, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react'
 import Input from '../common/Input/Input';
 import Button from '../common/Button/Button';
 import Checkbox from '../common/Checkbox/Checkbox';
-import { API_BASE } from '../../utils/api';
+import { API_BASE, consumeSessionExpiredFlag } from '../../utils/api';
 import './AuthStyles.css';
 
 /**
@@ -18,7 +18,11 @@ export const LoginForm = ({ onForgotPassword, onLoginSuccess }) => {
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [statusMessage, setStatusMessage] = useState(null);
+  const [statusMessage, setStatusMessage] = useState(() =>
+    consumeSessionExpiredFlag()
+      ? { type: 'error', text: 'Your session has expired. Please sign in again.' }
+      : null
+  );
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

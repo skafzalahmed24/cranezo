@@ -9,6 +9,7 @@ const mine = [authenticate, appUserOnly];
 
 router.post('/list', mine, notificationController.list);
 router.post('/unread-count', mine, notificationController.unreadCount);
+router.post('/summary', mine, require('../controllers/support.controller').notificationSummary);
 router.post('/mark-read', mine, notificationController.markRead);
 router.post('/register-device', mine, notificationController.registerDevice);
 

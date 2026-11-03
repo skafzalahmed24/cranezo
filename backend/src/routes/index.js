@@ -12,6 +12,8 @@ const uploadRoutes = require('./upload.routes');
 const profileRoutes = require('./profile.routes');
 const contentRoutes = require('./content.routes');
 const notificationRoutes = require('./notification.routes');
+const supportRoutes = require('./support.routes');
+const homeRoutes = require('./home.routes');
 
 // Mount routes
 router.use('/auth', authRoutes);
@@ -25,6 +27,8 @@ router.use('/upload', uploadRoutes);
 router.use('/profile', profileRoutes);
 router.use('/content', contentRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/support', supportRoutes);
+router.use('/home', homeRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

@@ -12,10 +12,18 @@ router.post('/booking/options', customerOnly, bookingController.options);
 router.post('/booking/search', customerOnly, bookingController.search);
 router.post('/booking/crane-details', customerOnly, bookingController.craneDetails);
 router.post('/booking/create', customerOnly, bookingController.create);
-router.post('/booking/list', customerOnly, bookingController.customerList);
-router.post('/booking/get', customerOnly, bookingController.customerGet);
+const customerJobController = require('../controllers/customerJob.controller');
+router.post('/booking/list', customerOnly, customerJobController.list);
+router.post('/booking/get', customerOnly, customerJobController.get);
+router.post('/booking/summary', customerOnly, customerJobController.summary);
+router.post('/booking/active-tracking', customerOnly, customerJobController.activeTracking);
+router.post('/booking/extension/request', customerOnly, customerJobController.requestExtraTime);
+router.post('/booking/extension/cancel', customerOnly, customerJobController.cancelExtraTime);
+router.post('/booking/pay', customerOnly, customerJobController.pay);
+router.post('/booking/rate', customerOnly, customerJobController.rate);
 router.post('/booking/track', customerOnly, bookingController.track);
 router.post('/booking/cancel', customerOnly, bookingController.cancel);
+router.post('/booking/confirm-arrival', customerOnly, require('../controllers/job.controller').customerConfirmArrival);
 
 // Customer routes (placeholder structure)
 router.get('/cranes', (req, res) => {

@@ -49,6 +49,12 @@ export const Header = ({
         return 'System Notifications';
       case 'legal':
         return 'Legal Pages';
+      case 'banners':
+        return 'Banners';
+      case 'support':
+        return 'Support';
+      case 'announcements':
+        return 'Announcements';
       case 'settings':
         return 'System Settings';
       default:

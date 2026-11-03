@@ -49,7 +49,18 @@ const BOOKING_CONFIG = {
   // how long an owner has to answer before the request expires
   REQUEST_TTL_NOW_MINUTES: 10,
   REQUEST_TTL_SCHEDULED_MINUTES: 120,
-  ADVANCE_PERCENT: 20
+  ADVANCE_PERCENT: 20,
+  // Cranzo's share of every completed job; the owner receives the rest
+  PLATFORM_FEE_PERCENT: 5,
+  // a completed job is settled to the owner this many days after completion
+  SETTLEMENT_DAYS: 3,
+  // Request Extra Time: choices in minutes, and how long the operator has to answer
+  EXTRA_TIME_OPTIONS: [30, 60, 120, 240],
+  EXTRA_TIME_STEP_MINUTES: 30,
+  EXTRA_TIME_MAX_MINUTES: 240,
+  EXTRA_TIME_RESPONSE_MINUTES: 5,
+  // "Overtime approaching" shows when this little booked time is left
+  OVERTIME_WARNING_MINUTES: 15
 };
 
 // Only COD is live for now; the others are listed so the app can show them as "coming soon"
@@ -65,8 +76,29 @@ const NOTIFICATION_TYPES = {
   BOOKING_CONFIRMED: 'booking_confirmed',
   BOOKING_DECLINED: 'booking_declined',
   BOOKING_EXPIRED: 'booking_expired',
-  BOOKING_CANCELLED: 'booking_cancelled'
+  BOOKING_CANCELLED: 'booking_cancelled',
+  // operator job flow
+  JOB_ASSIGNED: 'job_assigned',
+  JOB_ACCEPTED: 'job_accepted',
+  OPERATOR_DECLINED: 'operator_declined',
+  OPERATOR_EN_ROUTE: 'operator_en_route',
+  OPERATOR_ARRIVED: 'operator_arrived',
+  JOB_STARTED: 'job_started',
+  COMPLETION_REQUESTED: 'completion_requested',
+  JOB_COMPLETED: 'job_completed',
+  BREAKDOWN_REPORTED: 'breakdown_reported',
+  ISSUE_REPORTED: 'issue_reported',
+  EMERGENCY: 'emergency',
+  EXTENSION_REQUESTED: 'extension_requested',
+  EXTENSION_APPROVED: 'extension_approved',
+  EXTENSION_REJECTED: 'extension_rejected',
+  EXTENSION_EXPIRED: 'extension_expired',
+  PAYMENT_RECEIVED: 'payment_received',
+  RATING_RECEIVED: 'rating_received'
 };
+
+const EXTENSION_STATUS = { PENDING: 0, APPROVED: 1, REJECTED: 2, CANCELLED: 3, EXPIRED: 4 };
+const EXTENSION_STATUS_LABELS = { 0: 'Under Review', 1: 'Approved', 2: 'Rejected', 3: 'Cancelled', 4: 'Expired' };
 
 module.exports = {
   BOOKING_STATUS,
@@ -74,6 +106,8 @@ module.exports = {
   BUSY_STATUSES,
   BLOCKING_STATUSES,
   BOOKING_CONFIG,
+  EXTENSION_STATUS,
+  EXTENSION_STATUS_LABELS,
   PAYMENT_METHODS,
   NOTIFICATION_TYPES
 };

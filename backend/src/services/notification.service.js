@@ -1,4 +1,6 @@
+const { Op } = require('sequelize');
 const { Notification, User } = require('../models');
+const { metaFor } = require('../constants/notificationMeta');
 const { parseRange } = require('../utils/range');
 
 class NotificationError extends Error {
@@ -72,13 +74,27 @@ class NotificationService {
   }
 
   format(n) {
+    const meta = metaFor(n.type);
+    const data = n.data || {};
+    // India time decides "Today"
+    const offset = 330 * 60000;
+    const day = (d) => new Date(new Date(d).getTime() + offset).toISOString().slice(0, 10);
     return {
       id: n.id,
       type: n.type,
+      category: meta.category,
+      icon: meta.icon,
       title: n.title,
       body: n.body,
       data: n.data,
+      // where tapping the item should go
+      target: {
+        screen: meta.screen,
+        booking_id: data.booking_id || null,
+        ticket_id: data.ticket_id || null
+      },
       is_read: n.isRead,
+      group: day(n.createdAt) === day(new Date()) ? 'today' : 'earlier',
       created_at: n.createdAt
     };
   }
@@ -96,6 +112,48 @@ class NotificationService {
       order: [['createdAt', 'DESC'], ['id', 'ASC']]
     });
     return { range, items: rows.map((n) => this.format(n)), total: count };
+  }
+
+  /** "2 unread" under TODAY, plus the overall count */
+  async summary(userId) {
+    const offset = 330 * 60000;
+    const local = new Date(Date.now() + offset);
+    local.setUTCHours(0, 0, 0, 0);
+    const todayStart = new Date(local.getTime() - offset);
+    return {
+      unread: await this.unreadCount(userId),
+      today_unread: await Notification.count({ where: { userId, isRead: false, createdAt: { [Op.gte]: todayStart } } })
+    };
+  }
+
+  /**
+   * Send one announcement to many users: stored for everyone, push on a best effort in the background.
+   * Users who muted "Important Announcements" do not get the push but still see it in the list.
+   */
+  async broadcast(userIds, { type, title, body, data }) {
+    let created = 0;
+    for (let i = 0; i < userIds.length; i += 500) {
+      const chunk = userIds.slice(i, i + 500);
+      // eslint-disable-next-line no-await-in-loop
+      await Notification.bulkCreate(chunk.map((userId) => ({ userId, type, title, body: body || null, data: data || null })));
+      created += chunk.length;
+    }
+    setImmediate(async () => {
+      try {
+        const users = await User.findAll({
+          where: { id: userIds, pushToken: { [Op.ne]: null } },
+          attributes: ['id', 'pushToken', 'notificationPreferences']
+        });
+        for (const user of users) {
+          const prefs = user.notificationPreferences || {};
+          // eslint-disable-next-line no-await-in-loop
+          if (prefs.important_announcements !== false) await sendPush(user, { title, body, data: { type, ...(data || {}) } });
+        }
+      } catch (error) {
+        console.warn(`[Push] broadcast: ${error.message}`);
+      }
+    });
+    return created;
   }
 
   unreadCount(userId) {

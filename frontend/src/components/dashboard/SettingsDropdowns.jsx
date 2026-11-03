@@ -1,19 +1,22 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Plus, Pencil, Check, X } from 'lucide-react';
-import { apiRequest } from '../../utils/api';
+import { apiRequest, fileUrl } from '../../utils/api';
+import ImageUpload from './ImageUpload';
 
 /**
  * Admin > Settings: manage dropdown values used across the apps.
  * Values can only be added or edited. There is no delete; an edited value
  * can be marked Inactive so apps stop offering it.
+ * Every value can carry a short description and a picture. The crane type picture is what the
+ * customer sees on the first Book a Crane step.
  */
 export const SettingsDropdowns = () => {
   const [types, setTypes] = useState([]);
   const [activeType, setActiveType] = useState(null);
   const [items, setItems] = useState([]);
-  const [newName, setNewName] = useState('');
+  const [newItem, setNewItem] = useState({ name: '', image: '' });
   const [editingId, setEditingId] = useState(null);
-  const [editName, setEditName] = useState('');
+  const [edit, setEdit] = useState({ name: '', description: '', image: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -60,19 +63,22 @@ export const SettingsDropdowns = () => {
 
   const addItem = (e) => {
     e.preventDefault();
-    if (!newName.trim()) return;
+    if (!newItem.name.trim()) return;
     run(async () => {
       await apiRequest('/admin/settings/dropdowns', {
         method: 'POST',
-        body: { type: activeType, name: newName.trim() },
+        body: { type: activeType, name: newItem.name.trim(), image: newItem.image || undefined },
       });
-      setNewName('');
+      setNewItem({ name: '', image: '' });
     });
   };
 
   const saveEdit = (id) =>
     run(async () => {
-      await apiRequest(`/admin/settings/dropdowns/${id}`, { method: 'PUT', body: { name: editName } });
+      await apiRequest(`/admin/settings/dropdowns/${id}`, {
+        method: 'PUT',
+        body: { name: edit.name, description: edit.description, image: edit.image },
+      });
       setEditingId(null);
     });
 
@@ -100,6 +106,10 @@ export const SettingsDropdowns = () => {
     fontSize: '13px',
   };
 
+  const activeName = types.find((t) => t.type === activeType)?.name || 'Dropdown';
+  // crane types are the ones whose picture matters most
+  const showsPictures = activeType === 6;
+
   return (
     <div className="cranzo-content-view animate-fade-in" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
       <div style={{ ...cardStyle, padding: '8px', width: '260px', flexShrink: 0 }}>
@@ -122,16 +132,22 @@ export const SettingsDropdowns = () => {
       </div>
 
       <div style={{ ...cardStyle, padding: '16px', flex: 1, minWidth: '320px' }}>
-        <h3 style={{ margin: '0 0 12px', color: 'var(--dash-text-title)' }}>
-          {types.find((t) => t.type === activeType)?.name || 'Dropdown'}
-        </h3>
+        <h3 style={{ margin: '0 0 4px', color: 'var(--dash-text-title)' }}>{activeName}</h3>
+        {showsPictures && (
+          <p style={{ margin: '0 0 12px', fontSize: '12px', color: 'var(--dash-text-subtle)' }}>
+            The picture of each crane type is shown to customers on the first Book a Crane step.
+          </p>
+        )}
 
-        <form onSubmit={addItem} style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+        <form onSubmit={addItem} style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {showsPictures && (
+            <ImageUpload value={newItem.image} onChange={(image) => setNewItem({ ...newItem, image })} width={90} height={60} label="Picture" />
+          )}
           <input
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
+            value={newItem.name}
+            onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
             placeholder="Add a new value"
-            style={{ ...inputStyle, flex: 1 }}
+            style={{ ...inputStyle, flex: 1, minWidth: 180 }}
           />
           <button type="submit" className="cranzo-btn-primary-amber">
             <Plus size={14} /> Add
@@ -141,10 +157,11 @@ export const SettingsDropdowns = () => {
         {error && <p style={{ color: '#ef4444', margin: '0 0 12px' }}>{error}</p>}
 
         <div className="cranzo-table-container">
-          <table className="cranzo-table" style={{ minWidth: '420px' }}>
+          <table className="cranzo-table" style={{ minWidth: '520px' }}>
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Picture</th>
                 <th>Name</th>
                 <th>Status</th>
                 <th />
@@ -156,14 +173,36 @@ export const SettingsDropdowns = () => {
                   <td>{item.id}</td>
                   <td>
                     {editingId === item.id ? (
-                      <input
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        style={{ ...inputStyle, height: '32px' }}
-                        autoFocus
-                      />
+                      <ImageUpload value={edit.image} onChange={(image) => setEdit({ ...edit, image })} width={90} height={60} label="Picture" />
+                    ) : item.image ? (
+                      <img src={fileUrl(item.image)} alt="" style={{ width: 72, height: 48, objectFit: 'cover', borderRadius: 6 }} />
                     ) : (
-                      item.name
+                      <span style={{ color: 'var(--dash-text-subtle)', fontSize: 12 }}>none</span>
+                    )}
+                  </td>
+                  <td style={{ whiteSpace: 'normal', minWidth: 220 }}>
+                    {editingId === item.id ? (
+                      <>
+                        <input
+                          value={edit.name}
+                          onChange={(e) => setEdit({ ...edit, name: e.target.value })}
+                          style={{ ...inputStyle, height: '32px', width: '100%', boxSizing: 'border-box', marginBottom: 6 }}
+                          autoFocus
+                        />
+                        <input
+                          value={edit.description}
+                          onChange={(e) => setEdit({ ...edit, description: e.target.value })}
+                          placeholder="Short description (shown under the name in the app)"
+                          style={{ ...inputStyle, height: '32px', width: '100%', boxSizing: 'border-box' }}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        {item.name}
+                        {item.description && item.description !== item.name && (
+                          <div style={{ fontSize: 11, color: 'var(--dash-text-subtle)' }}>{item.description}</div>
+                        )}
+                      </>
                     )}
                   </td>
                   <td>{item.status_label}</td>
@@ -184,7 +223,7 @@ export const SettingsDropdowns = () => {
                           className="cranzo-btn-secondary"
                           onClick={() => {
                             setEditingId(item.id);
-                            setEditName(item.name);
+                            setEdit({ name: item.name, description: item.description || '', image: item.image || '' });
                           }}
                           title="Edit"
                         >
@@ -200,7 +239,7 @@ export const SettingsDropdowns = () => {
               ))}
               {!loading && items.length === 0 && (
                 <tr>
-                  <td colSpan={4} style={{ textAlign: 'center', padding: '24px', color: 'var(--dash-text-muted)' }}>
+                  <td colSpan={5} style={{ textAlign: 'center', padding: '24px', color: 'var(--dash-text-muted)' }}>
                     No values yet.
                   </td>
                 </tr>

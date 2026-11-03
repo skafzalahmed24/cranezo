@@ -8,6 +8,7 @@ const {
   BOOKING_STATUS, BOOKING_STATUS_LABELS, BLOCKING_STATUSES, BOOKING_CONFIG, PAYMENT_METHODS, NOTIFICATION_TYPES
 } = require('../constants/booking');
 const { CRANE_APPROVAL_STATUS } = require('../constants/roles');
+const { jobStage, customerJobBlock } = require('../constants/job');
 const { parseRange } = require('../utils/range');
 const { notificationService } = require('./notification.service');
 const { ServiceError } = require('./crane.service');
@@ -129,7 +130,8 @@ const computePrice = (hourlyRate, hours) => {
 
 // ---------------------------------------------------------------- loading
 
-const userAttrs = ['id', 'memberId', 'fullName', 'mobileNumber', 'countryCode', 'profileImage'];
+const userAttrs = ['id', 'memberId', 'fullName', 'mobileNumber', 'countryCode', 'profileImage', 'ratingAverage', 'ratingCount'];
+const ratingOf = (row) => (row && row.ratingAverage !== null && row.ratingAverage !== undefined && row.ratingCount > 0 ? Number(row.ratingAverage) : null);
 const dd = ['id', 'dropdownName'];
 
 const craneInclude = [
@@ -143,7 +145,7 @@ const craneInclude = [
 
 const bookingInclude = [
   { model: Crane, as: 'crane', include: craneInclude },
-  { model: User, as: 'customer', attributes: userAttrs },
+  { model: User, as: 'customer', attributes: [...userAttrs, 'companyName'] },
   { model: User, as: 'operator', attributes: userAttrs },
   { model: User, as: 'owner', attributes: [...userAttrs, 'companyName'] },
   { model: StaticDropdown, as: 'craneTypeInfo', attributes: dd },
@@ -167,8 +169,8 @@ const operatorView = (u) => (u ? {
   profile_image: u.profileImage,
   mobile_number: u.mobileNumber,
   country_code: u.countryCode,
-  rating: null, // reviews module not built yet
-  reviews_count: 0
+  rating: ratingOf(u),
+  reviews_count: u ? u.ratingCount || 0 : 0
 } : null);
 
 const craneSummary = (crane) => ({
@@ -180,8 +182,8 @@ const craneSummary = (crane) => ({
   capacity_name: crane.capacityInfo ? crane.capacityInfo.dropdownName : null,
   fuel_type_name: crane.fuelTypeInfo ? crane.fuelTypeInfo.dropdownName : null,
   primary_photo: primaryPhoto(crane),
-  rating: null,
-  reviews_count: 0,
+  rating: ratingOf(crane),
+  reviews_count: crane.ratingCount || 0,
   verified: crane.approvalStatus === CRANE_APPROVAL_STATUS.VERIFIED,
   operator_included: !!crane.operatorId
 });
@@ -190,8 +192,8 @@ const providerView = (owner) => ({
   id: owner ? owner.id : null,
   company_name: owner ? owner.companyName || owner.fullName : null,
   verified: true,
-  rating: null,
-  reviews_count: 0
+  rating: ratingOf(owner),
+  reviews_count: owner ? owner.ratingCount || 0 : 0
 });
 
 const statusMessage = (b) => {
@@ -254,6 +256,7 @@ const commonView = (b) => ({
     days: b.durationDays,
     label: durationLabel(b)
   },
+  special_requirements: b.specialRequirements,
   distance_km: num(b.distanceKm),
   request_expires_at: iso(b.requestExpiresAt),
   seconds_left: secondsLeft(b),
@@ -269,7 +272,8 @@ const customerView = (b) => ({
   price: priceView(b),
   payment: paymentView(b),
   decline_reason: b.declineReason,
-  cancel_reason: b.cancelReason
+  cancel_reason: b.cancelReason,
+  job: customerJobBlock(b)
 });
 
 const ownerView = (b) => {
@@ -295,6 +299,8 @@ const ownerView = (b) => {
       country_code: confirmed ? b.customer.countryCode : null
     } : null,
     operator: operatorView(b.operator),
+    // the owner follows the job but never sees the customer's completion OTP
+    job: { ...customerJobBlock(b), completion_otp: null, completion_otp_expires_at: null },
     can_respond: b.status === BOOKING_STATUS.AWAITING_OWNER,
     next_steps: confirmed
       ? 'The customer has been notified that you accepted the booking. Your job will appear in Active Jobs once the booking starts.'
@@ -565,6 +571,7 @@ class BookingService {
           capacity: crane.capacity,
           siteName: input.site_name ? String(input.site_name).trim().slice(0, 150) : null,
           siteAddress,
+          specialRequirements: input.special_requirements ? String(input.special_requirements).trim().slice(0, 1000) : null,
           latitude: req.latitude,
           longitude: req.longitude,
           distanceKm: check.distanceKm,
@@ -650,7 +657,11 @@ class BookingService {
   /** Track My Crane: light payload meant to be polled every few seconds */
   async track(customerId, bookingId) {
     await this.expireStaleRequests();
-    const b = await this.mine(bookingId, { customerId });
+    return this.buildTrack(await this.mine(bookingId, { customerId }));
+  }
+
+  /** Tracking payload for a loaded booking (customer and owner share it) */
+  buildTrack(b) {
     const crane = b.crane;
     const live = crane.currentLatitude !== null && crane.currentLongitude !== null;
     const craneLat = live ? Number(crane.currentLatitude) : num(crane.latitude);
@@ -666,6 +677,7 @@ class BookingService {
       status: b.status,
       status_label: BOOKING_STATUS_LABELS[b.status],
       status_message: statusMessage(b),
+      stage: jobStage(b),
       crane: { id: crane.id, title: craneTitle(crane), primary_photo: primaryPhoto(crane) },
       operator: b.status >= BOOKING_STATUS.CONFIRMED && b.status !== BOOKING_STATUS.CANCELLED ? operatorView(b.operator) : null,
       site: { name: b.siteName, address: b.siteAddress, latitude: num(b.latitude), longitude: num(b.longitude) },
@@ -816,6 +828,16 @@ class BookingService {
       data: { booking_id: accepted.id, booking_code: accepted.bookingCode }
     }, { preferenceKey: 'booking_confirmations' });
 
+    // the crane's operator gets the job request (New Job Request screen)
+    if (accepted.operatorId) {
+      await notificationService.notify(accepted.operatorId, {
+        type: NOTIFICATION_TYPES.JOB_ASSIGNED,
+        title: 'New Job Request',
+        body: `${craneTitle(accepted.crane)} • ${accepted.siteName || accepted.siteAddress} • ${durationLabel(accepted)}`,
+        data: { booking_id: accepted.id, booking_code: accepted.bookingCode }
+      });
+    }
+
     for (const rival of outcome.rivals) {
       // eslint-disable-next-line no-await-in-loop
       await notificationService.notify(rival.customerId, {
@@ -882,4 +904,11 @@ function BOOKING_STATUS_LIST(list) {
   return [...list];
 }
 
-module.exports = { bookingService: new BookingService() };
+module.exports = {
+  bookingService: new BookingService(),
+  // shared with the operator job service
+  bookingHelpers: {
+    loadBooking, bookingInclude, craneSummary, craneTitle, primaryPhoto, operatorView, customerView, ownerView,
+    priceView, paymentView, durationLabel, ratingOf, haversineKm, etaMinutes, round1, num, iso, addMs, SERVICE_TYPE, UUID_RE
+  }
+};

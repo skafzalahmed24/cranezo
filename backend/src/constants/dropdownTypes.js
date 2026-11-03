@@ -13,7 +13,8 @@ const DROPDOWN_TYPES = {
   CUSTOMER_TYPE: 11,
   CONSTITUTION: 12,
   NATURE_OF_BUSINESS: 13,
-  STATE: 14
+  STATE: 14,
+  BREAKDOWN_TYPE: 15
 };
 
 // Labels shown in Admin > Settings
@@ -31,7 +32,8 @@ const DROPDOWN_TYPE_LABELS = {
   11: 'Customer Type',
   12: 'Constitution',
   13: 'Nature of Business',
-  14: 'State'
+  14: 'State',
+  15: 'Breakdown Type'
 };
 
 module.exports = { DROPDOWN_TYPES, DROPDOWN_TYPE_LABELS };
