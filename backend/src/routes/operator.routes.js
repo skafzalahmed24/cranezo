@@ -37,6 +37,15 @@ router.post('/jobs/confirm-completion', operatorOnly, jobController.confirmCompl
 router.post('/earnings/summary', operatorOnly, jobController.earningsSummary);
 router.post('/earnings/list', operatorOnly, jobController.earningsList);
 
+// open jobs from owners, and commission payments received
+const finance = require('../controllers/finance.controller');
+router.post('/available-jobs', operatorOnly, finance.operatorAvailableJobs);
+router.post('/available-jobs/request', operatorOnly, finance.operatorRequestJob);
+router.post('/job-requests', operatorOnly, finance.operatorMyRequests);
+router.post('/job-requests/withdraw', operatorOnly, finance.operatorWithdrawRequest);
+router.post('/settlements', operatorOnly, finance.operatorSettlements);
+router.post('/settlements/get', operatorOnly, finance.operatorSettlementGet);
+
 // Cranes assigned to the signed-in operator (pass crane_id for one). POST with JSON payload.
 router.post('/getAssignedCranes', authenticate, authorize(ROLES.OPERATOR), profileController.assignedCranes);
 

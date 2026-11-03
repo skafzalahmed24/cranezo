@@ -20,6 +20,13 @@ const defineSupportTicket = require('./SupportTicket');
 const defineSupportMessage = require('./SupportMessage');
 const defineAnnouncement = require('./Announcement');
 const defineBanner = require('./Banner');
+const definePlatformSetting = require('./PlatformSetting');
+const defineOwnerBillingSetting = require('./OwnerBillingSetting');
+const definePaymentTransaction = require('./PaymentTransaction');
+const defineSettlement = require('./Settlement');
+const defineJobRequest = require('./JobRequest');
+const defineComplaint = require('./Complaint');
+const defineComplaintUpdate = require('./ComplaintUpdate');
 
 const Role = defineRole(sequelize);
 const Admin = defineAdmin(sequelize);
@@ -42,6 +49,13 @@ const SupportTicket = defineSupportTicket(sequelize);
 const SupportMessage = defineSupportMessage(sequelize);
 const Announcement = defineAnnouncement(sequelize);
 const Banner = defineBanner(sequelize);
+const PlatformSetting = definePlatformSetting(sequelize);
+const OwnerBillingSetting = defineOwnerBillingSetting(sequelize);
+const PaymentTransaction = definePaymentTransaction(sequelize);
+const Settlement = defineSettlement(sequelize);
+const JobRequest = defineJobRequest(sequelize);
+const Complaint = defineComplaint(sequelize);
+const ComplaintUpdate = defineComplaintUpdate(sequelize);
 
 // Associations
 Admin.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
@@ -104,6 +118,26 @@ JobIssue.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
 JobIssue.belongsTo(User, { foreignKey: 'reportedBy', as: 'reporter' });
 JobIssue.belongsTo(StaticDropdown, { foreignKey: 'breakdownType', as: 'breakdownTypeInfo' });
 
+// payments, settlements, job requests, complaints
+OwnerBillingSetting.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
+Booking.hasMany(PaymentTransaction, { foreignKey: 'bookingId', as: 'transactions' });
+PaymentTransaction.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
+PaymentTransaction.belongsTo(User, { foreignKey: 'customerId', as: 'customer' });
+PaymentTransaction.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
+Settlement.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
+Settlement.belongsTo(User, { foreignKey: 'operatorId', as: 'operator' });
+Booking.belongsTo(Settlement, { foreignKey: 'settlementId', as: 'settlement' });
+Booking.belongsTo(Settlement, { foreignKey: 'operatorSettlementId', as: 'operatorSettlement' });
+JobRequest.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
+JobRequest.belongsTo(User, { foreignKey: 'operatorId', as: 'operator' });
+JobRequest.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
+Booking.hasMany(JobRequest, { foreignKey: 'bookingId', as: 'jobRequests' });
+Complaint.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
+Complaint.belongsTo(User, { foreignKey: 'customerId', as: 'customer' });
+Complaint.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
+Complaint.hasMany(ComplaintUpdate, { foreignKey: 'complaintId', as: 'updates' });
+ComplaintUpdate.belongsTo(Complaint, { foreignKey: 'complaintId', as: 'complaint' });
+
 module.exports = {
   sequelize,
   Role,
@@ -126,5 +160,12 @@ module.exports = {
   SupportTicket,
   SupportMessage,
   Announcement,
-  Banner
+  Banner,
+  PlatformSetting,
+  OwnerBillingSetting,
+  PaymentTransaction,
+  Settlement,
+  JobRequest,
+  Complaint,
+  ComplaintUpdate
 };

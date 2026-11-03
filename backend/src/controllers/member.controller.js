@@ -36,6 +36,17 @@ class MemberController {
     } catch (error) { return handle(res, error); }
   }
 
+  async setDocumentStatus(req, res) {
+    try {
+      const id = req.params.id;
+      if (!UUID_RE.test(id)) return errorResponse(res, 'Invalid user id.', null, 400);
+      const { document, status } = req.body || {};
+      const member = await memberService.setDocumentStatus(id, document, status);
+      const word = { 0: 'set to pending', 1: 'verified', 2: 'rejected' }[Number(status)];
+      return successResponse(res, `Document ${word}.`, member);
+    } catch (error) { return handle(res, error); }
+  }
+
   async setStatus(req, res) {
     try {
       const id = req.params.id;

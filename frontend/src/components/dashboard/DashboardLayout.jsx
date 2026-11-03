@@ -13,6 +13,10 @@ import LegalPagesEditor from './LegalPagesEditor';
 import SupportCenter from './SupportCenter';
 import Announcements from './Announcements';
 import Banners from './Banners';
+import Payments from './Payments';
+import Settlements from './Settlements';
+import Complaints from './Complaints';
+import PlatformFee from './PlatformFee';
 import BookingsList from './BookingsList';
 import CraneMatching from './CraneMatching';
 import AddUserModal from './AddUserModal';
@@ -296,6 +300,14 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
           {activeView === 'announcements' && <Announcements />}
 
           {activeView === 'banners' && <Banners />}
+
+          {activeView === 'payments' && <Payments />}
+
+          {activeView === 'settlements' && <Settlements />}
+
+          {activeView === 'complaints' && <Complaints />}
+
+          {activeView === 'platform-fee' && <PlatformFee />}
 
           {/* Placeholders for other subpages while keeping navigation active */}
           {![

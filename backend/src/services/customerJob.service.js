@@ -10,6 +10,8 @@ const { notificationService } = require('./notification.service');
 const { extensionService } = require('./extension.service');
 const { ServiceError } = require('./crane.service');
 const { bookingService, bookingHelpers: H } = require('./booking.service');
+const billing = require('./billing');
+const { paymentService } = require('./payment.service');
 
 const C = BOOKING_CONFIG;
 const r2 = (n) => Math.round(n * 100) / 100;
@@ -25,10 +27,10 @@ const tabOf = (status) => Object.keys(TABS).find((k) => TABS[k].statuses.include
 
 const detailInclude = [...H.bookingInclude, { model: BookingRating, as: 'rating', required: false }];
 
-/** What the customer is billed: booked amount plus approved extra time, and once finished the fixed final amount */
+/** What the customer is billed: booked amount + extra time + owner charges + GST; once finished, the frozen final amount */
 const finalTotal = (b) => (b.finalAmount !== null && b.finalAmount !== undefined
   ? Number(b.finalAmount)
-  : r2(Number(b.totalAmount) + Number(b.extraAmount)));
+  : billing.billOf(b).total);
 
 const paymentBlock = (b) => {
   const total = finalTotal(b);
@@ -45,6 +47,11 @@ const paymentBlock = (b) => {
     extra_minutes: b.extraMinutes,
     extra_time_amount: Number(b.extraAmount),
     final_total: total,
+    charges_amount: billing.billOf(b).charges_amount,
+    gst_percent: Number(b.gstPercent || 0),
+    gst_amount: billing.billOf(b).gst_amount,
+    breakdown: billing.breakdownLines(billing.billOf(b)),
+    collected_by: b.paymentCollectedBy,
     advance_percent: b.advancePercent,
     advance_amount: Number(b.advanceAmount),
     paid_amount: paid,
@@ -155,7 +162,7 @@ class CustomerJobService {
       location: b.siteName || b.siteAddress,
       start_at: H.iso(b.startAt),
       end_at: H.iso(b.endAt),
-      amount: b.status === BOOKING_STATUS.COMPLETED ? finalTotal(b) : r2(Number(b.totalAmount) + Number(b.extraAmount)),
+      amount: finalTotal(b),
       payment_status: b.paymentStatus,
       can_rate: b.status === BOOKING_STATUS.COMPLETED && !b.rating
     };
@@ -221,7 +228,7 @@ class CustomerJobService {
         booking_date: H.iso(b.createdAt),
         location: b.siteName || b.siteAddress,
         estimated_duration: base.duration.label,
-        estimated_amount: r2(Number(b.totalAmount) + Number(b.extraAmount)),
+        estimated_amount: billing.billOf(b).total,
         payment_status: payment.status_label
       },
       timers: timers(b),
@@ -319,14 +326,15 @@ class CustomerJobService {
     if (!method.enabled) throw new ServiceError(`${method.name} is not available yet. Please choose Cash on Delivery.`);
 
     const total = finalTotal(b);
-    const d = new Date();
-    const reference = `pay_${String(d.getUTCFullYear()).slice(2)}${String(d.getUTCMonth() + 1).padStart(2, '0')}${String(d.getUTCDate()).padStart(2, '0')}_${String(crypto.randomInt(0, 1000000)).padStart(6, '0')}`;
+    // every payment goes into the ledger; cash is collected on site by the owner's side
+    const tx = await paymentService.record({ booking: b, amount: total, method: id, status: 'success' });
     await b.update({
       paymentMethod: id,
       paymentStatus: 'paid',
       paidAmount: total,
-      paymentReference: reference,
-      paidAt: d
+      paymentReference: tx.transactionCode,
+      paymentCollectedBy: tx.collectedBy,
+      paidAt: tx.createdAt
     });
 
     for (const userId of [b.ownerId, b.operatorId]) {

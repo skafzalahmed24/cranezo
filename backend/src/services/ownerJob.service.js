@@ -5,6 +5,8 @@ const { JOB_CONFIG, STAGE_LABELS, jobStage, timers, progressSteps, waitingSecond
 const { parseRange } = require('../utils/range');
 const { ServiceError } = require('./crane.service');
 const { bookingService, bookingHelpers: H } = require('./booking.service');
+const billing = require('./billing');
+const { notificationService } = require('./notification.service');
 
 const OFFSET_MS = JOB_CONFIG.IST_OFFSET_MINUTES * 60000;
 const DAY_MS = 24 * 3600 * 1000;
@@ -28,25 +30,56 @@ const fullInclude = [
 
 const minutesBetween = (a, b) => Math.max(0, Math.round((new Date(a) - new Date(b)) / 60000));
 
-/** What the owner earns from one completed job. Stored values win; older jobs fall back to the current fee. */
-const jobMoney = (b) => {
-  const gross = Number(b.finalAmount !== null && b.finalAmount !== undefined ? b.finalAmount : b.totalAmount);
-  const percent = b.platformFeePercent !== null && b.platformFeePercent !== undefined ? b.platformFeePercent : BOOKING_CONFIG.PLATFORM_FEE_PERCENT;
-  const fee = b.platformFeeAmount !== null && b.platformFeeAmount !== undefined ? Number(b.platformFeeAmount) : r2((gross * percent) / 100);
+/**
+ * What the owner earns from one job (services/billing.js). Completed jobs use their frozen amounts.
+ * net = what the owner receives after the platform fee; share = what the owner keeps after commission and GST.
+ */
+const jobMoney = (b, feePercent) => {
+  const bill = billing.billOf(b, feePercent);
   const deductions = Number(b.deductionsAmount || 0);
-  const net = b.netAmount !== null && b.netAmount !== undefined ? Number(b.netAmount) : r2(gross - fee - deductions);
-  return { gross, platform_fee_percent: percent, platform_fee: fee, other_deductions: deductions, net };
+  return {
+    gross: bill.total,
+    platform_fee_percent: bill.platform_fee_percent,
+    platform_fee: bill.platform_fee,
+    other_deductions: deductions,
+    net: r2(bill.owner_receives - deductions),
+    gst: bill.gst_amount,
+    commission: bill.operator_commission.amount,
+    share: r2(bill.owner_share - deductions)
+  };
 };
 
-const sumMoney = (rows) => rows.reduce((acc, b) => {
-  const m = jobMoney(b);
+const sumMoney = (rows, feePercent) => rows.reduce((acc, b) => {
+  const m = jobMoney(b, feePercent);
   acc.gross = r2(acc.gross + m.gross);
   acc.platform_fee = r2(acc.platform_fee + m.platform_fee);
   acc.other_deductions = r2(acc.other_deductions + m.other_deductions);
   acc.net = r2(acc.net + m.net);
+  acc.gst = r2(acc.gst + m.gst);
+  acc.commission = r2(acc.commission + m.commission);
+  acc.share = r2(acc.share + m.share);
   acc.jobs += 1;
   return acc;
-}, { gross: 0, platform_fee: 0, other_deductions: 0, net: 0, jobs: 0 });
+}, { gross: 0, platform_fee: 0, other_deductions: 0, net: 0, gst: 0, commission: 0, share: 0, jobs: 0 });
+
+/** Cash jobs: the owner holds the money and owes the platform fee. Online jobs: the platform holds it and owes the owner. */
+const platformBalance = (rows, fee) => {
+  const open = rows.filter((b) => b.settlementStatus !== 'settled' && b.paymentStatus === 'paid');
+  const cash = open.filter((b) => (b.paymentCollectedBy || 'owner') === 'owner');
+  const online = open.filter((b) => b.paymentCollectedBy === 'platform');
+  const owedToPlatform = sumMoney(cash, fee).platform_fee;
+  const owedToOwner = sumMoney(online, fee).net;
+  const balance = r2(owedToOwner - owedToPlatform);
+  return {
+    you_owe_platform: owedToPlatform,
+    platform_owes_you: owedToOwner,
+    balance,
+    balance_label: balance > 0 ? 'Platform will pay you' : (balance < 0 ? 'You pay the platform' : 'Nothing due'),
+    cash_jobs: cash.length,
+    online_jobs: online.length,
+    unpaid_jobs: rows.filter((b) => b.paymentStatus !== 'paid').length
+  };
+};
 
 // ---- India time helpers (the apps show India dates) ----
 const startOfDay = (date) => {
@@ -227,7 +260,9 @@ class OwnerJobService {
     const completed = b.status === BOOKING_STATUS.COMPLETED;
     const confirmed = b.status >= BOOKING_STATUS.CONFIRMED && b.status !== BOOKING_STATUS.CANCELLED;
     const photos = b.jobPhotos || [];
-    const money = completed ? jobMoney(b) : null;
+    const feePercent = await billing.platformFeePercent();
+    const money = completed ? jobMoney(b, feePercent) : null;
+    const bill = billing.billOf(b, feePercent);
     const typeName = b.craneTypeInfo ? b.craneTypeInfo.dropdownName : null;
     const capName = b.capacityInfo ? b.capacityInfo.dropdownName : null;
 
@@ -261,6 +296,25 @@ class OwnerJobService {
       } : null,
       special_requirements: b.specialRequirements,
       payment: H.paymentView(b),
+      // transparent breakdown: customer bill, platform fee, operator commission, GST, owner's share
+      bill: {
+        lines: billing.breakdownLines(bill, { audience: 'owner' }),
+        total: bill.total,
+        platform_fee_percent: bill.platform_fee_percent,
+        platform_fee: bill.platform_fee,
+        owner_receives: bill.owner_receives,
+        gst_amount: bill.gst_amount,
+        owner_share: bill.owner_share,
+        final: bill.final
+      },
+      operator_commission: {
+        ...bill.operator_commission,
+        can_edit: !!b.operatorId && b.operatorSettlementStatus !== 'settled'
+          && ![BOOKING_STATUS.CANCELLED, BOOKING_STATUS.DECLINED, BOOKING_STATUS.EXPIRED].includes(b.status),
+        settlement_status: b.operatorSettlementStatus,
+        settled_at: H.iso(b.operatorSettledAt),
+        types: billing.COMMISSION_TYPES.map((t) => ({ id: t, name: billing.COMMISSION_LABELS[t] }))
+      },
       timeline: this.timeline(b),
       timers: timers(b),
       progress: progressSteps(b),
@@ -286,7 +340,10 @@ class OwnerJobService {
           platform_fee_percent: money.platform_fee_percent,
           platform_fee: money.platform_fee,
           other_deductions: money.other_deductions,
-          net_amount: money.net
+          net_amount: money.net,
+          gst_amount: money.gst,
+          operator_commission: money.commission,
+          owner_share: money.share
         },
         settlement: { status: b.settlementStatus, label: b.settlementStatus === 'settled' ? 'Paid' : 'Pending', settled_at: H.iso(b.settledAt) }
       } : null,
@@ -337,6 +394,38 @@ class OwnerJobService {
     };
   }
 
+  // ---------------------------------------------------------------- Operator commission
+
+  /** Set or edit the operator's commission on one job (percent of job amount, per km, or fixed) */
+  async setCommission(ownerId, input = {}) {
+    const b = await this.load(ownerId, input.booking_id);
+    if (!b.operatorId) throw new ServiceError('Assign an operator before setting the commission.', 409);
+    if ([BOOKING_STATUS.CANCELLED, BOOKING_STATUS.DECLINED, BOOKING_STATUS.EXPIRED].includes(b.status)) {
+      throw new ServiceError('This job is closed.', 409);
+    }
+    if (b.operatorSettlementStatus === 'settled') throw new ServiceError('This commission is already paid to the operator.', 409);
+    const { type, value } = billing.cleanCommission(input.type, input.value);
+    if (type === 'per_km' && !(Number(b.distanceKm) > 0)) throw new ServiceError('This job has no distance, so per km cannot be used.');
+
+    const changes = { operatorCommissionType: type, operatorCommissionValue: value };
+    if (b.completedAt) {
+      // a completed job keeps its other frozen amounts; only the commission and the owner's share move
+      const plain = { ...b.get({ plain: true }), ...changes, operatorCommissionAmount: null };
+      const bill = billing.billOf(plain, Number(b.platformFeePercent));
+      changes.operatorCommissionAmount = bill.operator_commission.amount;
+      changes.ownerShareAmount = r2(bill.owner_receives - bill.operator_commission.amount - bill.gst_amount);
+    }
+    await b.update(changes);
+    const amount = billing.billOf(b.get({ plain: true })).operator_commission.amount;
+    await notificationService.notify(b.operatorId, {
+      type: 'commission_updated',
+      title: 'Your Earnings Updated',
+      body: `${b.bookingCode}: you will earn ₹${amount} for this job.`,
+      data: { booking_id: b.id, booking_code: b.bookingCode }
+    });
+    return this.get(ownerId, b.id);
+  }
+
   // ---------------------------------------------------------------- Earnings
 
   async completedRows(ownerId, since = null) {
@@ -344,7 +433,9 @@ class OwnerJobService {
     if (since) where.completedAt = { [Op.gte]: since };
     return Booking.findAll({
       where,
-      attributes: ['id', 'finalAmount', 'totalAmount', 'platformFeePercent', 'platformFeeAmount', 'deductionsAmount', 'netAmount', 'completedAt', 'settlementStatus', 'settledAt']
+      attributes: ['id', 'finalAmount', 'totalAmount', 'extraAmount', 'charges', 'gstPercent', 'distanceKm', 'platformFeePercent', 'platformFeeAmount',
+        'deductionsAmount', 'netAmount', 'completedAt', 'settlementStatus', 'settledAt', 'paymentStatus', 'paymentCollectedBy',
+        'operatorCommissionType', 'operatorCommissionValue', 'operatorCommissionAmount', 'operatorSettlementStatus']
     });
   }
 
@@ -353,11 +444,13 @@ class OwnerJobService {
     const now = new Date();
     const range = periodRange(key, now);
     const rows = await this.completedRows(ownerId);
+    const fee = await billing.platformFeePercent();
+    const sum = (list) => sumMoney(list, fee);
 
-    const current = sumMoney(inRange(rows, range.from, range.to));
+    const current = sum(inRange(rows, range.from, range.to));
     let compared = null;
     if (range.prev) {
-      const previous = sumMoney(inRange(rows, range.prev.from, range.prev.to));
+      const previous = sum(inRange(rows, range.prev.from, range.prev.to));
       compared = {
         label: range.prev.label,
         previous_net: previous.net,
@@ -365,7 +458,7 @@ class OwnerJobService {
       };
     }
 
-    const card = (k) => { const r = periodRange(k, now); const s = sumMoney(inRange(rows, r.from, r.to)); return { net: s.net, jobs: s.jobs }; };
+    const card = (k) => { const r = periodRange(k, now); const s = sum(inRange(rows, r.from, r.to)); return { net: s.net, jobs: s.jobs }; };
 
     const settled = rows.filter((b) => b.settlementStatus === 'settled');
     const pending = rows.filter((b) => b.settlementStatus !== 'settled');
@@ -381,18 +474,27 @@ class OwnerJobService {
       },
       earnings: {
         gross_earnings: current.gross,
-        platform_fee_percent: BOOKING_CONFIG.PLATFORM_FEE_PERCENT,
+        platform_fee_percent: fee,
         platform_fee: current.platform_fee,
         other_deductions: current.other_deductions,
-        net_earnings: current.net
+        net_earnings: current.net,
+        gst_collected: current.gst,
+        operator_commission: current.commission,
+        owner_share: current.share
       },
       jobs_completed: current.jobs,
       compared_to_previous: compared,
       cards: { today: card('today'), week: card('week'), month: card('month'), all: card('all') },
+      // platform settlement: cash jobs -> the owner owes the platform fee; online jobs -> the platform owes the owner
+      platform_balance: platformBalance(rows, fee),
+      operator_commission_due: {
+        amount: sum(rows.filter((b) => b.operatorSettlementStatus !== 'settled' && b.operatorCommissionType)).commission,
+        jobs: rows.filter((b) => b.operatorSettlementStatus !== 'settled' && b.operatorCommissionType).length
+      },
       settlement: {
-        settled: { amount: sumMoney(settled).net, jobs: settled.length, last_settled_at: H.iso(lastSettled) },
+        settled: { amount: sum(settled).net, jobs: settled.length, last_settled_at: H.iso(lastSettled) },
         pending: {
-          amount: sumMoney(pending).net,
+          amount: sum(pending).net,
           jobs: pending.length,
           expected_by: H.iso(expectedBy),
           expected_in_days: expectedBy ? Math.max(0, Math.ceil((expectedBy - now) / DAY_MS)) : null
@@ -435,9 +537,10 @@ class OwnerJobService {
     }
 
     const rows = await this.completedRows(ownerId, since);
+    const fee = await billing.platformFeePercent();
     const keyOf = range === 'year' ? localMonthKey : localDateKey;
     const data = buckets.map((bk) => {
-      const s = sumMoney(rows.filter((b) => keyOf(b.completedAt) === bk.key));
+      const s = sumMoney(rows.filter((b) => keyOf(b.completedAt) === bk.key), fee);
       return { key: bk.key, label: bk.label, net: s.net, gross: s.gross, jobs: s.jobs };
     });
     const peak = data.reduce((best, d) => (d.net > (best ? best.net : 0) ? d : best), null);
@@ -456,8 +559,9 @@ class OwnerJobService {
       offset: range.offset,
       order: [['completedAt', 'DESC'], ['id', 'ASC']]
     });
+    const fee = await billing.platformFeePercent();
     const items = rows.map((b) => {
-      const m = jobMoney(b);
+      const m = jobMoney(b, fee);
       return {
         booking_id: b.id,
         booking_code: b.bookingCode,
@@ -466,8 +570,17 @@ class OwnerJobService {
         completed_at: H.iso(b.completedAt),
         amount: m.gross,
         net_amount: m.net,
+        platform_fee: m.platform_fee,
+        gst_amount: m.gst,
+        operator_commission: m.commission,
+        owner_share: m.share,
+        operator: b.operator ? { id: b.operator.id, full_name: b.operator.fullName } : null,
+        payment_status: b.paymentStatus,
+        payment_collected_by: b.paymentCollectedBy,
         settlement_status: b.settlementStatus,
-        settlement_label: b.settlementStatus === 'settled' ? 'Paid' : 'Pending'
+        settlement_label: b.settlementStatus === 'settled' ? 'Settled' : 'Pending',
+        operator_settlement_status: b.operatorSettlementStatus,
+        operator_settlement_label: b.operatorSettlementStatus === 'settled' ? 'Paid' : 'Pending'
       };
     });
     return { range, items, total: count };

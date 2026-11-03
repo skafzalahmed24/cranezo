@@ -25,6 +25,15 @@ router.post('/booking/track', customerOnly, bookingController.track);
 router.post('/booking/cancel', customerOnly, bookingController.cancel);
 router.post('/booking/confirm-arrival', customerOnly, require('../controllers/job.controller').customerConfirmArrival);
 
+// payment history and complaints / payment disputes
+const finance = require('../controllers/finance.controller');
+router.post('/transactions', customerOnly, finance.customerTransactions);
+router.post('/complaints/options', customerOnly, finance.complaintOptions);
+router.post('/complaints/create', customerOnly, finance.customerComplaintCreate);
+router.post('/complaints', customerOnly, finance.customerComplaints);
+router.post('/complaints/get', customerOnly, finance.customerComplaintGet);
+router.post('/complaints/reply', customerOnly, finance.customerComplaintReply);
+
 // Customer routes (placeholder structure)
 router.get('/cranes', (req, res) => {
   return successResponse(res, 'Customer browse cranes endpoint ready.', []);

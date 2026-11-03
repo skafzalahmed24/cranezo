@@ -42,6 +42,15 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
+/** Only the Super Admin (platform fee and other money settings) */
+const requireSuperAdmin = (req, res, next) => {
+  if (!req.admin) return errorResponse(res, 'Forbidden. Admin access only.', null, 403);
+  if (roleCode(req.user) !== ROLES.SUPER_ADMIN) {
+    return errorResponse(res, 'Forbidden. Only the Super Admin can change this setting.', null, 403);
+  }
+  next();
+};
+
 /** Mobile app accounts only (customer, operator, owner), not admin panel accounts */
 const appUserOnly = (req, res, next) => {
   if (req.admin) {
@@ -53,5 +62,6 @@ const appUserOnly = (req, res, next) => {
 module.exports = {
   authorize,
   requireAdmin,
+  requireSuperAdmin,
   appUserOnly
 };

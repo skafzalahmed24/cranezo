@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { Op } = require('sequelize');
 const {
-  Booking, Crane, CraneDocument, CranePhoto, JobPhoto, JobIssue, StaticDropdown, User
+  Booking, Crane, CraneDocument, CranePhoto, JobPhoto, JobIssue, JobRequest, StaticDropdown, User
 } = require('../models');
 const { DROPDOWN_TYPES } = require('../constants/dropdownTypes');
 const { BOOKING_STATUS, BOOKING_STATUS_LABELS, NOTIFICATION_TYPES, BOOKING_CONFIG } = require('../constants/booking');
@@ -16,6 +16,7 @@ const { ServiceError } = require('./crane.service');
 const { bookingHelpers: H } = require('./booking.service');
 const { extensionService } = require('./extension.service');
 const { supportService } = require('./support.service');
+const billing = require('./billing');
 
 const dd = ['id', 'dropdownName'];
 const jobInclude = [...H.bookingInclude, { model: JobPhoto, as: 'jobPhotos', required: false }];
@@ -30,7 +31,28 @@ const istDayRange = (now = new Date()) => {
 };
 
 const customerName = (b) => (b.customer ? b.customer.companyName || b.customer.fullName : null);
-const settlementLabel = (s) => (s === 'settled' ? 'Settled' : 'Pending Settlement');
+const settlementLabel = (s) => (s === 'settled' ? 'Paid by owner' : 'Pending from owner');
+
+/** What the operator earns on a job: the commission the owner set (null until it is set) */
+const operatorEarnings = (b) => {
+  const c = billing.billOf(b).operator_commission;
+  return {
+    set: c.set,
+    type: c.type,
+    type_label: c.type_label,
+    value: c.value,
+    distance_km: c.distance_km || null,
+    amount: c.set ? c.amount : null,
+    label: c.set ? null : 'Commission not set by owner yet',
+    settlement_status: b.operatorSettlementStatus,
+    settlement_label: settlementLabel(b.operatorSettlementStatus),
+    settled_at: H.iso(b.operatorSettledAt)
+  };
+};
+const commissionAmount = (b) => {
+  const c = billing.billOf(b).operator_commission;
+  return c.set ? c.amount : null;
+};
 const statusTab = (b) => (b.status === BOOKING_STATUS.CONFIRMED ? 'Assigned'
   : [BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS].includes(b.status) ? 'In Progress'
     : b.status === BOOKING_STATUS.COMPLETED ? 'Completed' : BOOKING_STATUS_LABELS[b.status]);
@@ -141,7 +163,7 @@ class JobService {
       base_amount: base,
       waiting_charge: 0,
       extra_amount: Number(b.extraAmount),
-      final_amount: b.finalAmount !== null && b.finalAmount !== undefined ? Number(b.finalAmount) : base + Number(b.extraAmount)
+      final_amount: b.finalAmount !== null && b.finalAmount !== undefined ? Number(b.finalAmount) : billing.billOf(b).total
     };
   }
 
@@ -216,7 +238,9 @@ class JobService {
       },
       schedule: { start_type: b.startType, start_at: H.iso(b.startAt), end_at: H.iso(b.endAt) },
       duration: { type: b.durationType, service_type: H.SERVICE_TYPE[b.durationType], hours: b.durationHours, days: b.durationDays, label: H.durationLabel(b) },
-      estimated_earnings: H.num(b.totalAmount) + Number(b.extraAmount),
+      // the operator's own earning (commission), never the customer's bill
+      estimated_earnings: commissionAmount(b),
+      earnings: operatorEarnings(b),
       special_requirements: b.specialRequirements,
       extension,
       payment: H.paymentView(b),
@@ -242,9 +266,9 @@ class JobService {
         completed_at: H.iso(b.completedAt)
       },
       settlement: {
-        final_amount: b.finalAmount !== null && b.finalAmount !== undefined ? Number(b.finalAmount) : null,
-        status: b.settlementStatus,
-        status_label: settlementLabel(b.settlementStatus)
+        final_amount: commissionAmount(b),
+        status: b.operatorSettlementStatus,
+        status_label: settlementLabel(b.operatorSettlementStatus)
       },
       can_cancel: false,
       created_at: H.iso(b.createdAt)
@@ -266,7 +290,8 @@ class JobService {
       crane_label: `${H.craneTitle(crane)} (${crane.registrationNumber})`,
       crane_code: crane.craneCode,
       duration_label: H.durationLabel(b),
-      estimated_earnings: H.num(b.totalAmount),
+      estimated_earnings: commissionAmount(b),
+      earnings_label: commissionAmount(b) === null ? 'Commission not set yet' : null,
       operator_status: b.operatorStatus
     };
   }
@@ -319,7 +344,7 @@ class JobService {
       limit: 5
     });
     const todayCount = await Booking.count({ where: { ...base, startAt: { [Op.gte]: start, [Op.lt]: end } } });
-    const todayEarnings = (await Booking.sum('finalAmount', {
+    const todayEarnings = (await Booking.sum('operatorCommissionAmount', {
       where: { operatorId, status: BOOKING_STATUS.COMPLETED, completedAt: { [Op.gte]: start, [Op.lt]: end } }
     })) || 0;
     const active = await Booking.findOne({
@@ -400,10 +425,13 @@ class JobService {
     const completed = { operatorId, status: BOOKING_STATUS.COMPLETED };
     return {
       today_jobs: await Booking.count({ where: { operatorId, status: { [Op.in]: [1, 5, 6, 7] }, startAt: { [Op.gte]: start, [Op.lt]: end } } }),
-      today_earnings: Number((await Booking.sum('finalAmount', { where: { ...completed, completedAt: { [Op.gte]: start, [Op.lt]: end } } })) || 0),
-      pending_settlement: Number((await Booking.sum('finalAmount', { where: { ...completed, settlementStatus: 'pending' } })) || 0),
-      completed_settlement: Number((await Booking.sum('finalAmount', { where: { ...completed, settlementStatus: 'settled' } })) || 0),
-      completed_jobs: await Booking.count({ where: completed })
+      today_earnings: Number((await Booking.sum('operatorCommissionAmount', { where: { ...completed, completedAt: { [Op.gte]: start, [Op.lt]: end } } })) || 0),
+      // commission the owner still has to pay / has paid
+      pending_settlement: Number((await Booking.sum('operatorCommissionAmount', { where: { ...completed, operatorSettlementStatus: 'pending' } })) || 0),
+      completed_settlement: Number((await Booking.sum('operatorCommissionAmount', { where: { ...completed, operatorSettlementStatus: 'settled' } })) || 0),
+      total_earned: Number((await Booking.sum('operatorCommissionAmount', { where: completed })) || 0),
+      completed_jobs: await Booking.count({ where: completed }),
+      jobs_without_commission: await Booking.count({ where: { ...completed, operatorCommissionAmount: null } })
     };
   }
 
@@ -426,9 +454,10 @@ class JobService {
       completed_at: H.iso(b.completedAt),
       start_at: H.iso(b.startAt),
       crane_label: H.craneTitle(b.crane),
-      amount: b.finalAmount !== null ? Number(b.finalAmount) : H.num(b.totalAmount),
-      settlement_status: b.settlementStatus,
-      settlement_label: settlementLabel(b.settlementStatus)
+      amount: commissionAmount(b),
+      earnings: operatorEarnings(b),
+      settlement_status: b.operatorSettlementStatus,
+      settlement_label: settlementLabel(b.operatorSettlementStatus)
     }));
     return { range, items, total: count };
   }
@@ -712,8 +741,8 @@ class JobService {
       waitingSeconds: waiting,
       workingSeconds: working,
       jobNotes: input.notes ? String(input.notes).trim().slice(0, 1000) : null,
-      // booked amount + approved extra time. Waiting time is not charged.
-      finalAmount: Math.round((Number(b.totalAmount) + Number(b.extraAmount)) * 100) / 100
+      // booked amount + approved extra time + owner charges + GST. Waiting time is not charged.
+      finalAmount: billing.billOf(b).total
     });
     await extensionService.closePending(b.id);
     return this.view(await this.mine(operatorId, bookingId));
@@ -761,14 +790,10 @@ class JobService {
       throw new ServiceError(`Incorrect code. ${left} ${left === 1 ? 'attempt' : 'attempts'} left.`, 400);
     }
 
-    const gross = Number(b.finalAmount !== null && b.finalAmount !== undefined ? b.finalAmount : b.totalAmount);
-    const feePercent = BOOKING_CONFIG.PLATFORM_FEE_PERCENT;
-    const fee = Math.round(gross * feePercent) / 100;
+    // every amount is frozen now, so a later change of fee, charges or GST never rewrites this job
     await b.update({
-      platformFeePercent: feePercent,
-      platformFeeAmount: fee,
+      ...billing.freezeColumns(b, await billing.platformFeePercent()),
       deductionsAmount: 0,
-      netAmount: Math.round((gross - fee) * 100) / 100,
       status: BOOKING_STATUS.COMPLETED,
       completedAt: new Date(),
       completionOtp: null,
@@ -804,7 +829,7 @@ class JobService {
   // ---------------------------------------------------------------- owner
 
   /** Owner picks (or changes) the operator of a confirmed booking that has not started */
-  async ownerAssignOperator(ownerId, bookingId, operatorId) {
+  async ownerAssignOperator(ownerId, bookingId, operatorId, { silent = false } = {}) {
     if (!H.UUID_RE.test(String(bookingId || ''))) throw new ServiceError('A valid booking_id is required.');
     if (!H.UUID_RE.test(String(operatorId || ''))) throw new ServiceError('A valid operator_id is required.');
     const b = await Booking.findOne({ where: { id: bookingId, ownerId } });
@@ -817,7 +842,26 @@ class JobService {
     });
     if (!operator) throw new ServiceError('That operator is not available.', 400);
 
-    await b.update({ operatorId, operatorStatus: 0, operatorRespondedAt: null, operatorDeclineReason: null });
+    const defaults = await billing.ownerSettings(ownerId);
+    await b.update({
+      operatorId,
+      operatorStatus: 0,
+      operatorRespondedAt: null,
+      operatorDeclineReason: null,
+      operatorCommissionType: b.operatorCommissionType || defaults.default_commission_type,
+      operatorCommissionValue: b.operatorCommissionType ? b.operatorCommissionValue : defaults.default_commission_value
+    });
+    if (silent) return null;
+
+    // a direct assignment answers every operator who asked for this job
+    const asked = await JobRequest.findAll({ where: { bookingId: b.id, status: 0 }, attributes: ['id', 'operatorId'] });
+    if (asked.length) {
+      await JobRequest.update(
+        { status: 4, respondedAt: new Date() },
+        { where: { id: asked.filter((r) => r.operatorId !== operatorId).map((r) => r.id) } }
+      );
+      await JobRequest.update({ status: 1, respondedAt: new Date() }, { where: { bookingId: b.id, status: 0, operatorId } });
+    }
     await notificationService.notify(operatorId, {
       type: NOTIFICATION_TYPES.JOB_ASSIGNED,
       title: 'New Job Request',

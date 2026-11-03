@@ -89,6 +89,16 @@ export const MemberDetails = ({ userId, onBack, onSelectCrane }) => {
     }
   };
 
+  const setDocumentStatus = async (doc, status) => {
+    if (status === 2 && !window.confirm(`Reject ${doc.label}? The operator will need to upload it again.`)) return;
+    try {
+      const res = await apiRequest(`/admin/members/${member.id}/documents`, { method: 'PUT', body: { document: doc.key, status } });
+      setMember(res.data);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const craneRows = (cranes) =>
     cranes.map((c) => [
       <span key="c" className="cranzo-link-text" onClick={() => onSelectCrane(c.id)}>{c.crane_code}</span>,
@@ -208,16 +218,27 @@ export const MemberDetails = ({ userId, onBack, onSelectCrane }) => {
               </Section>
               <Section title="Documents">
                 {member.documents.map((d) => (
-                  <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: '1px solid var(--dash-border-subtle)' }}>
+                  <div key={d.key} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px', padding: '10px 0', borderBottom: '1px solid var(--dash-border-subtle)' }}>
                     <FileText size={16} />
                     <span>{d.label}</span>
-                    {d.file_url ? (
-                      <a href={fileUrl(d.file_url)} target="_blank" rel="noreferrer" style={{ marginLeft: 'auto', color: '#f59e0b', fontSize: '13px' }}>
-                        View
-                      </a>
-                    ) : (
-                      <span style={{ marginLeft: 'auto', color: 'var(--dash-text-subtle)', fontSize: '13px' }}>Not uploaded</span>
-                    )}
+                    <span className={`cranzo-status-badge ${{ 0: 'pending', 1: 'active', 2: 'blocked' }[d.status] || ''}`}>{d.status_label}</span>
+                    <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '13px' }}>
+                      {d.files.filter((x) => x.file_url).map((x) => (
+                        <a key={x.label} href={fileUrl(x.file_url)} target="_blank" rel="noreferrer" style={{ color: '#f59e0b' }}>
+                          {d.files.length > 1 ? `View ${x.label}` : 'View'}
+                        </a>
+                      ))}
+                      {d.uploaded && d.status !== 1 && (
+                        <button type="button" className="cranzo-btn-primary-amber" style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setDocumentStatus(d, 1)}>
+                          Approve
+                        </button>
+                      )}
+                      {d.uploaded && d.status !== 2 && (
+                        <button type="button" className="cranzo-btn-danger-outline" style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setDocumentStatus(d, 2)}>
+                          Reject
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </Section>

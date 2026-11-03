@@ -5,6 +5,18 @@ const { CRANE_APPROVAL_LABELS } = require('../constants/roles');
 const ROLE_BY_KIND = { owners: 1, operators: 2, users: 3 };
 const ROLE_NAMES = { 1: 'Crane Owner', 2: 'Operator', 3: 'Customer' };
 
+// Operator documents the admin verifies. License front and back share one status.
+const DOCUMENTS = {
+  operator_license: {
+    label: 'Operator License', status: 'operatorLicenseStatus',
+    files: ['operatorLicenseFront', 'operatorLicenseBack'], fileLabels: ['Front', 'Back']
+  },
+  aadhar_card: { label: 'Aadhaar Card', status: 'aadharStatus', files: ['aadharCardFile'], fileLabels: ['View'] },
+  pan_card: { label: 'PAN Card', status: 'panStatus', files: ['panCardFile'], fileLabels: ['View'] },
+  other_documents: { label: 'Other Documents', status: 'otherDocumentStatus', files: ['otherDocumentFile'], fileLabels: ['View'] }
+};
+const DOC_STATUS_LABELS = { 0: 'Pending', 1: 'Verified', 2: 'Rejected' };
+
 class MemberServiceError extends Error {
   constructor(message, statusCode = 400) {
     super(message);
@@ -241,13 +253,18 @@ class MemberService {
           company_name: user.ownerAccount.companyName,
           contact: `${user.ownerAccount.countryCode || ''} ${user.ownerAccount.mobileNumber || ''}`.trim()
         } : null,
-        documents: [
-          { label: 'Operator License (Front)', file_url: user.operatorLicenseFront },
-          { label: 'Operator License (Back)', file_url: user.operatorLicenseBack },
-          { label: 'Aadhaar Card', file_url: user.aadharCardFile },
-          { label: 'PAN Card', file_url: user.panCardFile },
-          { label: 'Other Documents', file_url: user.otherDocumentFile }
-        ]
+        documents: Object.entries(DOCUMENTS).map(([key, d]) => {
+          const files = d.files.map((f) => user[f]).filter(Boolean);
+          const status = user[d.status];
+          return {
+            key,
+            label: d.label,
+            files: d.files.map((f, i) => ({ label: d.fileLabels[i], file_url: user[f] || null })),
+            uploaded: files.length > 0,
+            status: files.length ? status : null,
+            status_label: files.length ? DOC_STATUS_LABELS[status] : 'Not Uploaded'
+          };
+        })
       });
       const assigned = await Crane.findAll({ where: { operatorId: user.id }, include: craneInclude });
       profile.assigned_cranes = assigned.map(craneSummary);
@@ -271,6 +288,19 @@ class MemberService {
     }
 
     return profile;
+  }
+
+  /** Admin verifies (1) or rejects (2) one operator document; a re-upload puts it back to pending (0) */
+  async setDocumentStatus(userId, documentKey, status) {
+    const doc = DOCUMENTS[documentKey];
+    if (!doc) throw new MemberServiceError(`document must be one of: ${Object.keys(DOCUMENTS).join(', ')}.`);
+    const value = Number(status);
+    if (![0, 1, 2].includes(value)) throw new MemberServiceError('status must be 0 (pending), 1 (verified) or 2 (rejected).');
+    const user = await User.findOne({ where: { id: userId, isDeleted: 0, roleId: 2 } });
+    if (!user) throw new MemberServiceError('Operator not found.', 404);
+    if (!doc.files.some((f) => user[f])) throw new MemberServiceError('This document has not been uploaded yet.');
+    await user.update({ [doc.status]: value });
+    return this.get(userId);
   }
 
   async setStatus(userId, status) {

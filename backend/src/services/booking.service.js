@@ -12,6 +12,7 @@ const { jobStage, customerJobBlock } = require('../constants/job');
 const { parseRange } = require('../utils/range');
 const { notificationService } = require('./notification.service');
 const { ServiceError } = require('./crane.service');
+const billing = require('./billing');
 
 const C = BOOKING_CONFIG;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -128,6 +129,27 @@ const computePrice = (hourlyRate, hours) => {
   };
 };
 
+/** Crane details / confirm screen: crane hire plus the owner's charges and GST, as the customer will be billed */
+const quotedPrice = async (crane, hours) => {
+  const price = computePrice(crane.hourlyRate, hours);
+  const settings = await billing.ownerSettings(crane.ownerId);
+  const bill = billing.quote({ craneRental: price.total_amount, charges: settings.charges, gstPercent: settings.gst_percent });
+  return {
+    ...price,
+    charges: bill.charges,
+    gst_percent: bill.gst_percent,
+    gst_amount: bill.gst_amount,
+    total_payable: bill.total,
+    breakdown: billing.breakdownLines({ ...bill, platform_fee: 0, operator_commission: { set: false } })
+  };
+};
+
+/** The customer's bill for a booking: crane hire, extra time, owner charges, GST and the total */
+const customerBill = (b) => {
+  const bill = billing.billOf(b);
+  return { total_payable: bill.total, gst_percent: bill.gst_percent, gst_amount: bill.gst_amount, breakdown: billing.breakdownLines(bill) };
+};
+
 // ---------------------------------------------------------------- loading
 
 const userAttrs = ['id', 'memberId', 'fullName', 'mobileNumber', 'countryCode', 'profileImage', 'ratingAverage', 'ratingCount'];
@@ -219,7 +241,8 @@ const priceView = (b) => ({
   other_charges: num(b.otherCharges),
   operator_included: num(b.operatorCharges) === 0,
   fuel_included: num(b.fuelCharges) === 0,
-  total_amount: num(b.totalAmount)
+  total_amount: num(b.totalAmount),
+  ...customerBill(b)
 });
 
 const paymentView = (b) => {
@@ -520,7 +543,7 @@ class BookingService {
         end_at: iso(req.endAt),
         duration_label: durationLabel({ durationType: req.durationType, durationHours: req.hours, durationDays: req.days })
       },
-      price: computePrice(crane.hourlyRate, req.hours),
+      price: await quotedPrice(crane, req.hours),
       payment_methods: PAYMENT_METHODS
     };
   }
@@ -556,6 +579,8 @@ class BookingService {
     if (duplicate) throw new ServiceError('You already have a booking request for this crane at that time.', 409);
 
     const price = computePrice(crane.hourlyRate, duration.hours);
+    // the owner's charges and GST at booking time are copied onto the booking, so the customer's bill never changes later
+    const ownerBilling = await billing.ownerSettings(crane.ownerId);
     const ttlMinutes = req.startType === 'now' ? C.REQUEST_TTL_NOW_MINUTES : C.REQUEST_TTL_SCHEDULED_MINUTES;
 
     let bookingId;
@@ -590,6 +615,8 @@ class BookingService {
           advancePercent: price.advance_percent,
           advanceAmount: price.advance_amount,
           remainingAmount: price.remaining_amount,
+          charges: ownerBilling.charges,
+          gstPercent: ownerBilling.gst_percent,
           paymentMethod,
           paymentStatus: 'pending',
           paidAmount: 0,
@@ -909,6 +936,6 @@ module.exports = {
   // shared with the operator job service
   bookingHelpers: {
     loadBooking, bookingInclude, craneSummary, craneTitle, primaryPhoto, operatorView, customerView, ownerView,
-    priceView, paymentView, durationLabel, ratingOf, haversineKm, etaMinutes, round1, num, iso, addMs, SERVICE_TYPE, UUID_RE
+    priceView, paymentView, customerBill, durationLabel, ratingOf, haversineKm, etaMinutes, round1, num, iso, addMs, SERVICE_TYPE, UUID_RE
   }
 };

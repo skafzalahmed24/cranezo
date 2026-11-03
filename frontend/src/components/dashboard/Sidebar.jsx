@@ -18,6 +18,9 @@ import {
   Settings,
   LogOut,
   X,
+  Wallet,
+  MessageSquareWarning,
+  Percent,
 } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
 
@@ -46,6 +49,8 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
       items: [
         { id: 'bookings', label: 'Bookings', icon: CalendarCheck2 },
         { id: 'payments', label: 'Payments', icon: CreditCard },
+        { id: 'settlements', label: 'Settlements', icon: Wallet },
+        { id: 'complaints', label: 'Complaints', icon: MessageSquareWarning },
         { id: 'reviews', label: 'Reviews', icon: Star },
       ],
     },
@@ -63,6 +68,7 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
         { id: 'support', label: 'Support', icon: LifeBuoy },
         { id: 'announcements', label: 'Announcements', icon: Megaphone },
         { id: 'legal', label: 'Legal Pages', icon: FileText },
+        { id: 'platform-fee', label: 'Platform Fee', icon: Percent },
         { id: 'settings', label: 'Settings', icon: Settings },
       ],
     },

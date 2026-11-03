@@ -26,6 +26,9 @@ const OPERATOR_KEYS = [
   'operator_license_number', 'license_expiry_date', 'years_of_experience', 'operator_type', 'owner_id',
   'operator_license_front', 'operator_license_back', 'aadhar_card_file', 'pan_card_file', 'other_document_file'
 ];
+const OPERATOR_DOC_KEYS = [
+  'operator_license_front', 'operator_license_back', 'aadhar_card_file', 'pan_card_file', 'other_document_file'
+];
 
 const includes = [
   { model: Role, as: 'role', attributes: ['id', 'name', 'code'] },
@@ -265,6 +268,32 @@ class MyProfileService {
       other: user.otherDocumentFile
     };
 
+    // Uploading or replacing a single document must not re-check the whole license form:
+    // older operator accounts have empty license details and could never upload anything.
+    const detailKeys = OPERATOR_KEYS.filter((k) => !OPERATOR_DOC_KEYS.includes(k));
+    if (!has(body, detailKeys)) {
+      const blank = (v) => v === undefined || v === null || String(v).trim() === '';
+      // license images cannot be removed, only replaced; the other documents can be cleared
+      if (!blank(body.operator_license_front)) user.operatorLicenseFront = body.operator_license_front;
+      if (!blank(body.operator_license_back)) user.operatorLicenseBack = body.operator_license_back;
+      if (body.aadhar_card_file !== undefined) user.aadharCardFile = body.aadhar_card_file || null;
+      if (body.pan_card_file !== undefined) user.panCardFile = body.pan_card_file || null;
+      if (body.other_document_file !== undefined) user.otherDocumentFile = body.other_document_file || null;
+    } else {
+      await this.validateOperatorDetails(user, body);
+    }
+
+    // a replaced document goes back to pending until it is verified again
+    if (user.operatorLicenseNumber !== before.license || user.operatorLicenseFront !== before.front || user.operatorLicenseBack !== before.back) {
+      user.operatorLicenseStatus = 0;
+    }
+    if (user.aadharCardFile !== before.aadhar) user.aadharStatus = 0;
+    if (user.panCardFile !== before.pan) user.panStatus = 0;
+    if (user.otherDocumentFile !== before.other) user.otherDocumentStatus = 0;
+  }
+
+  /** License details edited from Personal Info: validate the complete form (stored values + changes) */
+  async validateOperatorDetails(user, body) {
     const current = {
       operator_license_number: user.operatorLicenseNumber,
       license_expiry_date: user.licenseExpiryDate,
@@ -275,14 +304,6 @@ class MyProfileService {
       operator_license_back: user.operatorLicenseBack
     };
     await applyOperatorProfile(user, { ...current, ...body });
-
-    // a replaced document goes back to pending until it is verified again
-    if (user.operatorLicenseNumber !== before.license || user.operatorLicenseFront !== before.front || user.operatorLicenseBack !== before.back) {
-      user.operatorLicenseStatus = 0;
-    }
-    if (user.aadharCardFile !== before.aadhar) user.aadharStatus = 0;
-    if (user.panCardFile !== before.pan) user.panStatus = 0;
-    if (user.otherDocumentFile !== before.other) user.otherDocumentStatus = 0;
   }
 
   // ---------------- Language ----------------

@@ -8,7 +8,8 @@ const legalController = require('../controllers/legal.controller');
 const supportAdminController = require('../controllers/supportAdmin.controller');
 const homeController = require('../controllers/home.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
-const { requireAdmin } = require('../middlewares/role.middleware');
+const { requireAdmin, requireSuperAdmin } = require('../middlewares/role.middleware');
+const finance = require('../controllers/finance.controller');
 
 const adminOnly = [authenticate, requireAdmin];
 
@@ -27,6 +28,22 @@ router.post('/members/list', adminOnly, memberController.list);
 router.post('/members/summary', adminOnly, memberController.summary);
 router.post('/members/get', adminOnly, memberController.get);
 router.put('/members/:id/status', adminOnly, memberController.setStatus);
+router.put('/members/:id/documents', adminOnly, memberController.setDocumentStatus);
+
+// Payments, settlements, complaints. Only the Super Admin can change the platform fee.
+router.post('/finance/settings', adminOnly, finance.adminPlatformSettings);
+router.put('/finance/settings', [authenticate, requireSuperAdmin], finance.adminSavePlatformSettings);
+router.post('/finance/transactions', adminOnly, finance.adminTransactions);
+router.post('/finance/transactions/summary', adminOnly, finance.adminTransactionSummary);
+router.post('/finance/settlements/balances', adminOnly, finance.adminSettlementBalances);
+router.post('/finance/settlements/pending', adminOnly, finance.adminSettlementPending);
+router.post('/finance/settlements/settle', adminOnly, finance.adminSettle);
+router.post('/finance/settlements', adminOnly, finance.adminSettlements);
+router.post('/finance/settlements/get', adminOnly, finance.adminSettlementGet);
+router.post('/complaints', adminOnly, finance.adminComplaints);
+router.post('/complaints/summary', adminOnly, finance.adminComplaintSummary);
+router.post('/complaints/get', adminOnly, finance.adminComplaintGet);
+router.put('/complaints/update', adminOnly, finance.adminComplaintUpdate);
 
 // Support: requests (customer, operator, owner), FAQs, settings and announcements
 router.post('/support/tickets/summary', adminOnly, supportAdminController.ticketSummary);

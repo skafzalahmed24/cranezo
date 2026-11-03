@@ -28,6 +28,25 @@ router.post('/earnings/summary', ownerOnly, ownerJobController.earningsSummary);
 router.post('/earnings/trend', ownerOnly, ownerJobController.earningsTrend);
 router.post('/earnings/jobs', ownerOnly, ownerJobController.earningsJobs);
 
+// payments, GST and charges, operator commission, settlements, job requests, complaints
+const finance = require('../controllers/finance.controller');
+router.post('/billing/settings', ownerOnly, finance.ownerBillingGet);
+router.post('/billing/settings/save', ownerOnly, finance.ownerBillingSave);
+router.post('/jobs/commission', ownerOnly, finance.ownerSetCommission);
+router.post('/transactions', ownerOnly, finance.ownerTransactions);
+router.post('/settlements/platform', ownerOnly, finance.ownerPlatformPending);
+router.post('/settlements', ownerOnly, finance.ownerSettlements);
+router.post('/settlements/get', ownerOnly, finance.ownerSettlementGet);
+router.post('/operator-payments', ownerOnly, finance.ownerOperatorDues);
+router.post('/operator-payments/jobs', ownerOnly, finance.ownerOperatorPending);
+router.post('/operator-payments/pay', ownerOnly, finance.ownerPayOperator);
+router.post('/job-requests', ownerOnly, finance.ownerJobRequests);
+router.post('/job-requests/respond', ownerOnly, finance.ownerJobRequestRespond);
+router.post('/complaints', ownerOnly, finance.ownerComplaints);
+router.post('/complaints/summary', ownerOnly, finance.ownerComplaintSummary);
+router.post('/complaints/get', ownerOnly, finance.ownerComplaintGet);
+router.post('/complaints/update', ownerOnly, finance.ownerComplaintUpdate);
+
 // Crane management (Crane Owner)
 router.post('/cranes/form-options', ownerOnly, craneController.getFormOptions);
 router.post('/operators', ownerOnly, craneController.listOperators);
