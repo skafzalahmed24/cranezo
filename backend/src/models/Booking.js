@@ -74,6 +74,12 @@ module.exports = (sequelize) => {
     settlementStatus: { type: DataTypes.STRING(12), allowNull: false, defaultValue: 'pending', field: 'settlement_status' },
     settledAt: { type: DataTypes.DATE, allowNull: true, field: 'settled_at' },
     settlementId: { type: DataTypes.UUID, allowNull: true, field: 'settlement_id' },
+    // booking made from a request (Rapido style)
+    craneRequestId: { type: DataTypes.UUID, allowNull: true, field: 'crane_request_id' },
+    distanceCharge: money('distance_charge'),
+    paymentDueAt: { type: DataTypes.DATE, allowNull: true, field: 'payment_due_at' },
+    advancePaidAt: { type: DataTypes.DATE, allowNull: true, field: 'advance_paid_at' },
+    platformCollectedAmount: money('platform_collected_amount'),
     // bill: owner charges and GST copied when the booking is made (see services/billing.js)
     charges: { type: DataTypes.JSONB, allowNull: true },
     chargesAmount: money('charges_amount'),

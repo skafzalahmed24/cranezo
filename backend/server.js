@@ -14,6 +14,9 @@ const startServer = async () => {
     bookingService.expireStaleRequests().catch((error) => console.warn('[Bookings] expiry check failed: ' + error.message));
     require('./src/services/extension.service').extensionService.expireStale()
       .catch((error) => console.warn('[Extra time] expiry check failed: ' + error.message));
+    // crane requests: auto price raise, requests nobody accepted, advances not paid in time
+    require('./src/services/craneRequest.service').craneRequestService.tick()
+      .catch((error) => console.warn('[Crane requests] check failed: ' + error.message));
   }, 60 * 1000).unref();
 
   app.listen(PORT, () => {

@@ -47,7 +47,6 @@ const settlementView = (s) => ({
 /** One completed job as it appears in a settlement list */
 const jobLine = (b, fee) => {
   const bill = billing.billOf(b, fee);
-  const cash = (b.paymentCollectedBy || 'owner') === 'owner';
   return {
     booking_id: b.id,
     booking_code: b.bookingCode,
@@ -62,8 +61,9 @@ const jobLine = (b, fee) => {
     payment_status: b.paymentStatus,
     payment_method: b.paymentMethod,
     collected_by: b.paymentCollectedBy || (b.paymentStatus === 'paid' ? 'owner' : null),
-    // + platform pays the owner, - the owner pays the platform
-    platform_balance: b.paymentStatus !== 'paid' ? 0 : (cash ? -bill.platform_fee : bill.owner_receives),
+    platform_held: r2(Number(b.platformCollectedAmount || 0)),
+    // + platform pays the owner, - the owner pays the platform (advance online + rest in cash both work)
+    platform_balance: b.paymentStatus !== 'paid' ? 0 : billing.platformBalanceOf(b, bill),
     settlement_status: b.settlementStatus,
     operator_settlement_status: b.operatorSettlementStatus,
     operator: b.operator ? { id: b.operator.id, name: b.operator.fullName } : null

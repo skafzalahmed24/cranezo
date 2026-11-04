@@ -15,7 +15,7 @@ const r2 = (n) => Math.round(n * 100) / 100;
 // Jobs screen tabs: New Requests / Upcoming / Active / Completed (+ closed for declined, expired, cancelled)
 const TABS = {
   new_requests: { statuses: [BOOKING_STATUS.AWAITING_OWNER], label: 'New Request', order: [['createdAt', 'DESC']], oldest: [['createdAt', 'ASC']] },
-  upcoming: { statuses: [BOOKING_STATUS.CONFIRMED], label: 'Upcoming', order: [['startAt', 'ASC']], oldest: [['startAt', 'DESC']] },
+  upcoming: { statuses: [BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED], label: 'Upcoming', order: [['startAt', 'ASC']], oldest: [['startAt', 'DESC']] },
   active: { statuses: [BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS], label: 'Active', order: [['startAt', 'ASC']], oldest: [['startAt', 'DESC']] },
   completed: { statuses: [BOOKING_STATUS.COMPLETED], label: 'Completed', order: [['completedAt', 'DESC']], oldest: [['completedAt', 'ASC']] },
   closed: { statuses: [BOOKING_STATUS.DECLINED, BOOKING_STATUS.EXPIRED, BOOKING_STATUS.CANCELLED], label: 'Closed', order: [['createdAt', 'DESC']], oldest: [['createdAt', 'ASC']] }
@@ -65,18 +65,18 @@ const sumMoney = (rows, feePercent) => rows.reduce((acc, b) => {
 /** Cash jobs: the owner holds the money and owes the platform fee. Online jobs: the platform holds it and owes the owner. */
 const platformBalance = (rows, fee) => {
   const open = rows.filter((b) => b.settlementStatus !== 'settled' && b.paymentStatus === 'paid');
-  const cash = open.filter((b) => (b.paymentCollectedBy || 'owner') === 'owner');
-  const online = open.filter((b) => b.paymentCollectedBy === 'platform');
-  const owedToPlatform = sumMoney(cash, fee).platform_fee;
-  const owedToOwner = sumMoney(online, fee).net;
+  // per job: money the platform holds (online / advance) minus its fee; + platform pays, - owner pays
+  const lines = open.map((b) => billing.platformBalanceOf(b, billing.billOf(b, fee)));
+  const owedToPlatform = r2(lines.filter((v) => v < 0).reduce((s, v) => s - v, 0));
+  const owedToOwner = r2(lines.filter((v) => v > 0).reduce((s, v) => s + v, 0));
   const balance = r2(owedToOwner - owedToPlatform);
   return {
     you_owe_platform: owedToPlatform,
     platform_owes_you: owedToOwner,
     balance,
     balance_label: balance > 0 ? 'Platform will pay you' : (balance < 0 ? 'You pay the platform' : 'Nothing due'),
-    cash_jobs: cash.length,
-    online_jobs: online.length,
+    cash_jobs: lines.filter((v) => v < 0).length,
+    online_jobs: lines.filter((v) => v > 0).length,
     unpaid_jobs: rows.filter((b) => b.paymentStatus !== 'paid').length
   };
 };
@@ -435,6 +435,7 @@ class OwnerJobService {
       where,
       attributes: ['id', 'finalAmount', 'totalAmount', 'extraAmount', 'charges', 'gstPercent', 'distanceKm', 'platformFeePercent', 'platformFeeAmount',
         'deductionsAmount', 'netAmount', 'completedAt', 'settlementStatus', 'settledAt', 'paymentStatus', 'paymentCollectedBy',
+        'paidAmount', 'platformCollectedAmount', 'distanceCharge',
         'operatorCommissionType', 'operatorCommissionValue', 'operatorCommissionAmount', 'operatorSettlementStatus']
     });
   }

@@ -17,6 +17,8 @@ import Payments from './Payments';
 import Settlements from './Settlements';
 import Complaints from './Complaints';
 import PlatformFee from './PlatformFee';
+import CraneRequests from './CraneRequests';
+import PricingRules from './PricingRules';
 import BookingsList from './BookingsList';
 import CraneMatching from './CraneMatching';
 import AddUserModal from './AddUserModal';
@@ -308,6 +310,10 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
           {activeView === 'complaints' && <Complaints />}
 
           {activeView === 'platform-fee' && <PlatformFee />}
+
+          {activeView === 'crane-requests' && <CraneRequests />}
+
+          {activeView === 'pricing-rules' && <PricingRules />}
 
           {/* Placeholders for other subpages while keeping navigation active */}
           {![

@@ -218,6 +218,15 @@ const RESET_TO_REVIEW = () => ({
   reviewedBy: null
 });
 
+/** Owners set their own rate, but never below the Cranezo minimum per hour for that crane type + capacity */
+async function assertMinimumRate(craneType, capacity, rate) {
+  const { PriceMinimum } = require('../models');
+  const row = await PriceMinimum.findOne({ where: { craneType, capacity } });
+  if (row && Number(rate) < Number(row.minHourlyRate)) {
+    throw new ServiceError(`The hourly rate cannot be less than ₹${Number(row.minHourlyRate)} (Cranezo minimum for this crane).`);
+  }
+}
+
 class CraneService {
   /**
    * Dropdowns + operators the Add Crane form needs.
@@ -369,6 +378,7 @@ class CraneService {
 
     const hourlyRate = Number(body.hourly_rate);
     if (!Number.isFinite(hourlyRate) || hourlyRate <= 0) throw new ServiceError('hourly_rate must be greater than 0.');
+    await assertMinimumRate(craneType, capacity, hourlyRate);
     const minimumHours = body.minimum_hours === undefined || body.minimum_hours === '' ? 4 : toInt(body.minimum_hours);
     if (!Number.isInteger(minimumHours) || minimumHours < 1 || minimumHours > BOOKING_CONFIG.MAX_HOURS) {
       throw new ServiceError(`minimum_hours must be between 1 and ${BOOKING_CONFIG.MAX_HOURS}.`);
@@ -497,6 +507,14 @@ class CraneService {
       const rate = Number(body.hourly_rate);
       if (!Number.isFinite(rate) || rate <= 0) throw new ServiceError('hourly_rate must be greater than 0.');
       updates.hourlyRate = rate;
+    }
+    // the rate can never be below the Cranezo minimum for this crane type + capacity
+    if (body.hourly_rate !== undefined || updates.craneType !== undefined || updates.capacity !== undefined) {
+      await assertMinimumRate(
+        updates.craneType !== undefined ? updates.craneType : crane.craneType,
+        updates.capacity !== undefined ? updates.capacity : crane.capacity,
+        updates.hourlyRate !== undefined ? updates.hourlyRate : Number(crane.hourlyRate)
+      );
     }
     if (body.minimum_hours !== undefined) {
       const hrs = toInt(body.minimum_hours);

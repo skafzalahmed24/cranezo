@@ -40,6 +40,14 @@ router.post('/finance/settlements/pending', adminOnly, finance.adminSettlementPe
 router.post('/finance/settlements/settle', adminOnly, finance.adminSettle);
 router.post('/finance/settlements', adminOnly, finance.adminSettlements);
 router.post('/finance/settlements/get', adminOnly, finance.adminSettlementGet);
+// Booking requests ("no crane found" goes here) and pricing rules (Super Admin changes them)
+const craneRequests = require('../controllers/craneRequest.controller');
+router.post('/crane-requests', adminOnly, craneRequests.adminList);
+router.post('/crane-requests/summary', adminOnly, craneRequests.adminSummary);
+router.put('/crane-requests/update', adminOnly, craneRequests.adminUpdate);
+router.post('/pricing', adminOnly, finance.adminPricing);
+router.put('/pricing/rules', [authenticate, requireSuperAdmin], finance.adminSaveRules);
+router.put('/pricing/minimum', [authenticate, requireSuperAdmin], finance.adminSaveMinimum);
 router.post('/complaints', adminOnly, finance.adminComplaints);
 router.post('/complaints/summary', adminOnly, finance.adminComplaintSummary);
 router.post('/complaints/get', adminOnly, finance.adminComplaintGet);

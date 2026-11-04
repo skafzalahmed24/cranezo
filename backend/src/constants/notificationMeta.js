@@ -2,6 +2,11 @@
 // `icon` is a key the app maps to an icon; `category` groups types; `screen` is the app screen to open.
 const META = {
   booking_request: { category: 'booking', icon: 'booking', screen: 'owner_request' },
+  crane_request: { category: 'booking', icon: 'booking', screen: 'owner_crane_requests' },
+  request_accepted: { category: 'booking', icon: 'booking', screen: 'crane_request' },
+  request_expired: { category: 'booking', icon: 'booking', screen: 'crane_request' },
+  advance_paid: { category: 'payment', icon: 'payment', screen: 'owner_job' },
+  payment_timeout: { category: 'booking', icon: 'booking', screen: 'booking' },
   booking_confirmed: { category: 'booking', icon: 'booking', screen: 'booking' },
   booking_declined: { category: 'booking', icon: 'booking', screen: 'booking' },
   booking_expired: { category: 'booking', icon: 'booking', screen: 'booking' },

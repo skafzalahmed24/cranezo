@@ -95,5 +95,18 @@ module.exports = {
   adminComplaints: ranged('Complaints retrieved successfully.', (req) => complaintService.adminList(body(req))),
   adminComplaintSummary: handler('Complaint counts retrieved successfully.', () => complaintService.summary()),
   adminComplaintGet: handler('Complaint retrieved successfully.', (req) => complaintService.adminGet(body(req).complaint_id)),
-  adminComplaintUpdate: handler('Complaint updated.', (req) => complaintService.update(adminActor(req), body(req)))
+  adminComplaintUpdate: handler('Complaint updated.', (req) => complaintService.update(adminActor(req), body(req))),
+
+  // ======================================================================== Pricing rules (Super Admin)
+  adminPricing: handler('Pricing rules retrieved successfully.', async () => {
+    const m = await billing.listMinimums();
+    return {
+      rules: await billing.bookingRules(),
+      crane_types: m.crane_types,
+      capacities: m.capacities,
+      minimums: m.minimums
+    };
+  }),
+  adminSaveRules: handler('Booking rules saved.', async (req) => ({ rules: await billing.setBookingRules(body(req), req.user.id) })),
+  adminSaveMinimum: handler('Minimum price saved.', (req) => billing.saveMinimum(body(req)))
 };

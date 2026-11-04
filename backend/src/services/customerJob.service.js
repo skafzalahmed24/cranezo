@@ -18,7 +18,7 @@ const r2 = (n) => Math.round(n * 100) / 100;
 
 // My Jobs tabs: Upcoming / Active / Completed / Cancelled
 const TABS = {
-  upcoming: { statuses: [BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.CONFIRMED], label: 'Upcoming', order: [['startAt', 'ASC']] },
+  upcoming: { statuses: [BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED], label: 'Upcoming', order: [['startAt', 'ASC']] },
   active: { statuses: [BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS], label: 'In Progress', order: [['startAt', 'ASC']] },
   completed: { statuses: [BOOKING_STATUS.COMPLETED], label: 'Completed', order: [['completedAt', 'DESC']] },
   cancelled: { statuses: [BOOKING_STATUS.CANCELLED, BOOKING_STATUS.DECLINED, BOOKING_STATUS.EXPIRED], label: 'Cancelled', order: [['createdAt', 'DESC']] }
@@ -41,7 +41,9 @@ const paymentBlock = (b) => {
     method: b.paymentMethod,
     method_name: method ? method.name : b.paymentMethod,
     status: b.paymentStatus,
-    status_label: isPaid ? 'Paid' : 'Pending',
+    status_label: isPaid ? 'Paid' : (paid > 0 ? 'Advance paid' : 'Pending'),
+    advance_paid: b.advancePaidAt ? Number(b.advanceAmount) : 0,
+    advance_paid_at: H.iso(b.advancePaidAt),
     booking_amount: Number(b.totalAmount),
     booking_hours: b.durationHours,
     extra_minutes: b.extraMinutes,
@@ -276,7 +278,7 @@ class CustomerJobService {
       },
       rating: rated ? { rated: true, rating: rated.rating, comment: rated.comment } : { rated: false, rating: null, comment: null },
       actions: {
-        can_cancel: [BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.CONFIRMED].includes(b.status),
+        can_cancel: [BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED].includes(b.status),
         // changing a booking (date, time, duration) is not built yet
         can_modify: false,
         can_track: [BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS].includes(b.status) && !!b.operatorId,
@@ -325,15 +327,18 @@ class CustomerJobService {
     if (!method) throw new ServiceError('payment_method is not valid.');
     if (!method.enabled) throw new ServiceError(`${method.name} is not available yet. Please choose Cash on Delivery.`);
 
-    const total = finalTotal(b);
+    const grandTotal = finalTotal(b);
+    // only what is left after the advance (paid online) is collected now
+    const total = r2(Math.max(0, grandTotal - Number(b.paidAmount || 0)));
     // every payment goes into the ledger; cash is collected on site by the owner's side
     const tx = await paymentService.record({ booking: b, amount: total, method: id, status: 'success' });
     await b.update({
       paymentMethod: id,
       paymentStatus: 'paid',
-      paidAmount: total,
+      paidAmount: grandTotal,
       paymentReference: tx.transactionCode,
-      paymentCollectedBy: tx.collectedBy,
+      paymentCollectedBy: Number(b.platformCollectedAmount || 0) > 0 ? 'mixed' : tx.collectedBy,
+      platformCollectedAmount: r2(Number(b.platformCollectedAmount || 0) + (tx.collectedBy === 'platform' ? total : 0)),
       paidAt: tx.createdAt
     });
 

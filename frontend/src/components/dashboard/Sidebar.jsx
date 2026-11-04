@@ -21,6 +21,8 @@ import {
   Wallet,
   MessageSquareWarning,
   Percent,
+  Search,
+  SlidersHorizontal,
 } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
 
@@ -48,6 +50,7 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
       title: 'OPERATIONS',
       items: [
         { id: 'bookings', label: 'Bookings', icon: CalendarCheck2 },
+        { id: 'crane-requests', label: 'Crane Requests', icon: Search },
         { id: 'payments', label: 'Payments', icon: CreditCard },
         { id: 'settlements', label: 'Settlements', icon: Wallet },
         { id: 'complaints', label: 'Complaints', icon: MessageSquareWarning },
@@ -69,6 +72,7 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
         { id: 'announcements', label: 'Announcements', icon: Megaphone },
         { id: 'legal', label: 'Legal Pages', icon: FileText },
         { id: 'platform-fee', label: 'Platform Fee', icon: Percent },
+        { id: 'pricing-rules', label: 'Pricing Rules', icon: SlidersHorizontal },
         { id: 'settings', label: 'Settings', icon: Settings },
       ],
     },

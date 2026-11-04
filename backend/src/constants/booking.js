@@ -7,7 +7,9 @@ const BOOKING_STATUS = {
   CANCELLED: 4,
   EN_ROUTE: 5,
   IN_PROGRESS: 6,
-  COMPLETED: 7
+  COMPLETED: 7,
+  // an owner accepted the customer's request; the customer must pay the advance in time
+  AWAITING_PAYMENT: 8
 };
 
 const BOOKING_STATUS_LABELS = {
@@ -18,12 +20,14 @@ const BOOKING_STATUS_LABELS = {
   4: 'Cancelled',
   5: 'En Route',
   6: 'In Progress',
-  7: 'Completed'
+  7: 'Completed',
+  8: 'Awaiting Payment'
 };
 
 // Statuses that keep a crane busy for the booked window
 const BUSY_STATUSES = [
   BOOKING_STATUS.AWAITING_OWNER,
+  BOOKING_STATUS.AWAITING_PAYMENT,
   BOOKING_STATUS.CONFIRMED,
   BOOKING_STATUS.EN_ROUTE,
   BOOKING_STATUS.IN_PROGRESS
@@ -31,7 +35,8 @@ const BUSY_STATUSES = [
 
 // Only requests that are accepted (or further along) block other customers for certain.
 // Pending requests are not blocking, so two customers can ask for the same crane; the owner picks.
-const BLOCKING_STATUSES = [BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS];
+// A crane accepted for a request stays blocked while the customer has time to pay the advance.
+const BLOCKING_STATUSES = [BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS, BOOKING_STATUS.AWAITING_PAYMENT];
 
 const BOOKING_CONFIG = {
   // owners and cranes farther than this from the job site are never shown or notified
@@ -94,6 +99,12 @@ const NOTIFICATION_TYPES = {
   EXTENSION_REJECTED: 'extension_rejected',
   EXTENSION_EXPIRED: 'extension_expired',
   PAYMENT_RECEIVED: 'payment_received',
+  // Rapido-style requests
+  CRANE_REQUEST: 'crane_request',
+  REQUEST_ACCEPTED: 'request_accepted',
+  REQUEST_EXPIRED: 'request_expired',
+  ADVANCE_PAID: 'advance_paid',
+  PAYMENT_TIMEOUT: 'payment_timeout',
   RATING_RECEIVED: 'rating_received'
 };
 

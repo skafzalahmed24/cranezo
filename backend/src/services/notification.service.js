@@ -37,7 +37,7 @@ const getMessaging = () => {
 };
 
 // Must match the channel ids the Android app creates (PushNotifications.kt)
-const URGENT_TYPES = new Set(['booking_request', 'job_assigned', 'operator_arrived', 'completion_requested', 'extension_requested', 'breakdown_reported', 'emergency']);
+const URGENT_TYPES = new Set(['booking_request', 'crane_request', 'request_accepted', 'job_assigned', 'operator_arrived', 'completion_requested', 'extension_requested', 'breakdown_reported', 'emergency']);
 
 const sendPush = async (user, { title, body, data }) => {
   const fcm = getMessaging();

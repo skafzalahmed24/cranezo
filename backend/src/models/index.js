@@ -27,6 +27,8 @@ const defineSettlement = require('./Settlement');
 const defineJobRequest = require('./JobRequest');
 const defineComplaint = require('./Complaint');
 const defineComplaintUpdate = require('./ComplaintUpdate');
+const defineCraneRequest = require('./CraneRequest');
+const definePriceMinimum = require('./PriceMinimum');
 
 const Role = defineRole(sequelize);
 const Admin = defineAdmin(sequelize);
@@ -56,6 +58,8 @@ const Settlement = defineSettlement(sequelize);
 const JobRequest = defineJobRequest(sequelize);
 const Complaint = defineComplaint(sequelize);
 const ComplaintUpdate = defineComplaintUpdate(sequelize);
+const CraneRequest = defineCraneRequest(sequelize);
+const PriceMinimum = definePriceMinimum(sequelize);
 
 // Associations
 Admin.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
@@ -137,6 +141,10 @@ Complaint.belongsTo(User, { foreignKey: 'customerId', as: 'customer' });
 Complaint.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
 Complaint.hasMany(ComplaintUpdate, { foreignKey: 'complaintId', as: 'updates' });
 ComplaintUpdate.belongsTo(Complaint, { foreignKey: 'complaintId', as: 'complaint' });
+CraneRequest.belongsTo(User, { foreignKey: 'customerId', as: 'customer' });
+CraneRequest.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
+CraneRequest.belongsTo(StaticDropdown, { foreignKey: 'craneType', as: 'craneTypeInfo' });
+CraneRequest.belongsTo(StaticDropdown, { foreignKey: 'capacity', as: 'capacityInfo' });
 
 module.exports = {
   sequelize,
@@ -167,5 +175,7 @@ module.exports = {
   Settlement,
   JobRequest,
   Complaint,
-  ComplaintUpdate
+  ComplaintUpdate,
+  CraneRequest,
+  PriceMinimum
 };

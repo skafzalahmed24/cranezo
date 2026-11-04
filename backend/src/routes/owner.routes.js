@@ -28,6 +28,11 @@ router.post('/earnings/summary', ownerOnly, ownerJobController.earningsSummary);
 router.post('/earnings/trend', ownerOnly, ownerJobController.earningsTrend);
 router.post('/earnings/jobs', ownerOnly, ownerJobController.earningsJobs);
 
+// Rapido-style requests from customers near the owner's cranes
+const craneRequests = require('../controllers/craneRequest.controller');
+router.post('/crane-requests', ownerOnly, craneRequests.ownerList);
+router.post('/crane-requests/accept', ownerOnly, craneRequests.ownerAccept);
+
 // payments, GST and charges, operator commission, settlements, job requests, complaints
 const finance = require('../controllers/finance.controller');
 router.post('/billing/settings', ownerOnly, finance.ownerBillingGet);

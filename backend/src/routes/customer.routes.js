@@ -25,6 +25,19 @@ router.post('/booking/track', customerOnly, bookingController.track);
 router.post('/booking/cancel', customerOnly, bookingController.cancel);
 router.post('/booking/confirm-arrival', customerOnly, require('../controllers/job.controller').customerConfirmArrival);
 
+// Rapido-style booking: one request to every nearby owner, first to accept wins, then pay the advance
+const craneRequests = require('../controllers/craneRequest.controller');
+router.post('/crane-requests/estimate', customerOnly, craneRequests.estimate);
+router.post('/crane-requests/create', customerOnly, craneRequests.create);
+router.post('/crane-requests/get', customerOnly, craneRequests.get);
+router.post('/crane-requests/active', customerOnly, craneRequests.active);
+router.post('/crane-requests', customerOnly, craneRequests.list);
+router.post('/crane-requests/raise', customerOnly, craneRequests.raise);
+router.post('/crane-requests/auto-raise', customerOnly, craneRequests.autoRaise);
+router.post('/crane-requests/cancel', customerOnly, craneRequests.cancel);
+router.post('/crane-requests/send-to-team', customerOnly, craneRequests.sendToTeam);
+router.post('/crane-requests/pay-advance', customerOnly, craneRequests.payAdvance);
+
 // payment history and complaints / payment disputes
 const finance = require('../controllers/finance.controller');
 router.post('/transactions', customerOnly, finance.customerTransactions);

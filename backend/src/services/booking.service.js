@@ -288,7 +288,7 @@ const commonView = (b) => ({
 
 const customerView = (b) => ({
   ...commonView(b),
-  can_cancel: [BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.CONFIRMED].includes(b.status),
+  can_cancel: [BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED].includes(b.status),
   provider: providerView(b.owner),
   operator: b.status >= BOOKING_STATUS.CONFIRMED && b.status !== BOOKING_STATUS.CANCELLED ? operatorView(b.operator) : null,
   eta_minutes: b.status === BOOKING_STATUS.CONFIRMED && b.distanceKm !== null ? etaMinutes(Number(b.distanceKm)) : null,
@@ -723,7 +723,7 @@ class BookingService {
 
   async cancel(customerId, bookingId, reason) {
     const booking = await this.mine(bookingId, { customerId });
-    if (![BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.CONFIRMED].includes(booking.status)) {
+    if (![BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED].includes(booking.status)) {
       throw new ServiceError('This booking can no longer be cancelled.', 409);
     }
     await booking.update({
@@ -732,6 +732,13 @@ class BookingService {
       cancelledBy: 'customer',
       cancelReason: reason ? String(reason).trim().slice(0, 500) : null
     });
+    // the request it came from is closed too
+    if (booking.craneRequestId) {
+      await require('../models').CraneRequest.update(
+        { status: 'cancelled', closedAt: new Date() },
+        { where: { id: booking.craneRequestId, status: { [Op.in]: ['accepted', 'confirmed'] } } }
+      );
+    }
     await notificationService.notify(booking.ownerId, {
       type: NOTIFICATION_TYPES.BOOKING_CANCELLED,
       title: 'Booking Cancelled',
@@ -936,6 +943,6 @@ module.exports = {
   // shared with the operator job service
   bookingHelpers: {
     loadBooking, bookingInclude, craneSummary, craneTitle, primaryPhoto, operatorView, customerView, ownerView,
-    priceView, paymentView, customerBill, durationLabel, ratingOf, haversineKm, etaMinutes, round1, num, iso, addMs, SERVICE_TYPE, UUID_RE
+    priceView, paymentView, customerBill, durationLabel, bookingCode, ratingOf, haversineKm, etaMinutes, round1, num, iso, addMs, SERVICE_TYPE, UUID_RE
   }
 };

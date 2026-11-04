@@ -24,6 +24,7 @@ const CHECKLIST_KEYS = CHECKLIST_ITEMS.map((i) => i.key);
 
 const STAGE_LABELS = {
   awaiting_owner: 'Awaiting owner',
+  awaiting_payment: 'Waiting for advance payment',
   awaiting_operator: 'Assigned',
   accepted: 'Accepted',
   en_route: 'On the way',
@@ -40,6 +41,7 @@ const jobStage = (b) => {
   if (b.status === 7) return 'completed';
   if ([2, 3, 4].includes(b.status)) return 'closed';
   if (b.status === 0) return 'awaiting_owner';
+  if (b.status === 8) return 'awaiting_payment';
   if (b.completionRequestedAt && b.workEndedAt) return 'awaiting_confirmation';
   if (b.workEndedAt) return 'summary';
   if (b.workStartedAt) return 'working';
