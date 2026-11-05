@@ -316,55 +316,62 @@ class CustomerJobService {
     });
   }
 
-  /** Complete Final Payment. Cash on Delivery is the only live method, the customer confirms the cash payment. */
+  /** Complete Final Payment: online through Razorpay (payment.controller); here only the test payment */
   async pay(customerId, bookingId, methodId) {
     const b = await this.load(customerId, bookingId);
     if (b.status !== BOOKING_STATUS.COMPLETED) throw new ServiceError('You can pay once the job is completed.', 409);
     if (b.paymentStatus === 'paid') throw new ServiceError('This booking is already paid.', 409);
 
-    const id = String(methodId || 'COD').toUpperCase();
-    const method = PAYMENT_METHODS.find((m) => m.id === id);
-    if (!method) throw new ServiceError('payment_method is not valid.');
-    if (!method.enabled) throw new ServiceError(`${method.name} is not available yet. Please choose Cash on Delivery.`);
+    // Customers pay online (Razorpay). Only a test payment is allowed while no gateway is connected.
+    const id = String(methodId || '').toUpperCase();
+    const { testPaymentAllowed } = require('./craneRequest.service');
+    if (id !== 'TEST' || !testPaymentAllowed()) throw new ServiceError('Please pay online (UPI, card or net banking).', 409);
+    const total = this.amountDue(b);
+    const tx = await paymentService.record({ booking: b, amount: total, method: 'TEST', status: 'success', gateway: 'test', meta: { kind: 'final' } });
+    await this.completeFinal(b, tx);
+    return this.get(customerId, bookingId);
+  }
 
+  /** What is still to pay: the full bill minus what was already paid (the advance) */
+  amountDue(b) {
+    return r2(Math.max(0, finalTotal(b) - Number(b.paidAmount || 0)));
+  }
+
+  /** The final payment arrived (online, verified): mark the booking paid and tell everyone */
+  async completeFinal(b, tx) {
+    const total = Number(tx.amount);
     const grandTotal = finalTotal(b);
-    // only what is left after the advance (paid online) is collected now
-    const total = r2(Math.max(0, grandTotal - Number(b.paidAmount || 0)));
-    // every payment goes into the ledger; cash is collected on site by the owner's side
-    const tx = await paymentService.record({ booking: b, amount: total, method: id, status: 'success' });
     await b.update({
-      paymentMethod: id,
+      paymentMethod: tx.method,
       paymentStatus: 'paid',
       paidAmount: grandTotal,
-      paymentReference: tx.transactionCode,
-      paymentCollectedBy: Number(b.platformCollectedAmount || 0) > 0 ? 'mixed' : tx.collectedBy,
-      platformCollectedAmount: r2(Number(b.platformCollectedAmount || 0) + (tx.collectedBy === 'platform' ? total : 0)),
-      paidAt: tx.createdAt
+      paymentReference: tx.gatewayPaymentId || tx.transactionCode,
+      paymentCollectedBy: 'platform',
+      platformCollectedAmount: r2(Number(b.platformCollectedAmount || 0) + total),
+      paidAt: new Date()
     });
-
     for (const userId of [b.ownerId, b.operatorId]) {
       if (!userId) continue;
       // eslint-disable-next-line no-await-in-loop
       await notificationService.notify(userId, {
         type: NOTIFICATION_TYPES.PAYMENT_RECEIVED,
         title: 'Payment Received',
-        body: `${b.bookingCode}: the customer paid ₹${total} (${method.name}).`,
+        body: `${b.bookingCode}: the customer paid ₹${total} online.`,
         data: { booking_id: b.id, booking_code: b.bookingCode }
       });
     }
-    await notificationService.notify(customerId, {
+    await notificationService.notify(b.customerId, {
       type: 'payment_success',
       title: 'Payment Successful',
       body: `Your final payment of ₹${total} was completed.`,
       data: { booking_id: b.id, booking_code: b.bookingCode }
     });
-    await notificationService.notify(customerId, {
+    await notificationService.notify(b.customerId, {
       type: 'receipt_ready',
       title: 'Receipt Generated',
       body: `Your invoice for booking ${b.bookingCode} is ready.`,
       data: { booking_id: b.id, booking_code: b.bookingCode }
     });
-    return this.get(customerId, bookingId);
   }
 
   /** Rate Your Experience (1 to 5 stars). The same rating counts for the crane, the operator and the provider. */

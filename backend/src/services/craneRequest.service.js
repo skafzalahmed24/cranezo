@@ -50,9 +50,9 @@ const requestCode = () => {
   return `REQ-${String(d.getUTCFullYear()).slice(2)}${String(d.getUTCMonth() + 1).padStart(2, '0')}${String(d.getUTCDate()).padStart(2, '0')}-${String(crypto.randomInt(0, 100000)).padStart(5, '0')}`;
 };
 
-/** Is test payment allowed? Until a gateway is connected, outside production (or when PAYMENT_TEST_MODE=true). */
-const testPaymentAllowed = () => process.env.PAYMENT_TEST_MODE === 'true'
-  || (process.env.NODE_ENV !== 'production' && process.env.PAYMENT_TEST_MODE !== 'false');
+/** Test payment: only while no gateway is connected, and never in production (unless PAYMENT_TEST_MODE=true) */
+const testPaymentAllowed = () => !require('./gateway.service').gateway.configured() && (process.env.PAYMENT_TEST_MODE === 'true'
+  || (process.env.NODE_ENV !== 'production' && process.env.PAYMENT_TEST_MODE !== 'false'));
 
 const raiseStep = (offer, rules) => roundUp10(Math.max(num(rules.raise_min_step), (num(offer) * num(rules.raise_step_percent)) / 100));
 
@@ -120,8 +120,15 @@ class CraneRequestService {
     const req = await bookingService.parseRequirements(input);
     const siteAddress = String(input.site_address || '').trim();
     if (!siteAddress) throw new ServiceError('site_address is required.');
+    // booking for someone else: the person at the site
+    const contactName = input.contact_name ? String(input.contact_name).trim().slice(0, 100) : null;
+    const contactPhone = input.contact_phone ? String(input.contact_phone).replace(/[^0-9+]/g, '').slice(0, 20) : null;
+    if ((contactName && !contactPhone) || (!contactName && contactPhone)) throw new ServiceError('Give both the name and the phone number of the person at the site.');
+    if (contactPhone && contactPhone.replace(/D/g, '').length < 10) throw new ServiceError('Enter a valid 10 digit phone number for the person at the site.');
     return {
       ...req,
+      contactName,
+      contactPhone,
       siteAddress,
       siteName: input.site_name ? String(input.site_name).trim().slice(0, 150) : null,
       specialRequirements: input.special_requirements ? String(input.special_requirements).trim().slice(0, 1000) : null
@@ -212,6 +219,8 @@ class CraneRequestService {
           durationHours: req.hours,
           durationDays: req.days,
           specialRequirements: req.specialRequirements,
+          contactName: req.contactName,
+          contactPhone: req.contactPhone,
           offerAmount: offer,
           firstOfferAmount: offer,
           minOfferAmount: minOffer,
@@ -295,6 +304,7 @@ class CraneRequestService {
         payment_seconds_left: b.status === BOOKING_STATUS.AWAITING_PAYMENT && b.paymentDueAt
           ? Math.max(0, Math.round((new Date(b.paymentDueAt).getTime() - now) / 1000)) : null,
         advance_paid_at: iso(b.advancePaidAt),
+        online_payment: require('./gateway.service').gateway.configured(),
         test_payment: testPaymentAllowed()
       };
     }
@@ -305,6 +315,7 @@ class CraneRequestService {
       status_label: STATUS_LABELS[row.status],
       crane_title: this.title(row),
       site: { name: row.siteName, address: row.siteAddress, latitude: H.num(row.latitude), longitude: H.num(row.longitude) },
+      site_contact: row.contactName ? { name: row.contactName, phone: row.contactPhone } : null,
       schedule: { start_type: row.startType, start_at: iso(row.startAt), end_at: iso(row.endAt) },
       duration: { type: row.durationType, hours: row.durationHours, days: row.durationDays, label: H.durationLabel(row) },
       offer_amount: num(row.offerAmount),
@@ -464,7 +475,11 @@ class CraneRequestService {
   /** Pay the advance. Until a payment gateway is connected this is a test payment (never in production). */
   async payAdvance(customerId, input = {}) {
     if (!H.UUID_RE.test(String(input.booking_id || ''))) throw new ServiceError('A valid booking_id is required.');
-    if (!testPaymentAllowed()) throw new ServiceError('Online payment is not connected yet. Please try again later.', 503);
+    if (!testPaymentAllowed()) {
+      throw require('./gateway.service').gateway.configured()
+        ? new ServiceError('Please pay online (UPI, card or net banking).', 409)
+        : new ServiceError('Online payment is not connected yet. Please try again later.', 503);
+    }
     await this.tick();
     const b = await Booking.findOne({ where: { id: input.booking_id, customerId } });
     if (!b) throw new ServiceError('Booking not found.', 404);
@@ -474,15 +489,14 @@ class CraneRequestService {
     return this.get(customerId, b.craneRequestId);
   }
 
-  /** Advance received: record it (held by the platform) and confirm the booking */
-  async confirmWithAdvance(b, { method, gateway = null, gatewayPaymentId = null }) {
+  /** Advance received: record it (held by the platform) and confirm the booking. A verified online payment passes its ledger row. */
+  async confirmWithAdvance(b, { method, gateway = null, gatewayPaymentId = null, tx: paidTx = null }) {
     const amount = num(b.advanceAmount);
-    if (amount > 0) {
+    if (amount > 0 && !paidTx) {
       const tx = await paymentService.record({ booking: b, amount, method, status: 'success', gateway, gatewayPaymentId, meta: { kind: 'advance' } });
       // a test or gateway payment always lands in the platform account
       if (tx.collectedBy !== 'platform') await tx.update({ collectedBy: 'platform' });
     }
-    const crane = await Crane.findByPk(b.craneId, { attributes: ['id', 'operatorId'] });
     await b.update({
       status: BOOKING_STATUS.CONFIRMED,
       acceptedAt: b.acceptedAt || new Date(),
@@ -490,8 +504,11 @@ class CraneRequestService {
       paidAmount: amount,
       platformCollectedAmount: r2(num(b.platformCollectedAmount) + amount),
       paymentStatus: amount > 0 ? 'partial' : 'pending',
+      paymentMethod: paidTx ? paidTx.method : b.paymentMethod,
+      paymentReference: paidTx ? paidTx.gatewayPaymentId || paidTx.transactionCode : b.paymentReference,
       paymentDueAt: null,
-      operatorId: b.operatorId || (crane ? crane.operatorId : null)
+      // operators are given per job: the owner assigns one now (own operator, or any operator by ID)
+      operatorId: b.operatorId || null
     });
     if (b.craneRequestId) await CraneRequest.update({ status: STATUS.CONFIRMED, closedAt: new Date() }, { where: { id: b.craneRequestId } });
 
@@ -508,12 +525,12 @@ class CraneRequestService {
       body: `${b.bookingCode}: advance received. Your crane is booked.`,
       data: { booking_id: b.id, booking_code: b.bookingCode }
     }, { preferenceKey: 'booking_confirmations' });
-    if (loaded.operatorId) {
-      await notificationService.notify(loaded.operatorId, {
-        type: NOTIFICATION_TYPES.JOB_ASSIGNED,
-        title: 'New Job Request',
-        body: `${H.craneTitle(loaded.crane)} • ${loaded.siteName || loaded.siteAddress} • ${H.durationLabel(loaded)}`,
-        data: { booking_id: loaded.id, booking_code: loaded.bookingCode }
+    if (!loaded.operatorId) {
+      await notificationService.notify(b.ownerId, {
+        type: 'assign_operator',
+        title: 'Assign an Operator',
+        body: `${b.bookingCode}: choose the operator for this job (your operator, or any operator by their ID).`,
+        data: { booking_id: b.id, booking_code: b.bookingCode }
       });
     }
   }
@@ -636,6 +653,8 @@ class CraneRequestService {
             siteName: row.siteName,
             siteAddress: row.siteAddress,
             specialRequirements: row.specialRequirements,
+            contactName: row.contactName,
+            contactPhone: row.contactPhone,
             latitude: row.latitude,
             longitude: row.longitude,
             distanceKm,
@@ -654,7 +673,7 @@ class CraneRequestService {
             advancePercent: settings.advance_percent,
             advanceAmount: advance,
             remainingAmount: r2(bill.total - advance),
-            paymentMethod: 'COD',
+            paymentMethod: 'ONLINE',
             paymentStatus: 'pending',
             paidAmount: 0,
             status: BOOKING_STATUS.AWAITING_PAYMENT,

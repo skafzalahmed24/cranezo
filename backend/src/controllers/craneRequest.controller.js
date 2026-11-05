@@ -2,6 +2,7 @@ const { ServiceError } = require('../services/crane.service');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const { rangeResponse } = require('../utils/range');
 const { craneRequestService: S } = require('../services/craneRequest.service');
+const { onlinePaymentService: P } = require('../services/onlinePayment.service');
 
 /** Rapido-style booking requests: customer, owner and admin. All POST with a JSON payload. */
 const body = (req) => req.body || {};
@@ -34,6 +35,10 @@ module.exports = {
   cancel: handler('Request cancelled.', (req) => S.cancel(me(req), body(req).request_id)),
   sendToTeam: handler('Sent to the Cranezo team. We will call you soon.', (req) => S.sendToTeam(me(req), body(req))),
   payAdvance: handler('Advance paid. Your crane is booked.', (req) => S.payAdvance(me(req), body(req))),
+  // customer online payments (Razorpay): advance and final balance
+  paymentOrder: handler('Payment started.', (req) => P.order(me(req), body(req))),
+  paymentVerify: handler('Payment successful.', (req) => P.verify(me(req), body(req))),
+  paymentFailed: handler('Payment not completed.', (req) => P.failed(me(req), body(req))),
   // owner
   ownerList: handler('Crane requests retrieved successfully.', (req) => S.ownerList(me(req))),
   ownerAccept: handler('You got the job. Waiting for the customer to pay the advance.', (req) => S.accept(me(req), body(req))),

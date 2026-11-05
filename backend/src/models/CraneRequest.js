@@ -20,6 +20,8 @@ module.exports = (sequelize) => {
     durationHours: { type: DataTypes.INTEGER, allowNull: false, field: 'duration_hours' },
     durationDays: { type: DataTypes.INTEGER, allowNull: true, field: 'duration_days' },
     specialRequirements: { type: DataTypes.TEXT, allowNull: true, field: 'special_requirements' },
+    contactName: { type: DataTypes.STRING(100), allowNull: true, field: 'contact_name' },
+    contactPhone: { type: DataTypes.STRING(20), allowNull: true, field: 'contact_phone' },
     offerAmount: money('offer_amount', false),
     firstOfferAmount: money('first_offer_amount', false),
     minOfferAmount: money('min_offer_amount', false),

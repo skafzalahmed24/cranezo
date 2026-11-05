@@ -406,7 +406,7 @@ class BookingService {
         { id: 'days', name: 'Multiple Days', description: 'Select the number of days', min: 1, max: C.MAX_DAYS, default: 1 }
       ],
       payment_methods: PAYMENT_METHODS,
-      default_payment_method: 'COD',
+      default_payment_method: 'ONLINE',
       advance_percent: C.ADVANCE_PERCENT,
       search_radius_km: C.MATCH_RADIUS_KM,
       request_response_minutes: { now: C.REQUEST_TTL_NOW_MINUTES, scheduled: C.REQUEST_TTL_SCHEDULED_MINUTES }
@@ -554,10 +554,10 @@ class BookingService {
     const siteAddress = String(input.site_address || '').trim();
     if (!siteAddress) throw new ServiceError('site_address is required.');
 
-    const paymentMethod = String(input.payment_method || 'COD').toUpperCase();
+    const paymentMethod = String(input.payment_method || 'ONLINE').toUpperCase();
     const method = PAYMENT_METHODS.find((m) => m.id === paymentMethod);
     if (!method) throw new ServiceError('payment_method is not valid.');
-    if (!method.enabled) throw new ServiceError(`${method.name} is not available yet. Please choose Cash on Delivery.`);
+    if (!method.enabled) throw new ServiceError(`${method.name} is not available. Please pay online.`);
 
     const req = await this.parseRequirements(input, { needType: false });
     const crane = await Crane.findOne({ where: { id: input.crane_id }, include: craneInclude });

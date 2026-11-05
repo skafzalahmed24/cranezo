@@ -284,6 +284,14 @@ class OwnerJobService {
         distance_km: H.num(b.distanceKm)
       },
       duration: { type: b.durationType, service_type: H.SERVICE_TYPE[b.durationType], hours: b.durationHours, days: b.durationDays, label: H.durationLabel(b) },
+      // operators are per job; the crane's usual operator is offered first in the picker
+      suggested_operator: crane.operator ? {
+        id: crane.operator.id,
+        full_name: crane.operator.fullName,
+        member_id: crane.operator.memberId
+      } : null,
+      // who to call at the site when the customer booked for someone else
+      site_contact: b.contactName || b.contactPhone ? { name: b.contactName, phone: b.contactPhone } : null,
       assigned_operator: base.operator ? {
         ...base.operator,
         role_label: capName ? `${capName} Crane Operator` : 'Crane Operator',

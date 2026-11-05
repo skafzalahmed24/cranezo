@@ -76,6 +76,9 @@ module.exports = (sequelize) => {
     settlementId: { type: DataTypes.UUID, allowNull: true, field: 'settlement_id' },
     // booking made from a request (Rapido style)
     craneRequestId: { type: DataTypes.UUID, allowNull: true, field: 'crane_request_id' },
+    // booking for someone else: who the operator calls at the site
+    contactName: { type: DataTypes.STRING(100), allowNull: true, field: 'contact_name' },
+    contactPhone: { type: DataTypes.STRING(20), allowNull: true, field: 'contact_phone' },
     distanceCharge: money('distance_charge'),
     paymentDueAt: { type: DataTypes.DATE, allowNull: true, field: 'payment_due_at' },
     advancePaidAt: { type: DataTypes.DATE, allowNull: true, field: 'advance_paid_at' },

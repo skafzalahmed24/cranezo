@@ -68,12 +68,10 @@ const BOOKING_CONFIG = {
   OVERTIME_WARNING_MINUTES: 15
 };
 
-// Only COD is live for now; the others are listed so the app can show them as "coming soon"
+// Customers pay online only (Razorpay: UPI, cards, net banking). Cash is not accepted from customers.
 const PAYMENT_METHODS = [
-  { id: 'COD', name: 'Cash on Delivery', description: 'Pay when the crane arrives', enabled: true },
-  { id: 'UPI', name: 'UPI', description: 'Pay instantly using UPI apps', enabled: false },
-  { id: 'CARD', name: 'Credit / Debit Card', description: 'Visa, MasterCard, RuPay, etc.', enabled: false },
-  { id: 'NETBANKING', name: 'Net Banking', description: 'All major banks supported', enabled: false }
+  { id: 'ONLINE', name: 'Pay online', description: 'UPI, debit / credit card or net banking (Razorpay)', enabled: true },
+  { id: 'COD', name: 'Cash on Delivery', description: 'Not available', enabled: false }
 ];
 
 const NOTIFICATION_TYPES = {

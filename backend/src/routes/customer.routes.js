@@ -37,6 +37,9 @@ router.post('/crane-requests/auto-raise', customerOnly, craneRequests.autoRaise)
 router.post('/crane-requests/cancel', customerOnly, craneRequests.cancel);
 router.post('/crane-requests/send-to-team', customerOnly, craneRequests.sendToTeam);
 router.post('/crane-requests/pay-advance', customerOnly, craneRequests.payAdvance);
+router.post('/payments/order', customerOnly, craneRequests.paymentOrder);
+router.post('/payments/verify', customerOnly, craneRequests.paymentVerify);
+router.post('/payments/failed', customerOnly, craneRequests.paymentFailed);
 
 // payment history and complaints / payment disputes
 const finance = require('../controllers/finance.controller');

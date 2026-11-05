@@ -228,6 +228,8 @@ class JobService {
         mobile_number: accepted ? b.customer.mobileNumber : null,
         country_code: accepted ? b.customer.countryCode : null
       } : null,
+      // booking for someone else: call this person at the site
+      site_contact: accepted && b.contactName ? { name: b.contactName, phone: b.contactPhone } : null,
       job_site: {
         name: b.siteName,
         address: b.siteAddress,
@@ -828,19 +830,47 @@ class JobService {
 
   // ---------------------------------------------------------------- owner
 
-  /** Owner picks (or changes) the operator of a confirmed booking that has not started */
-  async ownerAssignOperator(ownerId, bookingId, operatorId, { silent = false } = {}) {
+  /**
+   * Owner picks (or changes) the operator of a booking that has not started, for THIS job only.
+   * Either one of the owner's operators (operator_id), or any operator by their ID code (operator_code, e.g. OP497309),
+   * so an outside operator can do one job and then go back to other work.
+   */
+  async ownerAssignOperator(ownerId, bookingId, operatorId, { silent = false, operatorCode = null } = {}) {
     if (!H.UUID_RE.test(String(bookingId || ''))) throw new ServiceError('A valid booking_id is required.');
-    if (!H.UUID_RE.test(String(operatorId || ''))) throw new ServiceError('A valid operator_id is required.');
     const b = await Booking.findOne({ where: { id: bookingId, ownerId } });
     if (!b) throw new ServiceError('Booking not found.', 404);
-    if (b.status !== BOOKING_STATUS.CONFIRMED || b.enRouteAt) throw new ServiceError('An operator can only be assigned before the journey starts.', 409);
+    if (![BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.AWAITING_PAYMENT].includes(b.status) || b.enRouteAt) {
+      throw new ServiceError('An operator can only be assigned before the journey starts.', 409);
+    }
 
-    const operator = await User.findOne({
-      where: { id: operatorId, roleId: 2, isDeleted: 0, isActive: 0, ownerId: { [Op.or]: [ownerId, null] } },
-      attributes: ['id']
+    let operator;
+    if (operatorCode) {
+      const code = String(operatorCode).trim().toUpperCase();
+      operator = await User.findOne({ where: { memberId: code, roleId: 2, isDeleted: 0 }, attributes: ['id', 'isActive', 'fullName'] });
+      if (!operator) throw new ServiceError(`No operator found with ID ${code}. Check the ID with the operator.`, 404);
+      if (operator.isActive !== 0) throw new ServiceError('This operator account is blocked.', 409);
+      operatorId = operator.id; // eslint-disable-line no-param-reassign
+    } else {
+      if (!H.UUID_RE.test(String(operatorId || ''))) throw new ServiceError('Choose an operator or enter an operator ID.');
+      operator = await User.findOne({
+        where: { id: operatorId, roleId: 2, isDeleted: 0, isActive: 0, ownerId: { [Op.or]: [ownerId, null] } },
+        attributes: ['id', 'fullName']
+      });
+      if (!operator) throw new ServiceError('That operator is not available.', 400);
+    }
+
+    // one operator, one job at a time
+    const clash = await Booking.findOne({
+      where: {
+        id: { [Op.ne]: b.id },
+        operatorId,
+        status: { [Op.in]: [BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS] },
+        startAt: { [Op.lt]: b.endAt },
+        endAt: { [Op.gt]: b.startAt }
+      },
+      attributes: ['bookingCode']
     });
-    if (!operator) throw new ServiceError('That operator is not available.', 400);
+    if (clash) throw new ServiceError(`${operator.fullName || 'This operator'} is already booked at that time (${clash.bookingCode}).`, 409);
 
     const defaults = await billing.ownerSettings(ownerId);
     await b.update({
