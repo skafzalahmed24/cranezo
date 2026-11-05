@@ -82,10 +82,23 @@ class OnlinePaymentService {
     if (tx.status === 'success') return this.result(customerId, b, kind); // already applied (repeat call)
 
     if (!gateway.verifySignature(orderId, paymentId, signature)) {
-      await tx.update({ status: 'failed', failureReason: 'Signature check failed', gatewayPaymentId: paymentId || null });
-      throw new ServiceError('We could not confirm this payment. If money was taken, it will be refunded.', 400);
+      // the signature can fail on a broken callback: ask Razorpay before giving up
+      const paid = await gateway.paidPaymentFor(orderId).catch(() => null);
+      if (!paid) {
+        await tx.update({ status: 'failed', failureReason: 'Signature check failed', gatewayPaymentId: paymentId || null });
+        throw new ServiceError('We could not confirm this payment. If money was taken, it will be refunded.', 400);
+      }
+      await this.apply(b, tx, paid.paymentId);
+      return this.result(customerId, await b.reload(), kind);
     }
-    await tx.update({ status: 'success', gatewayPaymentId: paymentId, collectedBy: 'platform' });
+    await this.apply(b, tx, paymentId);
+    return this.result(customerId, await b.reload(), kind);
+  }
+
+  /** Marks the ledger row paid and applies it: advance -> booking confirmed, final -> booking paid */
+  async apply(b, tx, paymentId) {
+    const kind = (tx.meta && tx.meta.kind) || 'final';
+    await tx.update({ status: 'success', gatewayPaymentId: paymentId, collectedBy: 'platform', failureReason: null });
 
     await b.reload();
     if (kind === 'advance') {
@@ -100,16 +113,69 @@ class OnlinePaymentService {
       const { customerJobService } = require('./customerJob.service');
       await customerJobService.completeFinal(b, tx);
     }
-    return this.result(customerId, await b.reload(), kind);
   }
 
+  /**
+   * Asks Razorpay whether this order was paid and applies it if so. Returns true when it was paid.
+   * Safe to call many times: a row already applied is left alone.
+   */
+  async reconcile(tx) {
+    if (!tx || tx.status === 'success' || !tx.gatewayOrderId) return false;
+    const paid = await gateway.paidPaymentFor(tx.gatewayOrderId).catch(() => null);
+    if (!paid) return false;
+    const b = await Booking.findByPk(tx.bookingId);
+    if (!b) return false;
+    try {
+      await this.apply(b, tx, paid.paymentId);
+    } catch (e) {
+      // paid after the booking expired: apply() already flagged it for a refund
+      if (!(e instanceof ServiceError)) throw e;
+    }
+    return true;
+  }
+
+  /** Checkout reported an error. UPI often reports one even though the money went through, so ask Razorpay first. */
   async failed(customerId, input = {}) {
     const b = await this.booking(customerId, input.booking_id);
     const tx = await PaymentTransaction.findOne({
       where: { bookingId: b.id, gateway: 'razorpay', gatewayOrderId: String(input.razorpay_order_id || ''), status: 'initiated' }
     });
-    if (tx) await tx.update({ status: 'failed', failureReason: input.reason ? String(input.reason).slice(0, 300) : 'Payment cancelled or failed' });
-    return { booking_id: b.id, recorded: !!tx };
+    if (tx && (await this.reconcile(tx))) {
+      const kind = (tx.meta && tx.meta.kind) || 'final';
+      return { booking_id: b.id, paid: true, ...(await this.result(customerId, await b.reload(), kind)) };
+    }
+    // left "initiated": the minute check keeps asking Razorpay for a while in case the payment lands late
+    if (tx) await tx.update({ failureReason: input.reason ? String(input.reason).slice(0, 300) : 'Payment cancelled or failed' });
+    return { booking_id: b.id, paid: false, recorded: !!tx };
+  }
+
+  /** Customer opens / refreshes a booking or request waiting for payment: settle any order Razorpay already has */
+  async sync(customerId, input = {}) {
+    const b = await this.booking(customerId, input.booking_id);
+    const rows = await PaymentTransaction.findAll({ where: { bookingId: b.id, gateway: 'razorpay', status: 'initiated' } });
+    for (const tx of rows) {
+      // eslint-disable-next-line no-await-in-loop
+      if (await this.reconcile(tx)) {
+        const kind = (tx.meta && tx.meta.kind) || 'final';
+        return { booking_id: b.id, paid: true, ...(await this.result(customerId, await b.reload(), kind)) };
+      }
+    }
+    return { booking_id: b.id, paid: false };
+  }
+
+  /** Every minute: open Razorpay orders from the last 30 minutes (the app may have been closed mid-payment) */
+  async reconcileOpen() {
+    if (!gateway.configured()) return 0;
+    const rows = await PaymentTransaction.findAll({
+      where: { gateway: 'razorpay', status: 'initiated', gatewayOrderId: { [Op.ne]: null }, createdAt: { [Op.gte]: new Date(Date.now() - 30 * 60 * 1000) } },
+      limit: 50
+    });
+    let n = 0;
+    for (const tx of rows) {
+      // eslint-disable-next-line no-await-in-loop
+      if (await this.reconcile(tx)) n += 1;
+    }
+    return n;
   }
 
   async result(customerId, b, kind) {

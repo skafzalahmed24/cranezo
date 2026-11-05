@@ -286,9 +286,13 @@ const commonView = (b) => ({
   created_at: iso(b.createdAt)
 });
 
+/** Customers can cancel until money is paid: once the advance is in, cancelling goes through support */
+const customerCanCancel = (b) =>
+  [BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED].includes(b.status) && !b.advancePaidAt && !(Number(b.paidAmount) > 0);
+
 const customerView = (b) => ({
   ...commonView(b),
-  can_cancel: [BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED].includes(b.status),
+  can_cancel: customerCanCancel(b),
   provider: providerView(b.owner),
   operator: b.status >= BOOKING_STATUS.CONFIRMED && b.status !== BOOKING_STATUS.CANCELLED ? operatorView(b.operator) : null,
   eta_minutes: b.status === BOOKING_STATUS.CONFIRMED && b.distanceKm !== null ? etaMinutes(Number(b.distanceKm)) : null,
@@ -725,6 +729,9 @@ class BookingService {
     const booking = await this.mine(bookingId, { customerId });
     if (![BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED].includes(booking.status)) {
       throw new ServiceError('This booking can no longer be cancelled.', 409);
+    }
+    if (!customerCanCancel(booking)) {
+      throw new ServiceError('The advance is already paid, so this booking cannot be cancelled in the app. Please contact support.', 409);
     }
     await booking.update({
       status: BOOKING_STATUS.CANCELLED,

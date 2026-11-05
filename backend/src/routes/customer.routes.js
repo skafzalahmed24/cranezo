@@ -40,6 +40,7 @@ router.post('/crane-requests/pay-advance', customerOnly, craneRequests.payAdvanc
 router.post('/payments/order', customerOnly, craneRequests.paymentOrder);
 router.post('/payments/verify', customerOnly, craneRequests.paymentVerify);
 router.post('/payments/failed', customerOnly, craneRequests.paymentFailed);
+router.post('/payments/sync', customerOnly, craneRequests.paymentSync);
 
 // payment history and complaints / payment disputes
 const finance = require('../controllers/finance.controller');

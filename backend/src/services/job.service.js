@@ -768,7 +768,8 @@ class JobService {
       type: NOTIFICATION_TYPES.COMPLETION_REQUESTED,
       title: 'Confirm Job Completion',
       body: `${b.bookingCode}: your job is finished. Share this code with the operator to confirm: ${otp}`,
-      data: { booking_id: b.id, booking_code: b.bookingCode }
+      // the code goes in the data too: the app shows it in a popup without opening notifications
+      data: { booking_id: b.id, booking_code: b.bookingCode, code: String(otp) }
     }, { preferenceKey: 'job_updates' });
     return { otp_sent: true, expires_at: H.iso(expires), message: 'We sent a 6 digit code to the customer. Ask them for it.' };
   }

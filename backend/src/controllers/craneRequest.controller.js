@@ -39,6 +39,7 @@ module.exports = {
   paymentOrder: handler('Payment started.', (req) => P.order(me(req), body(req))),
   paymentVerify: handler('Payment successful.', (req) => P.verify(me(req), body(req))),
   paymentFailed: handler('Payment not completed.', (req) => P.failed(me(req), body(req))),
+  paymentSync: handler('Payment status checked.', (req) => P.sync(me(req), body(req))),
   // owner
   ownerList: handler('Crane requests retrieved successfully.', (req) => S.ownerList(me(req))),
   ownerAccept: handler('You got the job. Waiting for the customer to pay the advance.', (req) => S.accept(me(req), body(req))),

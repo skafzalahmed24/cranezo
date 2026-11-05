@@ -76,15 +76,15 @@ const sendPush = async (user, { title, body, data }) => {
 class NotificationService {
   /**
    * Store a notification for a user and try to push it to their phone.
-   * `preferenceKey` (e.g. booking_confirmations) lets the user mute the push, the in-app item is always kept.
+   * Every notification is pushed: notification settings were removed from the app, so saved preferences
+   * (and `preferenceKey`, still passed by callers) no longer mute anything.
    */
-  async notify(userId, { type, title, body, data }, { preferenceKey } = {}) {
+  async notify(userId, { type, title, body, data }) {
     const notification = await Notification.create({ userId, type, title, body: body || null, data: data || null });
 
     try {
-      const user = await User.findByPk(userId, { attributes: ['id', 'pushToken', 'notificationPreferences'] });
-      const muted = preferenceKey && user && user.notificationPreferences && user.notificationPreferences[preferenceKey] === false;
-      if (user && !muted) await sendPush(user, { title, body, data: { type, screen: metaFor(type).screen || '', ...(data || {}) } });
+      const user = await User.findByPk(userId, { attributes: ['id', 'pushToken'] });
+      if (user) await sendPush(user, { title, body, data: { type, screen: metaFor(type).screen || '', ...(data || {}) } });
     } catch (error) {
       console.warn(`[Push] ${error.message}`);
     }
@@ -160,12 +160,11 @@ class NotificationService {
       try {
         const users = await User.findAll({
           where: { id: userIds, pushToken: { [Op.ne]: null } },
-          attributes: ['id', 'pushToken', 'notificationPreferences']
+          attributes: ['id', 'pushToken']
         });
         for (const user of users) {
-          const prefs = user.notificationPreferences || {};
           // eslint-disable-next-line no-await-in-loop
-          if (prefs.important_announcements !== false) await sendPush(user, { title, body, data: { type, screen: metaFor(type).screen || '', ...(data || {}) } });
+          await sendPush(user, { title, body, data: { type, screen: metaFor(type).screen || '', ...(data || {}) } });
         }
       } catch (error) {
         console.warn(`[Push] broadcast: ${error.message}`);

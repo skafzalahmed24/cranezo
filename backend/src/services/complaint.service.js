@@ -8,13 +8,29 @@ const { notificationService } = require('./notification.service');
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const iso = (d) => (d ? new Date(d).toISOString() : null);
 
+// `issues`: ready-made reasons the app shows as checkboxes (the ticked ones go into the description)
 const CATEGORIES = [
-  { id: 'payment_not_recorded', name: 'Payment not recorded', group: 'payment', description: 'I paid but the app still shows the amount as due' },
-  { id: 'payment_failed', name: 'Payment failed or charged twice', group: 'payment', description: 'Money was deducted but the payment failed, or I was charged more than once' },
-  { id: 'wrong_amount', name: 'Wrong amount charged', group: 'payment', description: 'The bill does not match what was agreed' },
-  { id: 'work_quality', name: 'Not happy with the work', group: 'service', description: 'The job was not done properly' },
-  { id: 'service_quality', name: 'Service or behaviour', group: 'service', description: 'Late arrival, rude behaviour, safety concerns' },
-  { id: 'other', name: 'Something else', group: 'other', description: 'Anything not listed above' }
+  {
+    id: 'payment_not_recorded', name: 'Payment not recorded', group: 'payment', description: 'I paid but the app still shows the amount as due',
+    issues: ['Money was deducted from my account', 'App still shows the amount as due', 'I paid the advance but the booking was cancelled', 'I have a payment receipt / UPI reference']
+  },
+  {
+    id: 'payment_failed', name: 'Payment failed or charged twice', group: 'payment', description: 'Money was deducted but the payment failed, or I was charged more than once',
+    issues: ['Payment failed but money was deducted', 'I was charged twice', 'Refund not received yet']
+  },
+  {
+    id: 'wrong_amount', name: 'Wrong amount charged', group: 'payment', description: 'The bill does not match what was agreed',
+    issues: ['Extra time charged wrongly', 'Distance charge is wrong', 'Charges I did not agree to', 'Total is more than the offer I made']
+  },
+  {
+    id: 'work_quality', name: 'Not happy with the work', group: 'service', description: 'The job was not done properly',
+    issues: ['Work was slow', 'Work was left incomplete', 'Crane was not the one booked', 'Crane broke down during the job', 'Damage at the site']
+  },
+  {
+    id: 'service_quality', name: 'Service or behaviour', group: 'service', description: 'Late arrival, rude behaviour, safety concerns',
+    issues: ['Crane arrived late', 'Operator was rude', 'Safety rules were not followed', 'Operator did not answer calls']
+  },
+  { id: 'other', name: 'Something else', group: 'other', description: 'Anything not listed above', issues: [] }
 ];
 const CATEGORY_IDS = CATEGORIES.map((c) => c.id);
 const STATUSES = ['open', 'in_review', 'resolved', 'rejected'];

@@ -32,6 +32,10 @@ const view = (t) => {
     collected_by_label: t.collectedBy === 'owner' ? 'Cash with owner' : 'Platform account',
     gateway: t.gateway,
     gateway_payment_id: t.gatewayPaymentId,
+    gateway_order_id: t.gatewayOrderId,
+    // advance / final balance (online payments)
+    kind: t.meta && t.meta.kind ? t.meta.kind : null,
+    kind_label: t.meta && t.meta.kind === 'advance' ? 'Advance' : (t.meta && t.meta.kind === 'final' ? 'Final payment' : null),
     failure_reason: t.failureReason,
     customer: t.customer ? { id: t.customer.id, name: t.customer.companyName || t.customer.fullName } : null,
     owner: t.owner ? { id: t.owner.id, name: t.owner.companyName || t.owner.fullName, member_id: t.owner.memberId } : null,

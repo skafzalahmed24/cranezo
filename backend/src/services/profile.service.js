@@ -133,21 +133,20 @@ async function applyCustomerProfile(user, input) {
     return;
   }
 
-  // Individual user
-  requireFields(input, [
-    ['aadhar_number', 'aadhar_number'],
-    ['pan_number', 'pan_number'],
-    ['city', 'city']
-  ]);
+  // Individual user: Aadhaar and PAN are no longer asked (removed from the app); checked only if still sent
+  requireFields(input, [['city', 'city']]);
   if (isBlank(input.state_id) && isBlank(input.state)) throw new Error('state_id is required.');
 
-  const aadhar = text(input.aadhar_number).replace(/\s+/g, '');
-  if (!/^\d{12}$/.test(aadhar)) throw new Error('aadhar_number must be 12 digits.');
-  const pan = text(input.pan_number).toUpperCase();
-  if (!/^[A-Z]{5}\d{4}[A-Z]$/.test(pan)) throw new Error('pan_number is not a valid PAN (e.g. ABCDE1234F).');
-
-  user.aadharNumber = aadhar;
-  user.panNumber = pan;
+  if (!isBlank(input.aadhar_number)) {
+    const aadhar = text(input.aadhar_number).replace(/\s+/g, '');
+    if (!/^\d{12}$/.test(aadhar)) throw new Error('aadhar_number must be 12 digits.');
+    user.aadharNumber = aadhar;
+  }
+  if (!isBlank(input.pan_number)) {
+    const pan = text(input.pan_number).toUpperCase();
+    if (!/^[A-Z]{5}\d{4}[A-Z]$/.test(pan)) throw new Error('pan_number is not a valid PAN (e.g. ABCDE1234F).');
+    user.panNumber = pan;
+  }
   user.city = text(input.city);
   if (!isBlank(input.state_id)) {
     const state = await requireDropdown(input.state_id, DROPDOWN_TYPES.STATE, 'state_id');

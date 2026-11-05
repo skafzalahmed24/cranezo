@@ -124,7 +124,7 @@ class CraneRequestService {
     const contactName = input.contact_name ? String(input.contact_name).trim().slice(0, 100) : null;
     const contactPhone = input.contact_phone ? String(input.contact_phone).replace(/[^0-9+]/g, '').slice(0, 20) : null;
     if ((contactName && !contactPhone) || (!contactName && contactPhone)) throw new ServiceError('Give both the name and the phone number of the person at the site.');
-    if (contactPhone && contactPhone.replace(/D/g, '').length < 10) throw new ServiceError('Enter a valid 10 digit phone number for the person at the site.');
+    if (contactPhone && contactPhone.replace(/\D/g, '').length < 10) throw new ServiceError('Enter a valid 10 digit phone number for the person at the site.');
     return {
       ...req,
       contactName,
@@ -161,6 +161,9 @@ class CraneRequestService {
       hours: req.hours,
       price_range: hires.length ? { min: Math.min(...hires), max: Math.max(...hires) } : null,
       distance_charge_range: distances.length ? { min: Math.min(...distances), max: Math.max(...distances) } : null,
+      // crane hire + travel charge for each nearby crane (step 4 estimate)
+      total_range: prices.length ? { min: Math.min(...prices.map((p) => r2(p.hire + p.distance.amount))), max: Math.max(...prices.map((p) => r2(p.hire + p.distance.amount))) } : null,
+      nearest_km: matches.length ? r2(Math.min(...matches.map((m) => num(m.distanceKm)))) : null,
       free_km: rules.free_km,
       min_offer: minOffer,
       suggested_offer: hires.length ? Math.max(minOffer, Math.min(...hires)) : minOffer,
@@ -737,6 +740,10 @@ class CraneRequestService {
         data: { request_id: row.id, request_code: row.requestCode }
       });
     }
+
+    // payments the app never confirmed (UPI app switch, app closed): ask Razorpay
+    const { onlinePaymentService } = require('./onlinePayment.service');
+    await onlinePaymentService.reconcileOpen().catch(() => 0);
 
     // advance not paid in time: cancel and free the crane
     const unpaid = await Booking.findAll({ where: { status: BOOKING_STATUS.AWAITING_PAYMENT, paymentDueAt: { [Op.lt]: now } } });

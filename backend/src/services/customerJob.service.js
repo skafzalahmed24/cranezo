@@ -23,6 +23,8 @@ const TABS = {
   completed: { statuses: [BOOKING_STATUS.COMPLETED], label: 'Completed', order: [['completedAt', 'DESC']] },
   cancelled: { statuses: [BOOKING_STATUS.CANCELLED, BOOKING_STATUS.DECLINED, BOOKING_STATUS.EXPIRED], label: 'Cancelled', order: [['createdAt', 'DESC']] }
 };
+// My Jobs opens on 'all' (newest first); kept out of TABS so each booking still gets its own tab label
+const ALL_STATUSES = [...new Set(Object.values(TABS).flatMap((t) => t.statuses))];
 const tabOf = (status) => Object.keys(TABS).find((k) => TABS[k].statuses.includes(status));
 
 const detailInclude = [...H.bookingInclude, { model: BookingRating, as: 'rating', required: false }];
@@ -176,15 +178,17 @@ class CustomerJobService {
     const range = parseRange(input);
     if (range.error) throw new ServiceError(range.error);
     const tab = String(input.tab || 'upcoming').toLowerCase();
-    if (!TABS[tab]) throw new ServiceError('tab must be upcoming, active, completed or cancelled.');
+    if (tab !== 'all' && !TABS[tab]) throw new ServiceError('tab must be all, upcoming, active, completed or cancelled.');
+    const statuses = tab === 'all' ? ALL_STATUSES : TABS[tab].statuses;
+    const order = tab === 'all' ? [['createdAt', 'DESC']] : TABS[tab].order;
 
     const { rows, count } = await Booking.findAndCountAll({
-      where: { customerId, status: { [Op.in]: TABS[tab].statuses } },
+      where: { customerId, status: { [Op.in]: statuses } },
       include: detailInclude,
       distinct: true,
       limit: range.limit,
       offset: range.offset,
-      order: [...TABS[tab].order, ['id', 'ASC']]
+      order: [...order, ['id', 'ASC']]
     });
     return { range, items: rows.map((b) => this.item(b)), total: count };
   }
@@ -194,6 +198,55 @@ class CustomerJobService {
     const b = await Booking.findOne({ where: { id: bookingId, customerId }, include: detailInclude });
     if (!b) throw new ServiceError('Booking not found.', 404);
     return b;
+  }
+
+  /**
+   * The customer's receipt once fully paid: who billed whom, the job, every bill line (GST included),
+   * each payment made (advance and final, with Razorpay ids) and the total paid.
+   */
+  async receiptFor(b, payment) {
+    const { PaymentTransaction } = require('../models');
+    const paid = await PaymentTransaction.findAll({ where: { bookingId: b.id, status: 'success' }, order: [['createdAt', 'ASC']] });
+    const owner = await billing.ownerSettings(b.ownerId).catch(() => ({}));
+    const advance = r2(paid.filter((t) => t.meta && t.meta.kind === 'advance').reduce((s, t) => s + Number(t.amount), 0));
+    const person = (u) => (u ? { name: u.companyName || u.fullName, phone: `${u.countryCode || ''} ${u.mobileNumber || ''}`.trim() } : null);
+    const workedSeconds = b.workStartedAt && b.workEndedAt ? Math.round((new Date(b.workEndedAt) - new Date(b.workStartedAt)) / 1000) : null;
+    return {
+      receipt_no: `RCPT-${b.bookingCode}`,
+      booking_code: b.bookingCode,
+      issued_at: H.iso(b.paidAt || b.completedAt),
+      billed_to: person(b.customer),
+      billed_by: { ...(person(b.owner) || {}), gst_number: owner.gst_number || null },
+      service: {
+        crane: H.craneTitle(b.crane),
+        registration_number: b.crane ? b.crane.registrationNumber : null,
+        site: b.siteName || b.siteAddress,
+        started_at: H.iso(b.workStartedAt || b.startAt),
+        completed_at: H.iso(b.completedAt),
+        booked_hours: b.durationHours,
+        worked_seconds: workedSeconds,
+        extra_minutes: b.extraMinutes,
+        operator: b.operator ? b.operator.fullName : null
+      },
+      lines: payment.breakdown,
+      payments: paid.map((t) => ({
+        label: t.meta && t.meta.kind === 'advance' ? 'Advance' : (t.meta && t.meta.kind === 'final' ? 'Final payment' : 'Payment'),
+        amount: Number(t.amount),
+        method: t.method === 'ONLINE' ? 'Online (Razorpay)' : t.method,
+        reference: t.gatewayPaymentId || t.transactionCode,
+        paid_at: H.iso(t.createdAt)
+      })),
+      // older fields kept for the Payment Successful screen
+      payment_id: b.paymentReference,
+      paid_at: H.iso(b.paidAt),
+      booking_amount: payment.booking_amount,
+      extra_time_amount: payment.extra_time_amount,
+      total_amount: payment.final_total,
+      advance_paid: advance,
+      final_payment: r2(payment.paid_amount - advance),
+      total_paid: payment.paid_amount,
+      method_name: payment.method_name
+    };
   }
 
   /** Job Details for every tab, plus the Job In Progress, Job Completed and cancellation data */
@@ -252,18 +305,7 @@ class CustomerJobService {
         working_seconds: b.workingSeconds,
         waiting_seconds: b.waitingSeconds
       } : null,
-      receipt: payment.status === 'paid' ? {
-        payment_id: b.paymentReference,
-        paid_at: H.iso(b.paidAt),
-        booking_amount: payment.booking_amount,
-        extra_time_amount: payment.extra_time_amount,
-        total_amount: payment.final_total,
-        // Cash on Delivery: nothing is collected online in advance, the whole amount is paid at the end
-        advance_paid: 0,
-        final_payment: payment.final_total,
-        total_paid: payment.paid_amount,
-        method_name: payment.method_name
-      } : null,
+      receipt: payment.status === 'paid' ? await this.receiptFor(b, payment) : null,
       cancellation: cancellationBlock(b),
       // "Book Again" pre-fills the booking steps with this
       rebook: {
@@ -278,7 +320,8 @@ class CustomerJobService {
       },
       rating: rated ? { rated: true, rating: rated.rating, comment: rated.comment } : { rated: false, rating: null, comment: null },
       actions: {
-        can_cancel: [BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED].includes(b.status),
+        // not after the advance is paid
+        can_cancel: [BOOKING_STATUS.AWAITING_OWNER, BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED].includes(b.status) && !b.advancePaidAt && !(Number(b.paidAmount) > 0),
         // changing a booking (date, time, duration) is not built yet
         can_modify: false,
         can_track: [BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS].includes(b.status) && !!b.operatorId,
