@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Booking, JobPhoto, JobIssue, StaticDropdown } = require('../models');
+const { Booking, Crane, JobPhoto, JobIssue, StaticDropdown } = require('../models');
 const { BOOKING_STATUS, BOOKING_STATUS_LABELS, BOOKING_CONFIG } = require('../constants/booking');
 const { JOB_CONFIG, STAGE_LABELS, jobStage, timers, progressSteps, waitingSecondsNow, workingSecondsNow } = require('../constants/job');
 const { parseRange } = require('../utils/range');
@@ -399,6 +399,49 @@ class OwnerJobService {
         status: i.status,
         reported_at: H.iso(i.createdAt)
       }))
+    };
+  }
+
+  // ---------------------------------------------------------------- Home dashboard (live numbers)
+
+  /** Owner Home: fleet overview, today's jobs and earnings, and things waiting for the owner */
+  async home(ownerId) {
+    await bookingService.expireStaleRequests();
+    const now = new Date();
+    const today = startOfDay(now);
+    const tomorrow = new Date(today.getTime() + DAY_MS);
+    const cranes = await Crane.findAll({ where: { ownerId }, attributes: ['id', 'approvalStatus', 'availabilityStatus', 'isActive'] });
+    const busyRows = await Booking.findAll({
+      where: { ownerId, status: { [Op.in]: [BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS] } },
+      attributes: ['craneId']
+    });
+    const busy = new Set(busyRows.map((b) => b.craneId));
+    const verified = cranes.filter((c) => c.approvalStatus === 1 && c.isActive === 0);
+    const fee = await billing.platformFeePercent();
+    const completedToday = await Booking.findAll({
+      where: { ownerId, status: BOOKING_STATUS.COMPLETED, completedAt: { [Op.gte]: today, [Op.lt]: tomorrow } }
+    });
+    const { craneRequestService } = require('./craneRequest.service');
+    const requests = await craneRequestService.ownerList(ownerId).catch(() => ({ items: [] }));
+    return {
+      fleet: {
+        total_cranes: cranes.length,
+        available_cranes: verified.filter((c) => c.availabilityStatus === 0 && !busy.has(c.id)).length,
+        busy_cranes: busy.size,
+        pending_verification: cranes.filter((c) => c.approvalStatus === 0).length
+      },
+      todays_jobs: await Booking.count({
+        where: {
+          ownerId,
+          status: { [Op.in]: [BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS, BOOKING_STATUS.COMPLETED] },
+          startAt: { [Op.gte]: today, [Op.lt]: tomorrow }
+        }
+      }),
+      todays_earnings: sumMoney(completedToday, fee).net,
+      crane_requests: requests.items.length,
+      jobs_needing_operator: await Booking.count({
+        where: { ownerId, operatorId: null, status: { [Op.in]: [BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED] } }
+      })
     };
   }
 

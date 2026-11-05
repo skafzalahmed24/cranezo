@@ -19,6 +19,7 @@ router.post('/requests/assign-operator', ownerOnly, require('../controllers/job.
 
 // Owner Jobs tabs, job details, live location, evidence and Earnings. All POST with a JSON payload.
 const ownerJobController = require('../controllers/ownerJob.controller');
+router.post('/home', ownerOnly, ownerJobController.home);
 router.post('/jobs/summary', ownerOnly, ownerJobController.summary);
 router.post('/jobs/list', ownerOnly, ownerJobController.list);
 router.post('/jobs/get', ownerOnly, ownerJobController.get);

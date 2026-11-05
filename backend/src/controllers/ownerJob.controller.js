@@ -31,6 +31,7 @@ const owner = (req) => req.user.id;
 
 /** Crane Owner app: Jobs tabs, job details, live location, evidence and Earnings. All POST with a JSON payload. */
 module.exports = {
+  home: handler('Home retrieved successfully.', (req) => ownerJobService.home(owner(req))),
   summary: handler('Job counts retrieved successfully.', (req) => ownerJobService.summary(owner(req))),
   list: ranged('Jobs retrieved successfully.', (req) => ownerJobService.list(owner(req), body(req))),
   get: handler('Job retrieved successfully.', (req) => ownerJobService.get(owner(req), body(req).booking_id)),
