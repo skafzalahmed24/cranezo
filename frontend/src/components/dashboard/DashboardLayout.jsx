@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import DashboardOverview from './DashboardOverview';
+import AdminDashboard from './AdminDashboard';
+import AdminBookings from './AdminBookings';
+import AdminReviews from './AdminReviews';
+import AdminReports from './AdminReports';
+import AdminAlerts from './AdminAlerts';
 import UserDetails from './UserDetails';
 import CraneDetails from './CraneDetails';
 import CraneApprovals from './CraneApprovals';
@@ -19,8 +23,6 @@ import Complaints from './Complaints';
 import PlatformFee from './PlatformFee';
 import CraneRequests from './CraneRequests';
 import PricingRules from './PricingRules';
-import BookingsList from './BookingsList';
-import CraneMatching from './CraneMatching';
 import AddUserModal from './AddUserModal';
 import AddCraneModal from './AddCraneModal';
 import { apiRequest } from '../../utils/api';
@@ -35,7 +37,6 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
   // where the Back button of a details screen returns to
   const [memberBack, setMemberBack] = useState('users');
   const [craneBack, setCraneBack] = useState('cranes');
-  const [selectedBookingId, setSelectedBookingId] = useState('CRZ10245');
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isAddCraneModalOpen, setIsAddCraneModalOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -44,6 +45,8 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
   const [pendingCranes, setPendingCranes] = useState(0);
   // Support requests that need an answer; danger = an emergency is open
   const [pendingSupport, setPendingSupport] = useState({ count: 0, danger: false });
+  // Everything waiting for the admin (Notifications page)
+  const [pendingAlerts, setPendingAlerts] = useState(0);
 
   const refreshPendingCranes = useCallback(async () => {
     try {
@@ -55,6 +58,12 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
     try {
       const res = await apiRequest('/admin/support/tickets/summary', { method: 'POST' });
       setPendingSupport({ count: res.data.needs_attention, danger: res.data.emergency_open > 0 });
+    } catch (e) {
+      // same: cosmetic
+    }
+    try {
+      const res = await apiRequest('/admin/alerts', { method: 'POST' });
+      setPendingAlerts(res.data.total);
     } catch (e) {
       // same: cosmetic
     }
@@ -170,15 +179,6 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
   // Mock screens (dashboard overview, bookings) still pass sample ids such as USR-10245
   const isRealId = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(String(id || ''));
 
-  const handleSelectBooking = (bookingId) => {
-    setSelectedBookingId(bookingId || 'CRZ10245');
-    setActiveView('crane-matching');
-    setMobileSidebarOpen(false);
-  };
-
-  const handleBackToBookings = () => {
-    setActiveView('bookings');
-  };
 
   return (
     <div className="cranzo-admin-layout" data-theme={theme}>
@@ -195,7 +195,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
         onLogout={onLogout}
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
-        badges={{ 'crane-approvals': pendingCranes, support: pendingSupport }}
+        badges={{ 'crane-approvals': pendingCranes, support: pendingSupport, notifications: pendingAlerts }}
       />
 
       {/* Main Content Area (offset by fixed sidebar) */}
@@ -211,12 +211,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
         />
 
         <main style={{ flex: 1, width: '100%', boxSizing: 'border-box' }}>
-          {activeView === 'dashboard' && (
-            <DashboardOverview
-              onNavigate={handleNavigate}
-              onSelectUser={handleSelectUser}
-            />
-          )}
+          {activeView === 'dashboard' && <AdminDashboard onNavigate={handleNavigate} />}
 
           {activeView === 'users' && (
             <DirectoryList kind="users" onSelect={handleSelectUser} />
@@ -279,17 +274,16 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
             )
           )}
 
-          {activeView === 'bookings' && (
-            <BookingsList onSelectBooking={handleSelectBooking} />
-          )}
+          {activeView === 'bookings' && <AdminBookings />}
 
-          {activeView === 'crane-matching' && (
-            <CraneMatching
-              bookingId={selectedBookingId}
-              onBack={handleBackToBookings}
-              onSelectCraneDetails={handleSelectCrane}
-            />
-          )}
+          {/* old matching screen is replaced by the live crane requests */}
+          {(activeView === 'crane-requests' || activeView === 'crane-matching') && <CraneRequests />}
+
+          {activeView === 'reviews' && <AdminReviews />}
+
+          {activeView === 'reports' && <AdminReports />}
+
+          {activeView === 'notifications' && <AdminAlerts onNavigate={handleNavigate} />}
 
           {activeView === 'crane-approvals' && <CraneApprovals onReviewed={refreshPendingCranes} />}
 
@@ -310,8 +304,6 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
           {activeView === 'complaints' && <Complaints />}
 
           {activeView === 'platform-fee' && <PlatformFee />}
-
-          {activeView === 'crane-requests' && <CraneRequests />}
 
           {activeView === 'pricing-rules' && <PricingRules />}
 
@@ -334,6 +326,15 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
             'announcements',
             'banners',
             'settings',
+            'payments',
+            'settlements',
+            'complaints',
+            'platform-fee',
+            'crane-requests',
+            'pricing-rules',
+            'reviews',
+            'reports',
+            'notifications',
           ].includes(activeView) && (
             <div className="cranzo-content-view animate-fade-in">
               <div className="cranzo-card" style={{ padding: '40px', textAlign: 'center' }}>

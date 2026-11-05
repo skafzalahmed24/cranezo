@@ -39,10 +39,24 @@ const getMessaging = () => {
 // Must match the channel ids the Android app creates (PushNotifications.kt)
 const URGENT_TYPES = new Set(['booking_request', 'crane_request', 'request_accepted', 'job_assigned', 'operator_arrived', 'completion_requested', 'extension_requested', 'breakdown_reported', 'emergency']);
 
+// New requests for an owner ring with the buzzer tone (up to 30 seconds, until opened).
+// They go as data-only messages so the app builds the ringing notification itself, even in the background.
+const BUZZER_TYPES = new Set(['booking_request', 'crane_request']);
+
 const sendPush = async (user, { title, body, data }) => {
   const fcm = getMessaging();
   if (!fcm || !user.pushToken) return false;
+  const strings = Object.fromEntries(Object.entries(data || {}).map(([k, v]) => [k, String(v)]));
   try {
+    if (BUZZER_TYPES.has(data && data.type)) {
+      await fcm.send({
+        token: user.pushToken,
+        data: { ...strings, title: String(title || ''), body: String(body || ''), buzzer: 'true' },
+        android: { priority: 'high', ttl: 15 * 60 * 1000 },
+        apns: { headers: { 'apns-priority': '10' }, payload: { aps: { alert: { title, body: body || '' }, sound: 'buzzer_tone.caf' } } }
+      });
+      return true;
+    }
     await fcm.send({
       token: user.pushToken,
       notification: { title, body: body || '' },

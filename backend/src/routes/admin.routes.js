@@ -14,7 +14,13 @@ const finance = require('../controllers/finance.controller');
 const adminOnly = [authenticate, requireAdmin];
 
 // Protected admin dashboard routes
-router.get('/dashboard-stats', authenticate, adminController.getDashboardStats);
+router.get('/dashboard-stats', adminOnly, adminController.getDashboardStats);
+router.post('/dashboard', adminOnly, adminController.getDashboardStats);
+router.post('/bookings/list', adminOnly, adminController.bookings);
+router.post('/bookings/get', adminOnly, adminController.booking);
+router.post('/reviews', adminOnly, adminController.reviews);
+router.post('/reports', adminOnly, adminController.reports);
+router.post('/alerts', adminOnly, adminController.alerts);
 
 // Crane approvals
 router.post('/cranes/summary', adminOnly, craneController.adminSummary);
