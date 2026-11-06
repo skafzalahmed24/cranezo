@@ -139,7 +139,9 @@ class NotificationService {
       target: {
         screen: meta.screen,
         booking_id: data.booking_id || null,
-        ticket_id: data.ticket_id || null
+        ticket_id: data.ticket_id || null,
+        complaint_id: data.complaint_id || null,
+        request_id: data.request_id || null
       },
       is_read: n.isRead,
       group: day(n.createdAt) === day(new Date()) ? 'today' : 'earlier',

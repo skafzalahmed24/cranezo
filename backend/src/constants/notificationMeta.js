@@ -39,7 +39,16 @@ const META = {
   rating_received: { category: 'rating', icon: 'star', screen: 'booking' },
   announcement: { category: 'announcement', icon: 'bell', screen: 'announcement' },
   support_reply: { category: 'support', icon: 'support', screen: 'support_ticket' },
-  support_resolved: { category: 'support', icon: 'support', screen: 'support_ticket' }
+  support_resolved: { category: 'support', icon: 'support', screen: 'support_ticket' },
+  // complaints, operator job requests, commission and settlements
+  complaint_new: { category: 'support', icon: 'alert', screen: 'complaint' },
+  complaint_update: { category: 'support', icon: 'support', screen: 'complaint' },
+  operator_job_request: { category: 'job', icon: 'job', screen: 'owner_job_requests' },
+  job_request_rejected: { category: 'job', icon: 'job', screen: 'operator_job_requests' },
+  job_request_closed: { category: 'job', icon: 'job', screen: 'operator_job_requests' },
+  commission_updated: { category: 'payment', icon: 'payment', screen: 'operator_job' },
+  commission_paid: { category: 'payment', icon: 'payment', screen: 'operator_payments' },
+  settlement_recorded: { category: 'payment', icon: 'payment', screen: 'owner_settlements' }
 };
 
 const DEFAULT_META = { category: 'general', icon: 'bell', screen: null };
