@@ -19,6 +19,9 @@ const startServer = async () => {
       .catch((error) => console.warn('[Crane requests] check failed: ' + error.message));
   }, 60 * 1000).unref();
 
+  // say at start-up whether phones will get pushes (Firebase key found and valid)
+  require('./src/services/notification.service').getMessaging();
+
   app.listen(PORT, () => {
     console.log(`[Cranzo Server] Heavy Lifting API running on http://localhost:${PORT}`);
     console.log(`[Cranzo Server] Swagger Documentation: http://localhost:${PORT}/api/docs`);

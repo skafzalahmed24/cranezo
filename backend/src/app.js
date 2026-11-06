@@ -28,7 +28,9 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static public assets (e.g. /public/roles/...)
+// Serve static public assets (e.g. /public/roles/...). Never serve key / config files from here,
+// even if one is copied into the folder by mistake (e.g. a Firebase service account .json).
+app.use('/public', (req, res, next) => (/\.(json|env|pem|key)$/i.test(req.path) || /adminsdk/i.test(req.path) ? res.status(404).end() : next()));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Separate Swagger docs: /api/docs/auth, /api/docs/admin, /api/docs/user (+ .json)

@@ -16,20 +16,46 @@ class NotificationError extends Error {
  * points to the service account json. Without those, notifications are still stored and the app
  * can fetch them (polling), nothing breaks.
  */
+/**
+ * The Firebase service account, from (first found):
+ *   FIREBASE_SERVICE_ACCOUNT_JSON  the key itself, raw JSON or base64 (for hosts that only take env vars)
+ *   FIREBASE_SERVICE_ACCOUNT_PATH  a file path; a relative path is read from the backend folder, so it
+ *                                  works whatever folder the server is started from
+ * Never put the key in src/public: that folder is served to anyone.
+ */
+const loadServiceAccount = () => {
+  const raw = (process.env.FIREBASE_SERVICE_ACCOUNT_JSON || '').trim();
+  if (raw) {
+    const text = raw.startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
+    return JSON.parse(text);
+  }
+  const keyPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+  if (!keyPath) return null;
+  const path = require('path');
+  const fs = require('fs');
+  const candidates = path.isAbsolute(keyPath)
+    ? [keyPath]
+    : [path.resolve(__dirname, '..', '..', keyPath), path.resolve(keyPath)];
+  const found = candidates.find((p) => fs.existsSync(p));
+  if (!found) throw new Error(`service account file not found (${keyPath})`);
+  return JSON.parse(fs.readFileSync(found, 'utf8'));
+};
+
 let messaging;
 const getMessaging = () => {
   if (messaging !== undefined) return messaging;
   messaging = null;
-  const keyPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
-  if (!keyPath) return messaging;
   try {
+    const serviceAccount = loadServiceAccount();
+    if (!serviceAccount) {
+      console.warn('[Push] Disabled: set FIREBASE_SERVICE_ACCOUNT_PATH (or FIREBASE_SERVICE_ACCOUNT_JSON). Notifications are stored only.');
+      return messaging;
+    }
     // eslint-disable-next-line global-require
     const admin = require('firebase-admin');
-    // eslint-disable-next-line global-require
-    const serviceAccount = require(require('path').resolve(keyPath));
     if (!admin.apps.length) admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
     messaging = admin.messaging();
-    console.log('[Push] Firebase Cloud Messaging is enabled.');
+    console.log(`[Push] Firebase Cloud Messaging is enabled (project ${serviceAccount.project_id}).`);
   } catch (error) {
     console.warn(`[Push] Disabled (${error.message}). Notifications are stored only.`);
   }
@@ -69,6 +95,10 @@ const sendPush = async (user, { title, body, data }) => {
     return true;
   } catch (error) {
     console.warn(`[Push] Could not deliver to ${user.id}: ${error.message}`);
+    // the app was uninstalled or the token expired: forget it; the app sends a new one on its next start
+    if (['messaging/registration-token-not-registered', 'messaging/invalid-registration-token'].includes(error.code)) {
+      await User.update({ pushToken: null }, { where: { id: user.id, pushToken: user.pushToken } }).catch(() => {});
+    }
     return false;
   }
 };
@@ -198,4 +228,4 @@ class NotificationService {
   }
 }
 
-module.exports = { notificationService: new NotificationService(), NotificationError };
+module.exports = { notificationService: new NotificationService(), NotificationError, sendPush, getMessaging };
