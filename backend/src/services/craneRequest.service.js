@@ -39,6 +39,15 @@ const STATUS_LABELS = {
   not_found: 'Sent to Cranezo team'
 };
 const OPEN = [STATUS.SEARCHING, STATUS.ACCEPTED];
+// why a customer cancels a request (the app shows these 4)
+const CANCEL_REASONS = [
+  { id: 'found_elsewhere', name: 'I found a crane elsewhere' },
+  { id: 'price_high', name: 'The price is too high' },
+  { id: 'plans_changed', name: 'My plans changed' },
+  { id: 'taking_long', name: 'It is taking too long' }
+];
+const EXTEND_MINUTES = 5;
+const REMIND_BEFORE_MS = 2 * 60 * 1000;
 const MIN = 60 * 1000;
 const r2 = billing.r2;
 const num = (v) => (v === null || v === undefined ? 0 : Number(v));
@@ -307,6 +316,10 @@ class CraneRequestService {
         payment_seconds_left: b.status === BOOKING_STATUS.AWAITING_PAYMENT && b.paymentDueAt
           ? Math.max(0, Math.round((new Date(b.paymentDueAt).getTime() - now) / 1000)) : null,
         advance_paid_at: iso(b.advancePaidAt),
+        // one 5-minute extension, offered in the last 2 minutes
+        can_extend_payment: b.status === BOOKING_STATUS.AWAITING_PAYMENT && !b.paymentExtendedAt && !!b.paymentDueAt
+          && new Date(b.paymentDueAt).getTime() - now <= REMIND_BEFORE_MS && new Date(b.paymentDueAt).getTime() > now,
+        payment_extended: !!b.paymentExtendedAt,
         online_payment: require('./gateway.service').gateway.configured(),
         test_payment: testPaymentAllowed()
       };
@@ -335,6 +348,7 @@ class CraneRequestService {
       expires_at: iso(row.expiresAt),
       seconds_left: searching && row.expiresAt ? Math.max(0, Math.round((new Date(row.expiresAt).getTime() - now) / 1000)) : null,
       can_cancel: OPEN.includes(row.status),
+      cancel_reasons: CANCEL_REASONS,
       can_send_to_team: [STATUS.EXPIRED, STATUS.PAYMENT_EXPIRED].includes(row.status),
       booking,
       created_at: iso(row.createdAt)
@@ -417,13 +431,15 @@ class CraneRequestService {
   }
 
   /** Cancel while searching, or while the advance is still unpaid (the crane is released) */
-  async cancel(customerId, id) {
+  async cancel(customerId, id, reasonId) {
     const row = await this.mine(customerId, id);
     if (!OPEN.includes(row.status)) throw new ServiceError('This request is already closed.', 409);
+    const reason = CANCEL_REASONS.find((r) => r.id === reasonId);
+    if (reasonId !== undefined && reasonId !== null && reasonId !== '' && !reason) throw new ServiceError('Choose a reason for cancelling.');
     if (row.status === STATUS.ACCEPTED && row.bookingId) {
       const b = await Booking.findByPk(row.bookingId);
       if (b && b.status === BOOKING_STATUS.AWAITING_PAYMENT) {
-        await b.update({ status: BOOKING_STATUS.CANCELLED, cancelledAt: new Date(), cancelledBy: 'customer', cancelReason: 'Cancelled by the customer before paying the advance' });
+        await b.update({ status: BOOKING_STATUS.CANCELLED, cancelledAt: new Date(), cancelledBy: 'customer', cancelReason: reason ? reason.name : 'Cancelled by the customer before paying the advance' });
         await notificationService.notify(b.ownerId, {
           type: NOTIFICATION_TYPES.BOOKING_CANCELLED,
           title: 'Booking Cancelled',
@@ -432,7 +448,25 @@ class CraneRequestService {
         });
       }
     }
-    await row.update({ status: STATUS.CANCELLED, closedAt: new Date() });
+    await row.update({ status: STATUS.CANCELLED, closedAt: new Date(), cancelReason: reason ? reason.name : null });
+    return this.get(customerId, id);
+  }
+
+  /** 'Need more time?': the advance deadline moves 5 minutes, once per booking; the owner is told */
+  async extendPayment(customerId, id) {
+    const row = await this.mine(customerId, id);
+    const b = row.bookingId ? await Booking.findByPk(row.bookingId) : null;
+    if (!b || b.status !== BOOKING_STATUS.AWAITING_PAYMENT) throw new ServiceError('This booking is not waiting for the advance.', 409);
+    if (b.paymentExtendedAt) throw new ServiceError('You already took the extra 5 minutes.', 409);
+    if (b.paymentDueAt && new Date() > new Date(b.paymentDueAt)) throw new ServiceError('The time to pay has run out. Please book again.', 410);
+    const due = new Date(new Date(b.paymentDueAt || Date.now()).getTime() + EXTEND_MINUTES * MIN);
+    await b.update({ paymentDueAt: due, paymentExtendedAt: new Date() });
+    await notificationService.notify(b.ownerId, {
+      type: NOTIFICATION_TYPES.PAYMENT_EXTENDED,
+      title: 'Customer Needs 5 More Minutes',
+      body: `${b.bookingCode}: the customer asked for 5 more minutes to pay the advance.`,
+      data: { booking_id: b.id, booking_code: b.bookingCode }
+    });
     return this.get(customerId, id);
   }
 
@@ -589,7 +623,7 @@ class CraneRequestService {
         cranes: matches.map((m) => {
           const usual = r2(num(m.crane.hourlyRate) * r.durationHours);
           const distance = billing.distanceChargeFor(m.distanceKm, settings.per_km_rate, rules);
-          const bill = billing.quote({ craneRental: r.offerAmount, distanceCharge: distance.amount, charges: settings.charges, gstPercent: settings.gst_percent });
+          const bill = billing.quote({ craneRental: r.offerAmount, distanceCharge: distance.amount, charges: settings.charges, gstPercent: settings.gst_percent, gatewayFeePercent: rules.gateway_fee_percent });
           return {
             crane_id: m.crane.id,
             crane_code: m.crane.craneCode,
@@ -638,7 +672,7 @@ class CraneRequestService {
 
       const distance = billing.distanceChargeFor(distanceKm, settings.per_km_rate, rules);
       const offer = num(row.offerAmount);
-      const bill = billing.quote({ craneRental: offer, distanceCharge: distance.amount, charges: settings.charges, gstPercent: settings.gst_percent });
+      const bill = billing.quote({ craneRental: offer, distanceCharge: distance.amount, charges: settings.charges, gstPercent: settings.gst_percent, gatewayFeePercent: rules.gateway_fee_percent });
       const advance = r2((bill.total * settings.advance_percent) / 100);
       const due = new Date(Date.now() + num(rules.payment_window_minutes) * MIN);
 
@@ -673,6 +707,8 @@ class CraneRequestService {
             distanceCharge: distance.amount,
             charges: settings.charges,
             gstPercent: settings.gst_percent,
+            // online payment fee (Razorpay) the customer pays on top, fixed for this booking
+            gatewayFeePercent: num(rules.gateway_fee_percent),
             advancePercent: settings.advance_percent,
             advanceAmount: advance,
             remainingAmount: r2(bill.total - advance),
@@ -744,6 +780,29 @@ class CraneRequestService {
     // payments the app never confirmed (UPI app switch, app closed): ask Razorpay
     const { onlinePaymentService } = require('./onlinePayment.service');
     await onlinePaymentService.reconcileOpen().catch(() => 0);
+
+    // 2 minutes left to pay the advance: ask the customer if they need more time (once)
+    const closing = await Booking.findAll({
+      where: {
+        status: BOOKING_STATUS.AWAITING_PAYMENT,
+        paymentReminderAt: null,
+        paymentDueAt: { [Op.gt]: now, [Op.lte]: new Date(now.getTime() + REMIND_BEFORE_MS) }
+      }
+    });
+    for (const b of closing) {
+      // eslint-disable-next-line no-await-in-loop
+      const [n] = await Booking.update({ paymentReminderAt: now }, { where: { id: b.id, paymentReminderAt: null } });
+      if (!n) continue;
+      // eslint-disable-next-line no-await-in-loop
+      await notificationService.notify(b.customerId, {
+        type: NOTIFICATION_TYPES.PAYMENT_REMINDER,
+        title: 'Need More Time to Pay?',
+        body: b.paymentExtendedAt
+          ? `${b.bookingCode}: 2 minutes left to pay the advance, or the crane is released.`
+          : `${b.bookingCode}: 2 minutes left to pay the advance. Tap to pay, or take 5 more minutes.`,
+        data: { booking_id: b.id, booking_code: b.bookingCode, request_id: b.craneRequestId || '' }
+      });
+    }
 
     // advance not paid in time: cancel and free the crane
     const unpaid = await Booking.findAll({ where: { status: BOOKING_STATUS.AWAITING_PAYMENT, paymentDueAt: { [Op.lt]: now } } });

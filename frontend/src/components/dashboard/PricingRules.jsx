@@ -11,6 +11,8 @@ const RULES = [
   ['raise_step_percent', 'Raise step (%)', 'Each raise adds this % of the offer'],
   ['raise_min_step', 'Smallest raise (₹)', 'A raise is never smaller than this'],
   ['payment_window_minutes', 'Time to pay advance (minutes)', 'Unpaid bookings are cancelled after this'],
+  ['gateway_fee_percent', 'Online payment fee (%)', 'Razorpay fee added to the customer bill (owner amount unchanged)'],
+  ['arrival_radius_km', 'Arrival distance (km)', 'Operator can mark "arrived" only this close to the site'],
 ];
 
 /** Admin > Pricing Rules: booking request rules and the minimum hourly price per crane type and capacity */

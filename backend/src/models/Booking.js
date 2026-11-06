@@ -81,6 +81,11 @@ module.exports = (sequelize) => {
     contactPhone: { type: DataTypes.STRING(20), allowNull: true, field: 'contact_phone' },
     distanceCharge: money('distance_charge'),
     paymentDueAt: { type: DataTypes.DATE, allowNull: true, field: 'payment_due_at' },
+    // 'need more time?' reminder sent (2 minutes left) and the one 5-minute extension used
+    paymentReminderAt: { type: DataTypes.DATE, allowNull: true, field: 'payment_reminder_at' },
+    paymentExtendedAt: { type: DataTypes.DATE, allowNull: true, field: 'payment_extended_at' },
+    // online payment fee % (Razorpay) added to the customer's bill
+    gatewayFeePercent: { type: DataTypes.DECIMAL(5, 2), allowNull: false, defaultValue: 0, field: 'gateway_fee_percent' },
     advancePaidAt: { type: DataTypes.DATE, allowNull: true, field: 'advance_paid_at' },
     platformCollectedAmount: money('platform_collected_amount'),
     // bill: owner charges and GST copied when the booking is made (see services/billing.js)

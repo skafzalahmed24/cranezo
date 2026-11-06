@@ -6,9 +6,10 @@
  *   charges      = owner's additional charges, each fixed or a % of the subtotal
  *   taxable      = subtotal + charges
  *   gst          = owner's GST % of taxable
- *   total        = taxable + gst                        -> the customer pays this
+ *   gateway fee  = online payment fee (Razorpay, ~2%) of taxable + gst, paid by the customer
+ *   total        = taxable + gst + gateway fee          -> the customer pays this
  *   platform fee = Super Admin's % of taxable (GST is tax, never commissioned)
- *   owner gets   = total - platform fee
+ *   owner gets   = total - platform fee - gateway fee   (the gateway fee goes to Razorpay, never to the owner)
  *   commission   = operator's commission (percent of subtotal, per km, or fixed), paid by the owner
  *   owner share  = owner gets - commission - gst          -> what the owner keeps after paying everyone
  */
@@ -19,8 +20,9 @@ const r2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 const num = (v, fallback = 0) => (v === null || v === undefined || v === '' ? fallback : Number(v));
 
 const CHARGE_TYPES = ['fixed', 'percent'];
-const COMMISSION_TYPES = ['percent', 'per_km', 'fixed'];
-const COMMISSION_LABELS = { percent: '% of job amount', per_km: 'Per km', fixed: 'Fixed amount' };
+// per_km is kept only so older jobs still read; owners can no longer choose it
+const COMMISSION_TYPES = ['percent', 'fixed'];
+const COMMISSION_LABELS = { percent: '% of job value', per_km: 'Per km', fixed: 'Fixed ₹ per job' };
 const DEFAULT_FEE_PERCENT = 5;
 const MAX_CHARGES = 10;
 
@@ -63,7 +65,11 @@ const DEFAULT_RULES = {
   raise_after_minutes: 2,
   raise_step_percent: 10,
   raise_min_step: 100,
-  payment_window_minutes: 10
+  payment_window_minutes: 10,
+  // online payment fee added to the customer's bill (Razorpay)
+  gateway_fee_percent: 2,
+  // the operator can mark arrival only this close to the site
+  arrival_radius_km: 1
 };
 const RULE_LIMITS = {
   search_radius_km: [1, 200],
@@ -73,7 +79,9 @@ const RULE_LIMITS = {
   raise_after_minutes: [1, 60],
   raise_step_percent: [1, 100],
   raise_min_step: [0, 100000],
-  payment_window_minutes: [2, 120]
+  payment_window_minutes: [2, 120],
+  gateway_fee_percent: [0, 10],
+  arrival_radius_km: [0.1, 20]
 };
 
 let rulesCache = null;
@@ -187,7 +195,7 @@ const cleanCharges = (list) => {
 
 const cleanCommission = (type, value) => {
   const t = String(type || '').toLowerCase();
-  if (!COMMISSION_TYPES.includes(t)) throw new ServiceError('commission type must be percent, per_km or fixed.');
+  if (!COMMISSION_TYPES.includes(t)) throw new ServiceError('commission type must be percent or fixed.');
   const v = Number(value);
   if (!Number.isFinite(v) || v < 0) throw new ServiceError('commission value must be 0 or more.');
   if (t === 'percent' && v > 100) throw new ServiceError('A commission percentage cannot be more than 100.');
@@ -243,12 +251,13 @@ const chargeLines = (charges, subtotal) => (Array.isArray(charges) ? charges : [
 }));
 
 /** Quote before a booking exists (crane details / booking confirm screen) */
-function quote({ craneRental, extraAmount = 0, distanceCharge = 0, charges = [], gstPercent = 0 }) {
+function quote({ craneRental, extraAmount = 0, distanceCharge = 0, charges = [], gstPercent = 0, gatewayFeePercent = 0 }) {
   const subtotal = r2(num(craneRental) + num(extraAmount) + num(distanceCharge));
   const lines = chargeLines(charges, subtotal);
   const chargesAmount = r2(lines.reduce((s, l) => s + l.amount, 0));
   const taxable = r2(subtotal + chargesAmount);
   const gst = r2((taxable * num(gstPercent)) / 100);
+  const gatewayFee = r2(((taxable + gst) * num(gatewayFeePercent)) / 100);
   return {
     crane_hire: r2(num(craneRental)),
     extra_time: r2(num(extraAmount)),
@@ -259,7 +268,9 @@ function quote({ craneRental, extraAmount = 0, distanceCharge = 0, charges = [],
     taxable_amount: taxable,
     gst_percent: num(gstPercent),
     gst_amount: gst,
-    total: r2(taxable + gst)
+    gateway_fee_percent: num(gatewayFeePercent),
+    gateway_fee: gatewayFee,
+    total: r2(taxable + gst + gatewayFee)
   };
 }
 
@@ -290,13 +301,13 @@ const commissionOf = (b, subtotal) => {
  * @param {number} currentFeePercent from platformFeePercent()
  */
 function billOf(b, currentFeePercent = DEFAULT_FEE_PERCENT) {
-  const q = quote({ craneRental: b.totalAmount, extraAmount: b.extraAmount, distanceCharge: b.distanceCharge, charges: b.charges || [], gstPercent: b.gstPercent });
+  const q = quote({ craneRental: b.totalAmount, extraAmount: b.extraAmount, distanceCharge: b.distanceCharge, charges: b.charges || [], gstPercent: b.gstPercent, gatewayFeePercent: b.gatewayFeePercent });
   const frozen = !!b.completedAt && b.platformFeePercent !== null && b.platformFeePercent !== undefined;
   const feePercent = frozen ? num(b.platformFeePercent) : num(currentFeePercent);
   const fee = frozen && b.platformFeeAmount !== null && b.platformFeeAmount !== undefined
     ? num(b.platformFeeAmount)
     : r2((q.taxable_amount * feePercent) / 100);
-  const ownerReceives = r2(q.total - fee);
+  const ownerReceives = r2(q.total - fee - q.gateway_fee);
   const commission = commissionOf(b, q.subtotal);
   const ownerShare = r2(ownerReceives - commission.amount - q.gst_amount);
   return {
@@ -338,9 +349,11 @@ function breakdownLines(bill, { audience = 'customer' } = {}) {
     amount: c.amount
   }));
   if (bill.gst_amount > 0) lines.push({ key: 'gst', label: `GST (${bill.gst_percent}%)`, amount: bill.gst_amount });
+  if (bill.gateway_fee > 0) lines.push({ key: 'gateway_fee', label: `Online payment fee (${bill.gateway_fee_percent}%, Razorpay)`, amount: bill.gateway_fee });
   lines.push({ key: 'total', label: 'Total payable', amount: bill.total, total: true });
   if (audience === 'customer') return lines;
 
+  if (bill.gateway_fee > 0) lines.push({ key: 'gateway_fee_out', label: 'Online payment fee (to Razorpay)', amount: -bill.gateway_fee });
   lines.push({ key: 'platform_fee', label: `Platform fee (${bill.platform_fee_percent}%)`, amount: -bill.platform_fee });
   lines.push({ key: 'owner_receives', label: 'Owner receives', amount: bill.owner_receives, total: true });
   if (bill.operator_commission.set) {
@@ -360,7 +373,8 @@ function platformBalanceOf(b, bill) {
   let held = num(b.platformCollectedAmount);
   // jobs paid fully online before the advance flow existed
   if (held === 0 && b.paymentCollectedBy === 'platform') held = num(b.paidAmount) || bill.total;
-  return r2(held - bill.platform_fee);
+  // the gateway fee was taken by Razorpay from what the platform holds
+  return r2(held - bill.platform_fee - num(bill.gateway_fee));
 }
 
 module.exports = {

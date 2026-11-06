@@ -111,6 +111,12 @@ class PaymentService {
 
   ownerTransactions(ownerId, input) { return this.list({ ownerId }, input); }
 
+  /** Every payment attempt of one booking, newest first (job details: transaction history) */
+  async forBooking(bookingId) {
+    const rows = await PaymentTransaction.findAll({ where: { bookingId }, include, order: [['createdAt', 'DESC']] });
+    return rows.map(view);
+  }
+
   async adminTransactions(input = {}) {
     const where = {};
     if (input.owner_id) where.ownerId = input.owner_id;

@@ -7,6 +7,9 @@ const META = {
   request_expired: { category: 'booking', icon: 'booking', screen: 'crane_request' },
   advance_paid: { category: 'payment', icon: 'payment', screen: 'owner_job' },
   payment_timeout: { category: 'booking', icon: 'booking', screen: 'booking' },
+  // 2 minutes left to pay: opens the pay-advance screen (with '+5 minutes'); owner is told when the customer takes it
+  payment_reminder: { category: 'payment', icon: 'payment', screen: 'crane_request' },
+  payment_extended: { category: 'booking', icon: 'booking', screen: 'owner_job' },
   assign_operator: { category: 'job', icon: 'job', screen: 'owner_job' },
   booking_confirmed: { category: 'booking', icon: 'booking', screen: 'booking' },
   booking_declined: { category: 'booking', icon: 'booking', screen: 'booking' },

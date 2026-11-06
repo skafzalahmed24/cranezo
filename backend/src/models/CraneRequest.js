@@ -37,6 +37,7 @@ module.exports = (sequelize) => {
     bookingId: { type: DataTypes.UUID, allowNull: true, field: 'booking_id' },
     acceptedAt: { type: DataTypes.DATE, allowNull: true, field: 'accepted_at' },
     closedAt: { type: DataTypes.DATE, allowNull: true, field: 'closed_at' },
+    cancelReason: { type: DataTypes.STRING(200), allowNull: true, field: 'cancel_reason' },
     notFoundNote: { type: DataTypes.TEXT, allowNull: true, field: 'not_found_note' },
     adminStatus: { type: DataTypes.STRING(12), allowNull: true, field: 'admin_status' },
     adminNote: { type: DataTypes.TEXT, allowNull: true, field: 'admin_note' }

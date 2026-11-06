@@ -8,31 +8,34 @@ const { ROLES } = require('../constants/roles');
 
 const jobController = require('../controllers/job.controller');
 const operatorOnly = [authenticate, authorize(ROLES.OPERATOR)];
+// job actions need an operator the admin has verified (documents approved)
+const { requireVerifiedOperator } = require('../middlewares/verifiedOperator.middleware');
+const verifiedOperator = [...operatorOnly, requireVerifiedOperator];
 
 // Operator app: Home, Jobs, job steps and Earnings. All POST with a JSON payload.
 router.post('/home', operatorOnly, jobController.home);
-router.post('/status', operatorOnly, jobController.setOnline);
+router.post('/status', verifiedOperator, jobController.setOnline);
 router.post('/location', operatorOnly, jobController.updateLocation);
 
 router.post('/jobs/list', operatorOnly, jobController.list);
 router.post('/jobs/get', operatorOnly, jobController.get);
-router.post('/jobs/accept', operatorOnly, jobController.accept);
+router.post('/jobs/accept', verifiedOperator, jobController.accept);
 router.post('/jobs/decline', operatorOnly, jobController.decline);
-router.post('/jobs/start-journey', operatorOnly, jobController.startJourney);
-router.post('/jobs/arrived', operatorOnly, jobController.arrived);
-router.post('/jobs/confirm-arrival', operatorOnly, jobController.confirmArrival);
-router.post('/jobs/site-photos', operatorOnly, jobController.sitePhotos);
+router.post('/jobs/start-journey', verifiedOperator, jobController.startJourney);
+router.post('/jobs/arrived', verifiedOperator, jobController.arrived);
+router.post('/jobs/confirm-arrival', verifiedOperator, jobController.confirmArrival);
+router.post('/jobs/site-photos', verifiedOperator, jobController.sitePhotos);
 router.post('/jobs/checklist', operatorOnly, jobController.checklist);
-router.post('/jobs/checklist/save', operatorOnly, jobController.saveChecklist);
-router.post('/jobs/start', operatorOnly, jobController.start);
-router.post('/jobs/waiting', operatorOnly, jobController.waiting);
+router.post('/jobs/checklist/save', verifiedOperator, jobController.saveChecklist);
+router.post('/jobs/start', verifiedOperator, jobController.start);
+router.post('/jobs/waiting', verifiedOperator, jobController.waiting);
 router.post('/jobs/breakdown', operatorOnly, jobController.breakdown);
 router.post('/jobs/issue', operatorOnly, jobController.issue);
 router.post('/jobs/emergency', operatorOnly, jobController.emergency);
-router.post('/jobs/extension/respond', operatorOnly, jobController.extensionRespond);
-router.post('/jobs/finish', operatorOnly, jobController.finish);
-router.post('/jobs/request-confirmation', operatorOnly, jobController.requestConfirmation);
-router.post('/jobs/confirm-completion', operatorOnly, jobController.confirmCompletion);
+router.post('/jobs/extension/respond', verifiedOperator, jobController.extensionRespond);
+router.post('/jobs/finish', verifiedOperator, jobController.finish);
+router.post('/jobs/request-confirmation', verifiedOperator, jobController.requestConfirmation);
+router.post('/jobs/confirm-completion', verifiedOperator, jobController.confirmCompletion);
 
 router.post('/earnings/summary', operatorOnly, jobController.earningsSummary);
 router.post('/earnings/list', operatorOnly, jobController.earningsList);
@@ -40,7 +43,7 @@ router.post('/earnings/list', operatorOnly, jobController.earningsList);
 // open jobs from owners, and commission payments received
 const finance = require('../controllers/finance.controller');
 router.post('/available-jobs', operatorOnly, finance.operatorAvailableJobs);
-router.post('/available-jobs/request', operatorOnly, finance.operatorRequestJob);
+router.post('/available-jobs/request', verifiedOperator, finance.operatorRequestJob);
 router.post('/job-requests', operatorOnly, finance.operatorMyRequests);
 router.post('/job-requests/withdraw', operatorOnly, finance.operatorWithdrawRequest);
 router.post('/settlements', operatorOnly, finance.operatorSettlements);

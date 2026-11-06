@@ -32,7 +32,8 @@ module.exports = {
   list: ranged('Requests retrieved successfully.', (req) => S.list(me(req), body(req))),
   raise: handler('Price raised. Owners near you have been told.', (req) => S.raise(me(req), body(req).request_id)),
   autoRaise: handler('Auto raise updated.', (req) => S.setAutoRaise(me(req), body(req))),
-  cancel: handler('Request cancelled.', (req) => S.cancel(me(req), body(req).request_id)),
+  cancel: handler('Request cancelled.', (req) => S.cancel(me(req), body(req).request_id, body(req).reason)),
+  extendPayment: handler('You have 5 more minutes to pay.', (req) => S.extendPayment(me(req), body(req).request_id)),
   sendToTeam: handler('Sent to the Cranezo team. We will call you soon.', (req) => S.sendToTeam(me(req), body(req))),
   payAdvance: handler('Advance paid. Your crane is booked.', (req) => S.payAdvance(me(req), body(req))),
   // customer online payments (Razorpay): advance and final balance

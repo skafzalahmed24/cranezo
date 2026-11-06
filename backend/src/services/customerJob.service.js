@@ -298,6 +298,8 @@ class CustomerJobService {
         response_minutes: C.EXTRA_TIME_RESPONSE_MINUTES
       },
       payment,
+      // every payment attempt (advance, final, failed ones too)
+      transactions: await require('./payment.service').paymentService.forBooking(b.id),
       job_summary: completed ? {
         started_at: H.iso(b.workStartedAt),
         completed_at: H.iso(b.completedAt),

@@ -103,6 +103,8 @@ const NOTIFICATION_TYPES = {
   REQUEST_EXPIRED: 'request_expired',
   ADVANCE_PAID: 'advance_paid',
   PAYMENT_TIMEOUT: 'payment_timeout',
+  PAYMENT_REMINDER: 'payment_reminder',
+  PAYMENT_EXTENDED: 'payment_extended',
   RATING_RECEIVED: 'rating_received'
 };
 

@@ -304,6 +304,14 @@ class OwnerJobService {
       } : null,
       special_requirements: b.specialRequirements,
       payment: H.paymentView(b),
+      // waiting for the customer's advance: the same countdown the customer sees
+      advance_due: b.status === BOOKING_STATUS.AWAITING_PAYMENT && b.paymentDueAt ? {
+        amount: Number(b.advanceAmount),
+        due_at: H.iso(b.paymentDueAt),
+        seconds_left: Math.max(0, Math.round((new Date(b.paymentDueAt).getTime() - Date.now()) / 1000)),
+        extended: !!b.paymentExtendedAt
+      } : null,
+      transactions: await require('./payment.service').paymentService.forBooking(b.id),
       // transparent breakdown: customer bill, platform fee, operator commission, GST, owner's share
       bill: {
         lines: billing.breakdownLines(bill, { audience: 'owner' }),
@@ -321,6 +329,8 @@ class OwnerJobService {
           && ![BOOKING_STATUS.CANCELLED, BOOKING_STATUS.DECLINED, BOOKING_STATUS.EXPIRED].includes(b.status),
         settlement_status: b.operatorSettlementStatus,
         settled_at: H.iso(b.operatorSettledAt),
+        // the job value a % commission is taken from (crane hire + extra time + distance)
+        job_value: bill.subtotal,
         types: billing.COMMISSION_TYPES.map((t) => ({ id: t, name: billing.COMMISSION_LABELS[t] }))
       },
       timeline: this.timeline(b),

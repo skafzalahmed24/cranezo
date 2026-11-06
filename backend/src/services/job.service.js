@@ -359,6 +359,8 @@ class JobService {
       greeting_name: user.fullName,
       profile_image: user.profileImage,
       online: user.isOnline,
+      // documents approved by the admin: until then the app shows a banner and job actions are blocked
+      verified: require('../middlewares/verifiedOperator.middleware').isVerifiedOperator(user),
       online_label: user.isOnline ? 'Online' : 'Offline',
       online_message: user.isOnline ? 'You are online and ready for jobs' : 'You are currently offline',
       assigned_crane: crane ? {
@@ -550,10 +552,33 @@ class JobService {
   }
 
   /** You've Reached the Job Site */
-  async arrived(operatorId, bookingId) {
+  /**
+   * The operator reached the site. Only counts at the site: the phone's location (sent with the call, or the
+   * live location shared in the last 15 minutes) must be within the arrival radius, so the customer is told
+   * 'arrived' only when the crane is really there.
+   */
+  async arrived(operatorId, bookingId, input = {}) {
     const b = await this.mine(operatorId, bookingId);
     if (b.status !== BOOKING_STATUS.EN_ROUTE || !b.enRouteAt) throw new ServiceError('Start the journey first.', 409);
     if (b.arrivedAt) throw new ServiceError('You have already marked your arrival.', 409);
+
+    const rules = await billing.bookingRules();
+    let lat = input.latitude !== undefined && input.latitude !== null ? Number(input.latitude) : null;
+    let lng = input.longitude !== undefined && input.longitude !== null ? Number(input.longitude) : null;
+    const crane = await Crane.findByPk(b.craneId, { attributes: ['id', 'currentLatitude', 'currentLongitude', 'locationUpdatedAt'] });
+    if (Number.isFinite(lat) && Number.isFinite(lng) && lat !== null && lng !== null) {
+      if (crane) await crane.update({ currentLatitude: lat, currentLongitude: lng, locationUpdatedAt: new Date() });
+    } else if (crane && crane.currentLatitude !== null && crane.locationUpdatedAt && Date.now() - new Date(crane.locationUpdatedAt).getTime() < 15 * 60 * 1000) {
+      lat = Number(crane.currentLatitude);
+      lng = Number(crane.currentLongitude);
+    } else {
+      throw new ServiceError('Turn on location so we can see you have reached the site.', 409);
+    }
+    const siteKm = H.haversineKm(lat, lng, Number(b.latitude), Number(b.longitude));
+    const radius = Number(rules.arrival_radius_km) || 1;
+    if (siteKm > radius) {
+      throw new ServiceError(`You are about ${H.round1(siteKm)} km from the site. Mark arrival when you reach the site.`, 409);
+    }
     await b.update({ arrivedAt: new Date() });
     await notificationService.notify(b.customerId, {
       type: NOTIFICATION_TYPES.OPERATOR_ARRIVED,
@@ -858,6 +883,12 @@ class JobService {
         attributes: ['id', 'fullName']
       });
       if (!operator) throw new ServiceError('That operator is not available.', 400);
+    }
+
+    // only operators the admin has verified can be given a job
+    const { operatorVerified } = require('../middlewares/verifiedOperator.middleware');
+    if (!(await operatorVerified(operatorId))) {
+      throw new ServiceError(`${operator.fullName || 'This operator'} is not verified yet. Cranezo checks the operator's documents first.`, 409);
     }
 
     // one operator, one job at a time
