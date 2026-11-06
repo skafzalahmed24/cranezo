@@ -630,6 +630,8 @@ class OwnerJobService {
         crane: { crane_code: b.crane.craneCode, title: H.craneTitle(b.crane), primary_photo: H.primaryPhoto(b.crane) },
         location: b.siteName || b.siteAddress,
         completed_at: H.iso(b.completedAt),
+        // how long the crane worked (Recent Completed Jobs: "8h 10m")
+        duration_seconds: b.workStartedAt && b.workEndedAt ? Math.round((new Date(b.workEndedAt) - new Date(b.workStartedAt)) / 1000) : (b.durationHours ? b.durationHours * 3600 : null),
         amount: m.gross,
         net_amount: m.net,
         platform_fee: m.platform_fee,
