@@ -1,6 +1,6 @@
 const { Op } = require('sequelize');
 const { StaticDropdown } = require('../models');
-const { DROPDOWN_TYPE_LABELS } = require('../constants/dropdownTypes');
+const { DROPDOWN_TYPE_LABELS, DROPDOWN_TYPES } = require('../constants/dropdownTypes');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const { parseRange, rangeResponse } = require('../utils/range');
 
@@ -15,6 +15,9 @@ const formatDropdown = (d) => ({
   status_label: d.dropdownTypeStatus === 0 ? 'Active' : 'Inactive',
   updated_at: d.updatedAt
 });
+
+/** A crane capacity typed as a plain number ("16") is stored as "16 Ton", so every screen shows the unit */
+const withUnit = (type, name) => (type === DROPDOWN_TYPES.CRANE_CAPACITY && /^\d+(\.\d+)?$/.test(name) ? `${name} Ton` : name);
 
 const parseType = (value) => {
   const n = Number(value);
@@ -78,7 +81,7 @@ class SettingsController {
       if (type === null) return errorResponse(res, 'A valid dropdown type is required.', null, 400);
       if (!name || !String(name).trim()) return errorResponse(res, 'name is required.', null, 400);
 
-      const clean = String(name).trim();
+      const clean = withUnit(type, String(name).trim());
       const duplicate = await StaticDropdown.findOne({
         where: { dropdownType: type, dropdownName: { [Op.iLike]: clean } },
         attributes: ['id']
@@ -108,7 +111,7 @@ class SettingsController {
       const { name, description, status, image } = req.body || {};
       const updates = {};
       if (name !== undefined) {
-        const clean = String(name).trim();
+        const clean = withUnit(row.dropdownType, String(name).trim());
         if (!clean) return errorResponse(res, 'name cannot be empty.', null, 400);
         const duplicate = await StaticDropdown.findOne({
           where: { dropdownType: row.dropdownType, dropdownName: { [Op.iLike]: clean }, id: { [Op.ne]: id } },
