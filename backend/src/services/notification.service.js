@@ -65,9 +65,9 @@ const getMessaging = () => {
 // Must match the channel ids the Android app creates (PushNotifications.kt)
 const URGENT_TYPES = new Set(['booking_request', 'crane_request', 'request_accepted', 'job_assigned', 'operator_arrived', 'completion_requested', 'extension_requested', 'breakdown_reported', 'emergency']);
 
-// New requests for an owner ring with the buzzer tone (up to 30 seconds, until opened).
+// New requests for an owner, and a new job for an operator, ring with the buzzer tone (up to 30 seconds, until opened).
 // They go as data-only messages so the app builds the ringing notification itself, even in the background.
-const BUZZER_TYPES = new Set(['booking_request', 'crane_request']);
+const BUZZER_TYPES = new Set(['booking_request', 'crane_request', 'job_assigned']);
 
 const sendPush = async (user, { title, body, data }) => {
   const fcm = getMessaging();

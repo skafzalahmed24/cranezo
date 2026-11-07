@@ -136,8 +136,7 @@ class JobService {
       { key: 'operator_verified', label: 'Operator Verified', description: operatorOk ? 'You are eligible for this job' : 'Your operator license is missing, expired or rejected', ok: operatorOk },
       { key: 'documents_valid', label: 'Documents Valid', description: docsOk ? 'All documents are up to date' : 'Some documents have expired', ok: docsOk },
       { key: 'arrival_completed', label: 'Arrival Completed', description: b.arrivalConfirmedAt ? `Arrived at site at ${H.iso(b.arrivedAt)}` : 'Waiting for the customer to confirm your arrival', ok: !!b.arrivalConfirmedAt },
-      { key: 'site_verified', label: 'Site Verified', description: sitePhotos ? 'Site photos captured' : 'Take photos of the site', ok: sitePhotos > 0 },
-      { key: 'safety_checklist_completed', label: 'Safety Checklist Completed', description: b.checklistCompletedAt ? 'All safety checks done' : 'Complete the safety checklist', ok: !!b.checklistCompletedAt }
+      { key: 'site_verified', label: 'Site Verified', description: sitePhotos ? 'Site photos captured' : 'Take photos of the site', ok: sitePhotos > 0 }
     ];
   }
 
@@ -303,6 +302,7 @@ class JobService {
   documentStatus(u) {
     const docs = [
       { key: 'operator_license', uploaded: !!u.operatorLicenseFront, status: u.operatorLicenseStatus },
+      { key: 'voter_id', uploaded: !!u.voterIdFile, status: u.voterIdStatus },
       { key: 'aadhar_card', uploaded: !!u.aadharCardFile, status: u.aadharStatus },
       { key: 'pan_card', uploaded: !!u.panCardFile, status: u.panStatus },
       { key: 'other_documents', uploaded: !!u.otherDocumentFile, status: u.otherDocumentStatus }
@@ -321,7 +321,7 @@ class JobService {
 
   async home(operatorId) {
     const user = await User.findByPk(operatorId, {
-      attributes: ['id', 'fullName', 'isOnline', 'operatorLicenseFront', 'operatorLicenseStatus', 'aadharCardFile', 'aadharStatus',
+      attributes: ['id', 'fullName', 'isOnline', 'operatorLicenseFront', 'operatorLicenseStatus', 'voterIdFile', 'voterIdStatus', 'aadharCardFile', 'aadharStatus',
         'panCardFile', 'panStatus', 'otherDocumentFile', 'otherDocumentStatus', 'profileImage']
     });
     if (!user) throw new ServiceError('User not found.', 404);

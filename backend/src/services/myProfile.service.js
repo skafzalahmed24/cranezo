@@ -24,10 +24,10 @@ const CUSTOMER_KEYS = [
 ];
 const OPERATOR_KEYS = [
   'operator_license_number', 'license_expiry_date', 'years_of_experience', 'operator_type', 'owner_id',
-  'operator_license_front', 'operator_license_back', 'aadhar_card_file', 'pan_card_file', 'other_document_file'
+  'operator_license_front', 'operator_license_back', 'voter_id_file', 'aadhar_card_file', 'pan_card_file', 'other_document_file'
 ];
 const OPERATOR_DOC_KEYS = [
-  'operator_license_front', 'operator_license_back', 'aadhar_card_file', 'pan_card_file', 'other_document_file'
+  'operator_license_front', 'operator_license_back', 'voter_id_file', 'aadhar_card_file', 'pan_card_file', 'other_document_file'
 ];
 
 const includes = [
@@ -167,6 +167,14 @@ class MyProfileService {
           ...statusFields(u.operatorLicenseStatus, !!u.operatorLicenseFront)
         },
         {
+          key: 'voter_id',
+          label: 'Voter ID',
+          subtitle: null,
+          file_url: u.voterIdFile,
+          uploaded: !!u.voterIdFile,
+          ...statusFields(u.voterIdStatus, !!u.voterIdFile)
+        },
+        {
           key: 'aadhar_card',
           label: 'Aadhar Card',
           subtitle: null,
@@ -263,6 +271,7 @@ class MyProfileService {
       license: user.operatorLicenseNumber,
       front: user.operatorLicenseFront,
       back: user.operatorLicenseBack,
+      voter: user.voterIdFile,
       aadhar: user.aadharCardFile,
       pan: user.panCardFile,
       other: user.otherDocumentFile
@@ -276,6 +285,8 @@ class MyProfileService {
       // license images cannot be removed, only replaced; the other documents can be cleared
       if (!blank(body.operator_license_front)) user.operatorLicenseFront = body.operator_license_front;
       if (!blank(body.operator_license_back)) user.operatorLicenseBack = body.operator_license_back;
+      // the Voter ID is required: it can be replaced, not removed
+      if (!blank(body.voter_id_file)) user.voterIdFile = body.voter_id_file;
       if (body.aadhar_card_file !== undefined) user.aadharCardFile = body.aadhar_card_file || null;
       if (body.pan_card_file !== undefined) user.panCardFile = body.pan_card_file || null;
       if (body.other_document_file !== undefined) user.otherDocumentFile = body.other_document_file || null;
@@ -287,6 +298,7 @@ class MyProfileService {
     if (user.operatorLicenseNumber !== before.license || user.operatorLicenseFront !== before.front || user.operatorLicenseBack !== before.back) {
       user.operatorLicenseStatus = 0;
     }
+    if (user.voterIdFile !== before.voter) user.voterIdStatus = 0;
     if (user.aadharCardFile !== before.aadhar) user.aadharStatus = 0;
     if (user.panCardFile !== before.pan) user.panStatus = 0;
     if (user.otherDocumentFile !== before.other) user.otherDocumentStatus = 0;
@@ -301,7 +313,8 @@ class MyProfileService {
       operator_type: user.operatorType,
       owner_id: user.ownerAccount ? user.ownerAccount.memberId : undefined,
       operator_license_front: user.operatorLicenseFront,
-      operator_license_back: user.operatorLicenseBack
+      operator_license_back: user.operatorLicenseBack,
+      voter_id_file: user.voterIdFile
     };
     await applyOperatorProfile(user, { ...current, ...body });
   }

@@ -52,7 +52,8 @@ async function applyOperatorProfile(user, input) {
     ['years_of_experience', 'years_of_experience'],
     ['operator_type', 'operator_type'],
     ['operator_license_front', 'operator_license_front'],
-    ['operator_license_back', 'operator_license_back']
+    ['operator_license_back', 'operator_license_back'],
+    ['voter_id_file', 'voter_id_file']
   ]);
 
   const licenseNumber = text(input.operator_license_number).toUpperCase();
@@ -89,6 +90,8 @@ async function applyOperatorProfile(user, input) {
   user.ownerId = ownerAccountId; // cleared when switching back to an individual operator
   user.operatorLicenseFront = input.operator_license_front;
   user.operatorLicenseBack = input.operator_license_back;
+  if (user.voterIdFile !== input.voter_id_file) user.voterIdStatus = 0;
+  user.voterIdFile = input.voter_id_file;
   if (input.aadhar_card_file !== undefined) user.aadharCardFile = input.aadhar_card_file || null;
   if (input.pan_card_file !== undefined) user.panCardFile = input.pan_card_file || null;
   if (input.other_document_file !== undefined) user.otherDocumentFile = input.other_document_file || null;

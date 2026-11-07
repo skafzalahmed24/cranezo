@@ -11,6 +11,7 @@ const DOCUMENTS = {
     label: 'Operator License', status: 'operatorLicenseStatus',
     files: ['operatorLicenseFront', 'operatorLicenseBack'], fileLabels: ['Front', 'Back']
   },
+  voter_id: { label: 'Voter ID', status: 'voterIdStatus', files: ['voterIdFile'], fileLabels: ['View'] },
   aadhar_card: { label: 'Aadhaar Card', status: 'aadharStatus', files: ['aadharCardFile'], fileLabels: ['View'] },
   pan_card: { label: 'PAN Card', status: 'panStatus', files: ['panCardFile'], fileLabels: ['View'] },
   other_documents: { label: 'Other Documents', status: 'otherDocumentStatus', files: ['otherDocumentFile'], fileLabels: ['View'] }

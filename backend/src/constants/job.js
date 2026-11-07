@@ -59,7 +59,6 @@ const nextAction = (b, sitePhotoCount) => {
     case 'en_route': return 'mark_arrived';
     case 'arrived':
       if (!sitePhotoCount) return 'take_site_photos';
-      if (!b.checklistCompletedAt) return 'complete_checklist';
       if (!b.arrivalConfirmedAt) return 'wait_for_customer_confirmation';
       return 'start_job';
     case 'working': return 'monitor_job';

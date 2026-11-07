@@ -272,6 +272,7 @@ class AdminService {
         isDeleted: 0,
         [Op.or]: [
           { operatorLicenseFront: { [Op.ne]: null }, operatorLicenseStatus: 0 },
+          { voterIdFile: { [Op.ne]: null }, voterIdStatus: 0 },
           { aadharCardFile: { [Op.ne]: null }, aadharStatus: 0 },
           { panCardFile: { [Op.ne]: null }, panStatus: 0 },
           { otherDocumentFile: { [Op.ne]: null }, otherDocumentStatus: 0 }

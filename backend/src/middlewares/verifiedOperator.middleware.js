@@ -1,15 +1,17 @@
 const { User } = require('../models');
 const { errorResponse } = require('../utils/apiResponse');
 
-const DOC_ATTRS = ['id', 'operatorLicenseFront', 'operatorLicenseStatus', 'aadharCardFile', 'aadharStatus',
+const DOC_ATTRS = ['id', 'operatorLicenseFront', 'operatorLicenseStatus', 'voterIdFile', 'voterIdStatus', 'aadharCardFile', 'aadharStatus',
   'panCardFile', 'panStatus', 'otherDocumentFile', 'otherDocumentStatus'];
 
 /**
- * An operator can work once the admin has verified them: the driving / operator license is approved
+ * An operator can work once the admin has verified them: the driving / operator license and the Voter ID are approved
  * and every other document they uploaded is approved too (none pending or rejected).
  */
 function isVerifiedOperator(u) {
+  // the license and the Voter ID are both required
   if (!u || !u.operatorLicenseFront || u.operatorLicenseStatus !== 1) return false;
+  if (!u.voterIdFile || u.voterIdStatus !== 1) return false;
   const others = [
     [u.aadharCardFile, u.aadharStatus],
     [u.panCardFile, u.panStatus],
