@@ -4,6 +4,16 @@ const { testConnection } = require('./src/config/database');
 
 const PORT = process.env.PORT || 5000;
 
+// A failed promise nobody handled (e.g. a database connection dropped overnight) must not take the
+// whole API down: log it and keep serving. A real crash is logged and exits so pm2 restarts the server.
+process.on('unhandledRejection', (reason) => {
+  console.error('[Server] Unhandled promise rejection:', reason && reason.stack ? reason.stack : reason);
+});
+process.on('uncaughtException', (error) => {
+  console.error('[Server] Uncaught exception, restarting:', error && error.stack ? error.stack : error);
+  process.exit(1);
+});
+
 const startServer = async () => {
   // Test PostgreSQL database connection
   await testConnection();

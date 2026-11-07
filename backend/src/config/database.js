@@ -10,6 +10,10 @@ const sequelize = new Sequelize(
     port: config.port,
     dialect: config.dialect,
     logging: config.logging,
+    // pool, TCP keep-alive and retry on a dropped connection (see config.js)
+    pool: config.pool,
+    dialectOptions: config.dialectOptions,
+    retry: config.retry,
     define: {
       timestamps: true,
       underscored: true
