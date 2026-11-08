@@ -27,6 +27,9 @@ const startServer = async () => {
     // crane requests: auto price raise, requests nobody accepted, advances not paid in time
     require('./src/services/craneRequest.service').craneRequestService.tick()
       .catch((error) => console.warn('[Crane requests] check failed: ' + error.message));
+    // operators who forgot to go Offline; owners told when a job's operator is offline
+    require('./src/services/presence.service').presenceService.tick()
+      .catch((error) => console.warn('[Presence] check failed: ' + error.message));
   }, 60 * 1000).unref();
 
   // owners whose subscription is due soon (or overdue) get a reminder, at most once a day

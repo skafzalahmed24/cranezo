@@ -328,6 +328,8 @@ class JobService {
         'panCardFile', 'panStatus', 'otherDocumentFile', 'otherDocumentStatus', 'profileImage']
     });
     if (!user) throw new ServiceError('User not found.', 404);
+    // opening the app counts as being active, so an online operator is not switched off while using it
+    if (user.isOnline) User.update({ onlineUpdatedAt: new Date() }, { where: { id: operatorId } }).catch(() => {});
 
     const crane = await Crane.findOne({
       where: { operatorId },
@@ -534,6 +536,7 @@ class JobService {
       { currentLatitude: latitude, currentLongitude: longitude, locationUpdatedAt: new Date() },
       { where: { operatorId } }
     );
+    await User.update({ onlineUpdatedAt: new Date() }, { where: { id: operatorId, isOnline: true } });
     const out = { updated: true };
     if (input.booking_id) {
       const b = await this.mine(operatorId, input.booking_id);
@@ -886,7 +889,7 @@ class JobService {
     let operator;
     if (operatorCode) {
       const code = String(operatorCode).trim().toUpperCase();
-      operator = await User.findOne({ where: { memberId: code, roleId: 2, isDeleted: 0 }, attributes: ['id', 'isActive', 'fullName'] });
+      operator = await User.findOne({ where: { memberId: code, roleId: 2, isDeleted: 0 }, attributes: ['id', 'isActive', 'fullName', 'isOnline'] });
       if (!operator) throw new ServiceError(`No operator found with ID ${code}. Check the ID with the operator.`, 404);
       if (operator.isActive !== 0) throw new ServiceError('This operator account is blocked.', 409);
       operatorId = operator.id; // eslint-disable-line no-param-reassign
@@ -894,9 +897,14 @@ class JobService {
       if (!H.UUID_RE.test(String(operatorId || ''))) throw new ServiceError('Choose an operator or enter an operator ID.');
       operator = await User.findOne({
         where: { id: operatorId, roleId: 2, isDeleted: 0, isActive: 0, ownerId: { [Op.or]: [ownerId, null] } },
-        attributes: ['id', 'fullName']
+        attributes: ['id', 'fullName', 'isOnline']
       });
       if (!operator) throw new ServiceError('That operator is not available.', 400);
+    }
+
+    // an operator who switched the Online button off is not taking jobs (a job they asked for themselves is fine)
+    if (!silent && operator.isOnline !== true) {
+      throw new ServiceError(`${operator.fullName || 'This operator'} is offline right now. Choose an operator who is online, or ask them to go online.`, 409);
     }
 
     // only operators the admin has verified can be given a job

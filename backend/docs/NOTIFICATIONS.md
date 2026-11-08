@@ -57,6 +57,7 @@ Tapping a push opens the screen named in `screen` (see `src/constants/notificati
 | `payment_timeout` | Customer Did Not Pay | The advance was not paid | Normal |
 | `job_accepted` | Operator Accepted the Job | Operator accepted | Normal |
 | `operator_declined` | Operator Declined the Job | Operator declined; assign another | Normal |
+| `operator_offline` | Your Operator is Offline | Assigned operator is offline and the job starts within 3 hours (sent once) | Normal |
 | `operator_job_request` | Operator Wants a Job | An operator asked for a job | Normal |
 | `breakdown_reported` | Crane Breakdown Reported | Operator reported a breakdown | Urgent |
 | `issue_reported` | Issue Reported | Operator reported an issue | Normal |

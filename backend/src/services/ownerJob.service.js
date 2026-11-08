@@ -288,7 +288,8 @@ class OwnerJobService {
       suggested_operator: crane.operator ? {
         id: crane.operator.id,
         full_name: crane.operator.fullName,
-        member_id: crane.operator.memberId
+        member_id: crane.operator.memberId,
+        is_online: crane.operator.isOnline === true
       } : null,
       // who to call at the site when the customer booked for someone else
       site_contact: b.contactName || b.contactPhone ? { name: b.contactName, phone: b.contactPhone } : null,

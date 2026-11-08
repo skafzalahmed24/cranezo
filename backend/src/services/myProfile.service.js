@@ -423,6 +423,8 @@ class MyProfileService {
    */
   async logout(userId) {
     await User.update({ deviceId: null, deviceUniqueId: null, pushToken: null, pushPlatform: null }, { where: { id: userId } });
+    // a signed-out operator cannot take jobs, so they must not look online to owners
+    await User.update({ isOnline: false, onlineUpdatedAt: new Date() }, { where: { id: userId, roleId: 2, isOnline: true } });
   }
 }
 

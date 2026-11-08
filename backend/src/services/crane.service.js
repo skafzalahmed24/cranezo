@@ -13,7 +13,7 @@ const {
 } = require('../constants/roles');
 
 const OPERATOR_ROLE_ID = 2;
-const OPERATOR_ATTRS = ['id', 'memberId', 'fullName', 'mobileNumber', 'countryCode', 'userEmail', 'profileImage', 'ownerId', 'isMobileVerified'];
+const OPERATOR_ATTRS = ['id', 'memberId', 'fullName', 'mobileNumber', 'countryCode', 'userEmail', 'profileImage', 'ownerId', 'isMobileVerified', 'isOnline'];
 
 class ServiceError extends Error {
   constructor(message, statusCode = 400) {
@@ -28,7 +28,7 @@ const craneIncludes = [
   { model: StaticDropdown, as: 'craneTypeInfo', attributes: dropdownAttrs },
   { model: StaticDropdown, as: 'capacityInfo', attributes: dropdownAttrs },
   { model: StaticDropdown, as: 'fuelTypeInfo', attributes: dropdownAttrs },
-  { model: User, as: 'operator', attributes: ['id', 'memberId', 'fullName', 'mobileNumber', 'countryCode', 'profileImage'] },
+  { model: User, as: 'operator', attributes: ['id', 'memberId', 'fullName', 'mobileNumber', 'countryCode', 'profileImage', 'isOnline'] },
   { model: User, as: 'owner', attributes: ['id', 'memberId', 'fullName', 'companyName', 'mobileNumber', 'countryCode'] },
   { model: CranePhoto, as: 'photos', attributes: ['id', 'photoUrl', 'sortOrder'] },
   {
@@ -315,7 +315,9 @@ class CraneService {
       profile_image: o.profileImage,
       owner_id: o.ownerId,
       source: o.ownerId ? 'owner_added' : 'registered',
-      is_mobile_verified: o.isMobileVerified === 0
+      is_mobile_verified: o.isMobileVerified === 0,
+      // the operator's Online / Offline button; an offline operator cannot be given a job
+      is_online: o.isOnline === true
     };
   }
 

@@ -32,6 +32,7 @@ const META = {
   job_completed: { category: 'job', icon: 'check', screen: 'booking' },
   job_assigned: { category: 'job', icon: 'job', screen: 'operator_job' },
   job_accepted: { category: 'job', icon: 'job', screen: 'owner_job' },
+  operator_offline: { category: 'job', icon: 'alert', screen: 'owner_job' },
   operator_declined: { category: 'job', icon: 'job', screen: 'owner_job' },
   arrival_confirmed: { category: 'job', icon: 'job', screen: 'operator_job' },
   extension_requested: { category: 'job', icon: 'time', screen: 'booking' },

@@ -110,11 +110,17 @@ class NotificationService {
    * Every notification is pushed: notification settings were removed from the app, so saved preferences
    * (and `preferenceKey`, still passed by callers) no longer mute anything.
    */
-  async notify(userId, { type, title, body, data }) {
+  /**
+   * `i18n` is optional: { hi: { title, body }, te: { title, body } }. The user's app language (1 English, 2 Telugu, 3 Hindi)
+   * picks the text; English is the fallback.
+   */
+  async notify(userId, { type, title, body, data, i18n }) {
+    const user = await User.findByPk(userId, { attributes: ['id', 'pushToken', 'languageType'] }).catch(() => null);
+    const local = i18n && (user?.languageType === 3 ? i18n.hi : user?.languageType === 2 ? i18n.te : null);
+    if (local) { title = local.title || title; body = local.body || body; } // eslint-disable-line no-param-reassign
     const notification = await Notification.create({ userId, type, title, body: body || null, data: data || null });
 
     try {
-      const user = await User.findByPk(userId, { attributes: ['id', 'pushToken'] });
       if (user) await sendPush(user, { title, body, data: { type, screen: metaFor(type).screen || '', ...(data || {}) } });
     } catch (error) {
       console.warn(`[Push] ${error.message}`);
