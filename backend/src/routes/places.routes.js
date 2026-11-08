@@ -9,5 +9,6 @@ const mine = [authenticate, appUserOnly];
 
 router.post('/search', mine, places.search);
 router.post('/reverse', mine, places.reverse);
+router.post('/route', mine, places.route);
 
 module.exports = router;

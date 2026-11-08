@@ -5,6 +5,7 @@
  * To use Google Places instead later, only this file changes.
  */
 const PHOTON = process.env.PHOTON_URL || 'https://photon.komoot.io';
+const OSRM = process.env.OSRM_URL || 'https://router.project-osrm.org';
 const INDIA_BBOX = '68.1,6.7,97.4,35.7'; // west,south,east,north
 const CACHE_MS = 10 * 60 * 1000;
 const CACHE_MAX = 500;
@@ -86,5 +87,31 @@ class PlacesService {
     return out;
   }
 }
+
+
+
+/** A driving route along the roads between two points (for the yellow line on the map) */
+PlacesService.prototype.route = async function route({ from_latitude: fLat, from_longitude: fLng, to_latitude: tLat, to_longitude: tLng }) {
+  const nums = [fLat, fLng, tLat, tLng].map(Number);
+  if (nums.some((n) => !Number.isFinite(n)) || [fLat, fLng, tLat, tLng].some((v) => v === null || v === undefined || v === '')) {
+    throw new PlacesError('from_latitude, from_longitude, to_latitude and to_longitude are required.');
+  }
+  const [a, b, c, d] = nums;
+  if (Math.abs(a) > 90 || Math.abs(c) > 90 || Math.abs(b) > 180 || Math.abs(d) > 180) throw new PlacesError('Invalid coordinates.');
+  // about 100 m cells, so a moving crane shares answers instead of asking again every few seconds
+  const key = `route:${a.toFixed(3)},${b.toFixed(3)};${c.toFixed(3)},${d.toFixed(3)}`;
+  const cached = recall(key);
+  if (cached) return cached;
+  const json = await fetchJson(`${OSRM}/route/v1/driving/${b},${a};${d},${c}?overview=simplified&geometries=geojson`);
+  const r = json.routes && json.routes[0];
+  if (!r) return { points: [], distance_km: null, duration_minutes: null };
+  const out = {
+    points: r.geometry.coordinates.map(([lng, lat]) => ({ latitude: lat, longitude: lng })),
+    distance_km: Math.round(r.distance / 100) / 10,
+    duration_minutes: Math.max(1, Math.round(r.duration / 60))
+  };
+  remember(key, out);
+  return out;
+};
 
 module.exports = { placesService: new PlacesService(), PlacesError };

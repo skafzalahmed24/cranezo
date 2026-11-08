@@ -11,5 +11,6 @@ const handler = (message, run) => async (req, res) => {
 
 module.exports = {
   search: handler('Places retrieved successfully.', (b) => placesService.search(b)),
-  reverse: handler('Address retrieved successfully.', (b) => placesService.reverse(b))
+  reverse: handler('Address retrieved successfully.', (b) => placesService.reverse(b)),
+  route: handler('Route retrieved successfully.', (b) => placesService.route(b))
 };

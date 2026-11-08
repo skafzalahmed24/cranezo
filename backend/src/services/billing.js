@@ -69,7 +69,9 @@ const DEFAULT_RULES = {
   // online payment fee added to the customer's bill (Razorpay)
   gateway_fee_percent: 2,
   // the operator can mark arrival only this close to the site
-  arrival_radius_km: 1
+  arrival_radius_km: 1,
+  // 1: the operator must really be at the site to mark arrival (and sees the navigation button); 0: no location check
+  arrival_check_required: 1
 };
 const RULE_LIMITS = {
   search_radius_km: [1, 200],
@@ -81,7 +83,8 @@ const RULE_LIMITS = {
   raise_min_step: [0, 100000],
   payment_window_minutes: [2, 120],
   gateway_fee_percent: [0, 10],
-  arrival_radius_km: [0.1, 20]
+  arrival_radius_km: [0.1, 20],
+  arrival_check_required: [0, 1]
 };
 
 let rulesCache = null;

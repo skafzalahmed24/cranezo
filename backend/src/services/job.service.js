@@ -168,6 +168,7 @@ class JobService {
 
   /** Full job: everything the operator job screens need, whatever the stage */
   async view(b) {
+    const rules = await billing.bookingRules();
     const operator = b.operatorId
       ? await User.findByPk(b.operatorId, {
         attributes: ['id', 'isActive', 'isDeleted', 'operatorLicenseFront', 'operatorLicenseStatus', 'licenseExpiryDate']
@@ -237,6 +238,8 @@ class JobService {
         distance_km: distance,
         eta_minutes: distance !== null ? H.etaMinutes(distance) : null
       },
+      // true: the operator must reach the site (within radius_km) before marking arrival
+      arrival_rule: { required: !!Number(rules.arrival_check_required), radius_km: Number(rules.arrival_radius_km) || 1 },
       schedule: { start_type: b.startType, start_at: H.iso(b.startAt), end_at: H.iso(b.endAt) },
       duration: { type: b.durationType, service_type: H.SERVICE_TYPE[b.durationType], hours: b.durationHours, days: b.durationDays, label: H.durationLabel(b) },
       // the operator's own earning (commission), never the customer's bill
@@ -563,6 +566,17 @@ class JobService {
     if (b.arrivedAt) throw new ServiceError('You have already marked your arrival.', 409);
 
     const rules = await billing.bookingRules();
+    if (!Number(rules.arrival_check_required)) {
+      // rule off: no location check, the operator can mark arrival at any time
+      await b.update({ arrivedAt: new Date() });
+      await notificationService.notify(b.customerId, {
+        type: NOTIFICATION_TYPES.OPERATOR_ARRIVED,
+        title: 'Operator Has Arrived',
+        body: `${b.bookingCode}: your operator reached the site. Please confirm the arrival.`,
+        data: { booking_id: b.id, booking_code: b.bookingCode }
+      }, { preferenceKey: 'job_updates' });
+      return this.view(await this.mine(operatorId, bookingId));
+    }
     let lat = input.latitude !== undefined && input.latitude !== null ? Number(input.latitude) : null;
     let lng = input.longitude !== undefined && input.longitude !== null ? Number(input.longitude) : null;
     const crane = await Crane.findByPk(b.craneId, { attributes: ['id', 'currentLatitude', 'currentLongitude', 'locationUpdatedAt'] });

@@ -173,6 +173,8 @@ class CraneRequestService {
       // crane hire + travel charge for each nearby crane (step 4 estimate)
       total_range: prices.length ? { min: Math.min(...prices.map((p) => r2(p.hire + p.distance.amount))), max: Math.max(...prices.map((p) => r2(p.hire + p.distance.amount))) } : null,
       nearest_km: matches.length ? r2(Math.min(...matches.map((m) => num(m.distanceKm)))) : null,
+      // where the nearby cranes are, rounded to about 100 m (no names), for the map
+      nearby_cranes: matches.slice(0, 15).map((m) => ({ latitude: Number(Number(m.crane.latitude).toFixed(3)), longitude: Number(Number(m.crane.longitude).toFixed(3)) })),
       free_km: rules.free_km,
       min_offer: minOffer,
       suggested_offer: hires.length ? Math.max(minOffer, Math.min(...hires)) : minOffer,

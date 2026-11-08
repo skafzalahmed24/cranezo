@@ -13,7 +13,9 @@ const RULES = [
   ['payment_window_minutes', 'Time to pay advance (minutes)', 'Unpaid bookings are cancelled after this'],
   ['gateway_fee_percent', 'Online payment fee (%)', 'Razorpay fee added to the customer bill (owner amount unchanged)'],
   ['arrival_radius_km', 'Arrival distance (km)', 'Operator can mark "arrived" only this close to the site'],
+  ['arrival_check_required', 'Operator must reach the site', 'Yes: "arrived" works only at the site and the operator sees the Google Maps button. No: no location check'],
 ];
+const YES_NO = new Set(['arrival_check_required']);
 
 /** Admin > Pricing Rules: booking request rules and the minimum hourly price per crane type and capacity */
 export const PricingRules = () => {
@@ -74,7 +76,14 @@ export const PricingRules = () => {
           {RULES.map(([key, title, hint]) => (
             <div key={key}>
               <label style={label}>{title}</label>
-              <input type="number" min="0" style={input} value={rules[key] ?? ''} onChange={(e) => setRules({ ...rules, [key]: e.target.value })} />
+              {YES_NO.has(key) ? (
+                <select style={input} value={rules[key] ?? '1'} onChange={(e) => setRules({ ...rules, [key]: e.target.value })}>
+                  <option value="1">Yes</option>
+                  <option value="0">No</option>
+                </select>
+              ) : (
+                <input type="number" min="0" style={input} value={rules[key] ?? ''} onChange={(e) => setRules({ ...rules, [key]: e.target.value })} />
+              )}
               <div style={{ ...muted, fontSize: 11, marginTop: 4 }}>{hint}</div>
             </div>
           ))}
