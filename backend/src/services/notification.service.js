@@ -89,7 +89,8 @@ const sendPush = async (user, { title, body, data }) => {
       // FCM data values must be strings
       data: Object.fromEntries(Object.entries(data || {}).map(([k, v]) => [k, String(v)])),
       // job alerts (new request, operator arrived, emergency) use the loud channel; the rest the normal one
-      android: { priority: 'high', notification: { channelId: URGENT_TYPES.has(data && data.type) ? 'cranezo_urgent' : 'cranezo_updates', sound: 'default' } },
+      // clickAction: tapping it opens the app's PushRouterActivity, which opens Home and the push's own screen (also from the background)
+      android: { priority: 'high', notification: { channelId: URGENT_TYPES.has(data && data.type) ? 'cranezo_urgent' : 'cranezo_updates', sound: 'default', clickAction: 'com.cranezo.OPEN_PUSH' } },
       apns: { headers: { 'apns-priority': '10' } }
     });
     return true;

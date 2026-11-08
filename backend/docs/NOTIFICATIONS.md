@@ -105,3 +105,12 @@ Tapping a push opens the screen named in `screen` (see `src/constants/notificati
 - Types and screens: `src/constants/notificationMeta.js`, `src/constants/booking.js`
 - Which ring / which are urgent: `src/services/notification.service.js` (`BUZZER_TYPES`, `URGENT_TYPES`)
 - The phone side (channels, ringing, tap targets): `Cranezo/app/.../push/PushNotifications.kt`, `BuzzerPlayer.kt`, `InAppAlerts.kt`
+
+## What happens when a push is tapped
+- **App open:** the notice is shown by the app, and tapping it opens the screen directly.
+- **App in the background or closed:** the push carries a click action (`com.cranezo.OPEN_PUSH`). Android starts the app's
+  invisible `PushRouterActivity`, which opens Home and then the push's own screen. (Before this, a tap in the background
+  only brought the app to the front, on whatever screen it was.)
+- **Bell list and in-app sheet:** the same routing (`PushNotifications.targetIntent`).
+- Two notices have no screen on purpose: `operator_verified` and `account_status`. A new request (`booking_request`) opens
+  the request popup on Home.
