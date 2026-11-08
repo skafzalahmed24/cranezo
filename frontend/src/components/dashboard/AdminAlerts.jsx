@@ -28,7 +28,7 @@ export const AdminAlerts = ({ onNavigate }) => {
   const clear = data ? data.items.filter((i) => i.count === 0) : [];
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader title="Notifications" subtitle="Things waiting for you. Click one to open the page where you handle it." />
       <ErrorBox message={error} />
       {data && open.length === 0 && (

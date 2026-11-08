@@ -41,7 +41,7 @@ export const AdminBookings = () => {
   if (openId) return <BookingDetail id={openId} onBack={() => setOpenId(null)} />;
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader title="Bookings" subtitle="Every booking on the platform. Click a row for the bill, payments and timeline." />
       <ErrorBox message={error} />
       <Section
@@ -49,7 +49,7 @@ export const AdminBookings = () => {
         right={(
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <input style={{ ...input, width: 240 }} placeholder="Booking code, customer, owner, place" value={search} onChange={(e) => { setPage(0); setSearch(e.target.value); }} />
-            <select className="cranzo-select-dropdown" value={status} onChange={(e) => { setPage(0); setStatus(e.target.value); }}>
+            <select className="cranezo-select-dropdown" value={status} onChange={(e) => { setPage(0); setStatus(e.target.value); }}>
               {FILTERS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
             </select>
           </div>
@@ -100,8 +100,8 @@ const BookingDetail = ({ id, onBack }) => {
     })();
   }, [id]);
   return (
-    <div className="cranzo-content-view animate-fade-in">
-      <button type="button" className="cranzo-btn-secondary" onClick={onBack} style={{ marginBottom: 14 }}>
+    <div className="cranezo-content-view animate-fade-in">
+      <button type="button" className="cranezo-btn-secondary" onClick={onBack} style={{ marginBottom: 14 }}>
         <ArrowLeft size={15} /> Back to bookings
       </button>
       <ErrorBox message={error} />

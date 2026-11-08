@@ -43,7 +43,7 @@ export const Payments = () => {
   };
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader title="Payments" subtitle="Every customer payment. Cash is collected on site by the owner; online payments land in the platform account." />
       <ErrorBox message={error} />
 
@@ -66,7 +66,7 @@ export const Payments = () => {
           </div>
           <div>
             <label style={label}>Status</label>
-            <select className="cranzo-select-dropdown" style={{ width: '100%' }} value={filters.status} onChange={(e) => setFilter({ status: e.target.value })}>
+            <select className="cranezo-select-dropdown" style={{ width: '100%' }} value={filters.status} onChange={(e) => setFilter({ status: e.target.value })}>
               <option value="">All</option>
               <option value="success">Successful</option>
               <option value="initiated">Processing</option>
@@ -76,7 +76,7 @@ export const Payments = () => {
           </div>
           <div>
             <label style={label}>Method</label>
-            <select className="cranzo-select-dropdown" style={{ width: '100%' }} value={filters.method} onChange={(e) => setFilter({ method: e.target.value })}>
+            <select className="cranezo-select-dropdown" style={{ width: '100%' }} value={filters.method} onChange={(e) => setFilter({ method: e.target.value })}>
               <option value="">All</option>
               <option value="COD">Cash on Delivery</option>
               <option value="UPI">UPI</option>

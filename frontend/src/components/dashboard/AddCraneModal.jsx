@@ -35,7 +35,7 @@ export const AddCraneModal = ({ isOpen, onClose, onCraneAdded }) => {
       regNumber: regNumber || 'TS-09-XY-9999',
       type: craneType || 'Mobile Crane',
       capacity: capacity ? `${capacity} Ton` : '50 Ton',
-      owner: 'Cranzo Fleet Operations',
+      owner: 'Cranezo Fleet Operations',
       operator: assignedOperator || 'Ravi Kumar',
       operatorId: 'OP-1001',
       location: location || 'Hyderabad, Telangana',
@@ -171,7 +171,7 @@ export const AddCraneModal = ({ isOpen, onClose, onCraneAdded }) => {
                     Crane Type <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <select
-                    className="cranzo-filter-dropdown"
+                    className="cranezo-filter-dropdown"
                     value={craneType}
                     onChange={(e) => setCraneType(e.target.value)}
                     style={{ width: '100%', height: '38px', background: '#080f20' }}
@@ -191,7 +191,7 @@ export const AddCraneModal = ({ isOpen, onClose, onCraneAdded }) => {
                     Capacity (Tons) <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <select
-                    className="cranzo-filter-dropdown"
+                    className="cranezo-filter-dropdown"
                     value={capacity}
                     onChange={(e) => setCapacity(e.target.value)}
                     style={{ width: '100%', height: '38px', background: '#080f20' }}
@@ -448,7 +448,7 @@ export const AddCraneModal = ({ isOpen, onClose, onCraneAdded }) => {
                   Assign Operator <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <select
-                  className="cranzo-filter-dropdown"
+                  className="cranezo-filter-dropdown"
                   value={assignedOperator}
                   onChange={(e) => setAssignedOperator(e.target.value)}
                   style={{ width: '100%', height: '38px', background: '#080f20' }}
@@ -866,14 +866,14 @@ export const AddCraneModal = ({ isOpen, onClose, onCraneAdded }) => {
             <button
               type="button"
               onClick={onClose}
-              className="cranzo-btn-secondary"
+              className="cranezo-btn-secondary"
               style={{ height: '38px', padding: '0 18px' }}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="cranzo-btn-primary-amber"
+              className="cranezo-btn-primary-amber"
               style={{ height: '38px', padding: '0 20px', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
               <span>Submit Crane</span>

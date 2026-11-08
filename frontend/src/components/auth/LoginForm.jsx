@@ -80,13 +80,13 @@ export const LoginForm = ({ onForgotPassword, onLoginSuccess }) => {
       }
 
       if (formData.rememberMe) {
-        localStorage.setItem('cranzo_token', data.data.token);
-        localStorage.setItem('cranzo_admin', JSON.stringify(data.data.admin));
+        localStorage.setItem('cranezo_token', data.data.token);
+        localStorage.setItem('cranezo_admin', JSON.stringify(data.data.admin));
       }
 
       setStatusMessage({
         type: 'success',
-        text: 'Login successful! Redirecting to Cranzo Admin Dashboard...',
+        text: 'Login successful! Redirecting to Cranezo Admin Dashboard...',
       });
 
       if (onLoginSuccess) {
@@ -101,18 +101,18 @@ export const LoginForm = ({ onForgotPassword, onLoginSuccess }) => {
   };
 
   return (
-    <div className="cranzo-login-form animate-fade-in">
-      <div className="cranzo-auth-header">
-        <h1 className="cranzo-auth-title">Welcome Back</h1>
-        <p className="cranzo-auth-subtitle">Sign in to access the Cranzo Admin Dashboard.</p>
+    <div className="cranezo-login-form animate-fade-in">
+      <div className="cranezo-auth-header">
+        <h1 className="cranezo-auth-title">Welcome Back</h1>
+        <p className="cranezo-auth-subtitle">Sign in to access the Cranezo Admin Dashboard.</p>
       </div>
 
       {statusMessage && (
         <div
-          className={`cranzo-auth-alert ${
+          className={`cranezo-auth-alert ${
             statusMessage.type === 'success'
-              ? 'cranzo-auth-alert--success'
-              : 'cranzo-auth-alert--error'
+              ? 'cranezo-auth-alert--success'
+              : 'cranezo-auth-alert--error'
           }`}
           style={{ marginBottom: '20px' }}
         >
@@ -125,7 +125,7 @@ export const LoginForm = ({ onForgotPassword, onLoginSuccess }) => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="cranzo-auth-form" noValidate>
+      <form onSubmit={handleSubmit} className="cranezo-auth-form" noValidate>
         <Input
           id="login-email"
           name="email"
@@ -152,7 +152,7 @@ export const LoginForm = ({ onForgotPassword, onLoginSuccess }) => {
           autoComplete="current-password"
         />
 
-        <div className="cranzo-auth-actions-row">
+        <div className="cranezo-auth-actions-row">
           <Checkbox
             id="remember-me"
             name="rememberMe"
@@ -163,7 +163,7 @@ export const LoginForm = ({ onForgotPassword, onLoginSuccess }) => {
 
           <button
             type="button"
-            className="cranzo-auth-forgot-link"
+            className="cranezo-auth-forgot-link"
             onClick={onForgotPassword}
           >
             Forgot Password?

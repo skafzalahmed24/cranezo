@@ -8,7 +8,7 @@ const CATEGORIES = [
   { code: 'payment_help', name: 'Payment Help', description: 'Support for payments, refunds and invoices.', sort_order: 2 },
   { code: 'jobs', name: 'Jobs & Work', description: 'Starting, running and finishing a job.', sort_order: 3 },
   { code: 'account', name: 'Account & Profile', description: 'Your profile, documents and settings.', sort_order: 4 },
-  { code: 'general', name: 'General', description: 'Everything else about Cranzo.', sort_order: 5 }
+  { code: 'general', name: 'General', description: 'Everything else about Cranezo.', sort_order: 5 }
 ];
 
 // audience: all, customer, operator or owner
@@ -22,15 +22,15 @@ const FAQS = [
   ['payment_help', 'customer', 'How do I pay for a booking?', 'For now payment is Cash on Delivery. When the job is completed, open the booking, tap Complete Payment, pay the amount in cash to the operator and confirm in the app.'],
   ['payment_help', 'customer', 'How is the final amount calculated?', 'The final amount is the booked amount plus any extra time approved during the job. You can see the breakdown on the Job Completed screen.'],
   ['payment_help', 'customer', 'Where can I find my receipt?', 'After you complete the payment, open the booking in My Jobs and tap View Receipt.'],
-  ['payment_help', 'owner', 'When do I get my earnings?', 'Completed jobs are settled to you a few days after completion, after the Cranzo platform fee. You can see settled and pending amounts on the Earnings screen.'],
-  ['payment_help', 'operator', 'How are my earnings shown?', 'Your completed jobs appear in Earnings with their amount and settlement status. Pending jobs are settled by the Cranzo team.'],
+  ['payment_help', 'owner', 'When do I get my earnings?', 'Completed jobs are settled to you a few days after completion, after the Cranezo platform fee. You can see settled and pending amounts on the Earnings screen.'],
+  ['payment_help', 'operator', 'How are my earnings shown?', 'Your completed jobs appear in Earnings with their amount and settlement status. Pending jobs are settled by the Cranezo team.'],
   ['jobs', 'customer', 'How do I ask for extra time?', 'While the job is in progress, tap Request Extra Time, choose how much you need and send the request. The operator answers within 5 minutes. Approved extra time is added to your final amount.'],
   ['jobs', 'operator', 'How do I start a job?', 'Accept the job, start the journey, mark that you have arrived, take site photos and complete the safety checklist. After the customer confirms your arrival you can start the job.'],
-  ['jobs', 'operator', 'What if the crane breaks down?', 'In Job Monitoring tap Break Down, choose the breakdown type and add details and photos. The owner and the Cranzo team are notified straight away.'],
+  ['jobs', 'operator', 'What if the crane breaks down?', 'In Job Monitoring tap Break Down, choose the breakdown type and add details and photos. The owner and the Cranezo team are notified straight away.'],
   ['jobs', 'operator', 'How do I complete a job?', 'Finish the work, add final photos and notes, then request customer confirmation. The customer receives a 6 digit code, enter it to complete the job.'],
-  ['account', 'all', 'How do I update my profile or documents?', 'Open Profile, then Personal Information. You can change your details and upload new documents. Changed documents are checked again by the Cranzo team.'],
+  ['account', 'all', 'How do I update my profile or documents?', 'Open Profile, then Personal Information. You can change your details and upload new documents. Changed documents are checked again by the Cranezo team.'],
   ['account', 'all', 'How do I change the app language or theme?', 'Open Profile and choose Language or Appearance. Your choice is saved to your account.'],
-  ['general', 'all', 'How do I contact Cranzo support?', 'Open Help & Support. You can call us, chat with the support team, or report an issue. Your requests are listed under My Support Requests.']
+  ['general', 'all', 'How do I contact Cranezo support?', 'Open Help & Support. You can call us, chat with the support team, or report an issue. Your requests are listed under My Support Requests.']
 ];
 
 module.exports = {

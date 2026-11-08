@@ -31,7 +31,7 @@ export const AdminReviews = () => {
   useEffect(() => { load(); }, [load]);
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader title="Reviews" subtitle="Ratings and comments customers left after a job." />
       <ErrorBox message={error} />
       {summary && (
@@ -46,7 +46,7 @@ export const AdminReviews = () => {
       <Section
         title="All reviews"
         right={(
-          <select className="cranzo-select-dropdown" value={rating} onChange={(e) => { setPage(0); setRating(e.target.value); }}>
+          <select className="cranezo-select-dropdown" value={rating} onChange={(e) => { setPage(0); setRating(e.target.value); }}>
             <option value="">All ratings</option>
             {[5, 4, 3, 2, 1].map((s) => <option key={s} value={s}>{s} star</option>)}
           </select>

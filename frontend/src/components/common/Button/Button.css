@@ -2,7 +2,7 @@
    BUTTON COMPONENT STYLES
    ========================================================================== */
 
-.cranzo-btn {
+.cranezo-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -22,7 +22,7 @@
   font-size: 15px;
 }
 
-.cranzo-btn:disabled {
+.cranezo-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
@@ -30,24 +30,24 @@
 }
 
 /* Primary Variant (Brand Gradient) */
-.cranzo-btn--primary {
+.cranezo-btn--primary {
   background: var(--brand-orange-gradient);
   color: var(--text-button);
   box-shadow: var(--shadow-button);
 }
 
-.cranzo-btn--primary:hover:not(:disabled) {
+.cranezo-btn--primary:hover:not(:disabled) {
   background: var(--brand-orange-gradient-hover);
   box-shadow: var(--shadow-button-hover);
   transform: translateY(-1px);
 }
 
-.cranzo-btn--primary:active:not(:disabled) {
+.cranezo-btn--primary:active:not(:disabled) {
   transform: translateY(0.5px);
 }
 
 /* Outline Variant */
-.cranzo-btn--outline {
+.cranezo-btn--outline {
   background: transparent;
   color: var(--text-white);
   border-color: rgba(255, 255, 255, 0.15);
@@ -55,32 +55,32 @@
   font-size: 14px;
 }
 
-.cranzo-btn--outline:hover:not(:disabled) {
+.cranezo-btn--outline:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Ghost Variant */
-.cranzo-btn--ghost {
+.cranezo-btn--ghost {
   background: transparent;
   color: var(--text-muted);
   height: 40px;
   font-size: 14px;
 }
 
-.cranzo-btn--ghost:hover:not(:disabled) {
+.cranezo-btn--ghost:hover:not(:disabled) {
   color: var(--text-white);
   background: rgba(255, 255, 255, 0.05);
 }
 
-.cranzo-btn__content {
+.cranezo-btn__content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
 
-.cranzo-btn__icon {
+.cranezo-btn__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;

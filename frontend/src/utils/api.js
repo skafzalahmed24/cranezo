@@ -6,14 +6,14 @@ export const API_BASE = (
   (import.meta.env.DEV ? 'http://localhost:5000' : window.location.origin)
 ).replace(/\/+$/, '');
 
-export const AUTH_EXPIRED_EVENT = 'cranzo:auth-expired';
-const EXPIRED_FLAG = 'cranzo_session_expired';
+export const AUTH_EXPIRED_EVENT = 'cranezo:auth-expired';
+const EXPIRED_FLAG = 'cranezo_session_expired';
 
 /** Forget the saved login and tell the app to go back to the login page */
 const handleExpiredSession = () => {
   try {
-    localStorage.removeItem('cranzo_token');
-    localStorage.removeItem('cranzo_admin');
+    localStorage.removeItem('cranezo_token');
+    localStorage.removeItem('cranezo_admin');
     sessionStorage.setItem(EXPIRED_FLAG, '1');
   } catch (e) {
     // storage can be blocked, the redirect below still happens
@@ -32,9 +32,9 @@ export const consumeSessionExpiredFlag = () => {
   }
 };
 
-/** Authenticated JSON request to the Cranzo API; throws Error(message) on failure */
+/** Authenticated JSON request to the Cranezo API; throws Error(message) on failure */
 export const apiRequest = async (path, { method = 'GET', body } = {}) => {
-  const token = localStorage.getItem('cranzo_token');
+  const token = localStorage.getItem('cranezo_token');
   const response = await fetch(`${API_BASE}/api${path}`, {
     method,
     headers: {

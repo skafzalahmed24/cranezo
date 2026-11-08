@@ -2,7 +2,7 @@
    CHECKBOX COMPONENT STYLES
    ========================================================================== */
 
-.cranzo-checkbox-wrapper {
+.cranezo-checkbox-wrapper {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -13,19 +13,19 @@
   color: #cbd5e1;
 }
 
-.cranzo-checkbox-wrapper--disabled {
+.cranezo-checkbox-wrapper--disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.cranzo-checkbox-input {
+.cranezo-checkbox-input {
   position: absolute;
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.cranzo-checkbox-box {
+.cranezo-checkbox-box {
   width: 18px;
   height: 18px;
   border-radius: var(--radius-sm);
@@ -38,26 +38,26 @@
   flex-shrink: 0;
 }
 
-.cranzo-checkbox-wrapper:hover .cranzo-checkbox-box {
+.cranezo-checkbox-wrapper:hover .cranezo-checkbox-box {
   border-color: var(--brand-orange-primary);
 }
 
-.cranzo-checkbox-box--checked {
+.cranezo-checkbox-box--checked {
   background: var(--brand-orange-primary);
   border-color: var(--brand-orange-primary);
   box-shadow: 0 0 10px rgba(245, 166, 35, 0.4);
 }
 
-.cranzo-checkbox-icon {
+.cranezo-checkbox-icon {
   color: #0b101b;
   animation: fadeIn 0.15s ease-in-out;
 }
 
-.cranzo-checkbox-label {
+.cranezo-checkbox-label {
   color: #cbd5e1;
   transition: color var(--transition-fast);
 }
 
-.cranzo-checkbox-wrapper:hover .cranzo-checkbox-label {
+.cranezo-checkbox-wrapper:hover .cranezo-checkbox-label {
   color: #ffffff;
 }

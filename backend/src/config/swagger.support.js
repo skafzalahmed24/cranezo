@@ -98,7 +98,7 @@ module.exports = {
       post: {
         tags: ['Help & Support'],
         summary: 'One request with its messages (also the chat thread)',
-        description: 'Messages oldest first with sender_label (You, Cranzo Support, Cranzo). Opening it marks the support replies as read. can_reply is false once closed. Poll every 5 seconds while a chat is open.',
+        description: 'Messages oldest first with sender_label (You, Cranezo Support, Cranezo). Opening it marks the support replies as read. can_reply is false once closed. Poll every 5 seconds while a chat is open.',
         security: secured,
         requestBody: { required: true, ...json(ticketId, ['ticket_id']) },
         responses: { ...ok('Request'), 404: { description: 'Not found' } }

@@ -18,7 +18,7 @@ export const Checkbox = ({
   return (
     <label
       htmlFor={id}
-      className={`cranzo-checkbox-wrapper ${disabled ? 'cranzo-checkbox-wrapper--disabled' : ''} ${className}`}
+      className={`cranezo-checkbox-wrapper ${disabled ? 'cranezo-checkbox-wrapper--disabled' : ''} ${className}`}
     >
       <input
         type="checkbox"
@@ -27,13 +27,13 @@ export const Checkbox = ({
         checked={checked}
         onChange={onChange}
         disabled={disabled}
-        className="cranzo-checkbox-input"
+        className="cranezo-checkbox-input"
         {...props}
       />
-      <div className={`cranzo-checkbox-box ${checked ? 'cranzo-checkbox-box--checked' : ''}`}>
-        {checked && <Check size={13} strokeWidth={3.5} className="cranzo-checkbox-icon" />}
+      <div className={`cranezo-checkbox-box ${checked ? 'cranezo-checkbox-box--checked' : ''}`}>
+        {checked && <Check size={13} strokeWidth={3.5} className="cranezo-checkbox-icon" />}
       </div>
-      {label && <span className="cranzo-checkbox-label">{label}</span>}
+      {label && <span className="cranezo-checkbox-label">{label}</span>}
     </label>
   );
 };

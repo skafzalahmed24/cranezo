@@ -15,8 +15,8 @@ const initials = (name) =>
     .toUpperCase();
 
 const Section = ({ title, children }) => (
-  <div className="cranzo-card" style={{ padding: '18px 20px', marginBottom: '16px' }}>
-    <h3 className="cranzo-card-title" style={{ margin: '0 0 14px' }}>{title}</h3>
+  <div className="cranezo-card" style={{ padding: '18px 20px', marginBottom: '16px' }}>
+    <h3 className="cranezo-card-title" style={{ margin: '0 0 14px' }}>{title}</h3>
     {children}
   </div>
 );
@@ -35,8 +35,8 @@ const Fields = ({ items }) => (
 );
 
 const MiniTable = ({ headers, rows, empty }) => (
-  <div className="cranzo-table-container">
-    <table className="cranzo-table" style={{ minWidth: '480px' }}>
+  <div className="cranezo-table-container">
+    <table className="cranezo-table" style={{ minWidth: '480px' }}>
       <thead>
         <tr>{headers.map((h) => <th key={h}>{h}</th>)}</tr>
       </thead>
@@ -101,43 +101,43 @@ export const MemberDetails = ({ userId, onBack, onSelectCrane }) => {
 
   const craneRows = (cranes) =>
     cranes.map((c) => [
-      <span key="c" className="cranzo-link-text" onClick={() => onSelectCrane(c.id)}>{c.crane_code}</span>,
+      <span key="c" className="cranezo-link-text" onClick={() => onSelectCrane(c.id)}>{c.crane_code}</span>,
       dash(c.crane_type_name),
       dash(c.capacity_name),
       c.location,
       c.availability_label,
-      <span key="s" className={`cranzo-status-badge ${{ 0: 'pending', 1: 'active', 2: 'blocked' }[c.approval_status]}`}>
+      <span key="s" className={`cranezo-status-badge ${{ 0: 'pending', 1: 'active', 2: 'blocked' }[c.approval_status]}`}>
         {c.approval_label}
       </span>,
     ]);
   const craneHeaders = ['Crane', 'Type', 'Capacity', 'Location', 'Availability', 'Status'];
 
   if (loading && !member) {
-    return <div className="cranzo-content-view"><p style={{ color: 'var(--dash-text-muted)' }}>Loading...</p></div>;
+    return <div className="cranezo-content-view"><p style={{ color: 'var(--dash-text-muted)' }}>Loading...</p></div>;
   }
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
-      <button type="button" className="cranzo-btn-secondary" onClick={onBack} style={{ marginBottom: '16px' }}>
+    <div className="cranezo-content-view animate-fade-in">
+      <button type="button" className="cranezo-btn-secondary" onClick={onBack} style={{ marginBottom: '16px' }}>
         <ArrowLeft size={15} /> Back
       </button>
 
       {error && (
-        <div className="cranzo-card" style={{ padding: '12px 16px', marginBottom: '12px', color: '#ef4444' }}>{error}</div>
+        <div className="cranezo-card" style={{ padding: '12px 16px', marginBottom: '12px', color: '#ef4444' }}>{error}</div>
       )}
 
       {member && (
         <>
-          <div className="cranzo-card" style={{ padding: '20px', marginBottom: '16px', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="cranezo-card" style={{ padding: '20px', marginBottom: '16px', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
             {member.profile_image ? (
               <img src={fileUrl(member.profile_image)} alt="" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }} />
             ) : (
-              <div className="cranzo-table-avatar" style={{ width: 64, height: 64, fontSize: 22 }}>
+              <div className="cranezo-table-avatar" style={{ width: 64, height: 64, fontSize: 22 }}>
                 {initials(member.full_name || member.company_name)}
               </div>
             )}
             <div style={{ flex: 1, minWidth: '200px' }}>
-              <h2 className="cranzo-greeting-title" style={{ margin: 0 }}>
+              <h2 className="cranezo-greeting-title" style={{ margin: 0 }}>
                 {member.full_name || member.company_name || member.member_id}
               </h2>
               <div style={{ color: 'var(--dash-text-muted)', fontSize: '13px', marginTop: '4px' }}>
@@ -145,13 +145,13 @@ export const MemberDetails = ({ userId, onBack, onSelectCrane }) => {
                 {member.company_name && member.full_name ? ` · ${member.company_name}` : ''}
               </div>
               <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
-                <span className={`cranzo-status-badge ${member.status === 0 ? 'active' : 'blocked'}`}>{member.status_label}</span>
-                <span className={`cranzo-status-badge ${member.is_mobile_verified ? 'active' : 'pending'}`}>
+                <span className={`cranezo-status-badge ${member.status === 0 ? 'active' : 'blocked'}`}>{member.status_label}</span>
+                <span className={`cranezo-status-badge ${member.is_mobile_verified ? 'active' : 'pending'}`}>
                   Mobile {member.is_mobile_verified ? 'Verified' : 'Pending'}
                 </span>
               </div>
             </div>
-            <button type="button" className="cranzo-btn-secondary" onClick={toggleBlock}>
+            <button type="button" className="cranezo-btn-secondary" onClick={toggleBlock}>
               {member.status === 0 ? <><Ban size={15} /> Block</> : <><RotateCcw size={15} /> Unblock</>}
             </button>
           </div>
@@ -221,7 +221,7 @@ export const MemberDetails = ({ userId, onBack, onSelectCrane }) => {
                   <div key={d.key} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px', padding: '10px 0', borderBottom: '1px solid var(--dash-border-subtle)' }}>
                     <FileText size={16} />
                     <span>{d.label}</span>
-                    <span className={`cranzo-status-badge ${{ 0: 'pending', 1: 'active', 2: 'blocked' }[d.status] || ''}`}>{d.status_label}</span>
+                    <span className={`cranezo-status-badge ${{ 0: 'pending', 1: 'active', 2: 'blocked' }[d.status] || ''}`}>{d.status_label}</span>
                     <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '13px' }}>
                       {d.files.filter((x) => x.file_url).map((x) => (
                         <a key={x.label} href={fileUrl(x.file_url)} target="_blank" rel="noreferrer" style={{ color: '#f59e0b' }}>
@@ -229,12 +229,12 @@ export const MemberDetails = ({ userId, onBack, onSelectCrane }) => {
                         </a>
                       ))}
                       {d.uploaded && d.status !== 1 && (
-                        <button type="button" className="cranzo-btn-primary-amber" style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setDocumentStatus(d, 1)}>
+                        <button type="button" className="cranezo-btn-primary-amber" style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setDocumentStatus(d, 1)}>
                           Approve
                         </button>
                       )}
                       {d.uploaded && d.status !== 2 && (
-                        <button type="button" className="cranzo-btn-danger-outline" style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setDocumentStatus(d, 2)}>
+                        <button type="button" className="cranezo-btn-danger-outline" style={{ padding: '4px 12px', fontSize: '12px' }} onClick={() => setDocumentStatus(d, 2)}>
                           Reject
                         </button>
                       )}

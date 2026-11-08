@@ -122,8 +122,8 @@ export const AdminAccess = () => {
     r.staff_count,
     <Badge key="s" tone={r.is_active ? 'good' : 'bad'}>{r.is_active ? 'Active' : 'Off'}</Badge>,
     <div key="a" style={{ display: 'flex', gap: 8 }}>
-      <button type="button" className="cranzo-btn-secondary" onClick={() => setRoleForm({ ...r })}>Edit</button>
-      <button type="button" className="cranzo-btn-secondary" onClick={() => deleteRole(r)}>Delete</button>
+      <button type="button" className="cranezo-btn-secondary" onClick={() => setRoleForm({ ...r })}>Edit</button>
+      <button type="button" className="cranezo-btn-secondary" onClick={() => deleteRole(r)}>Delete</button>
     </div>,
   ]);
 
@@ -132,11 +132,11 @@ export const AdminAccess = () => {
     s.access_role || '-',
     <Badge key="s" tone={s.is_active ? 'good' : 'bad'}>{s.is_active ? 'Active' : 'Off'}</Badge>,
     s.last_login ? when(s.last_login) : 'Never',
-    <button key="a" type="button" className="cranzo-btn-secondary" onClick={() => setStaffForm({ ...s, password: '', access_role_id: s.access_role_id || '' })}>Edit</button>,
+    <button key="a" type="button" className="cranezo-btn-secondary" onClick={() => setStaffForm({ ...s, password: '', access_role_id: s.access_role_id || '' })}>Edit</button>,
   ]);
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader
         title="Admins & Roles"
         subtitle="Give each person their own login and decide which side-menu pages they can open. Only the Super Admin sees this page."
@@ -145,12 +145,12 @@ export const AdminAccess = () => {
       <OkBox message={notice} />
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        <button type="button" className={tab === 'staff' ? 'cranzo-btn-primary-amber' : 'cranzo-btn-secondary'} onClick={() => setTab('staff')}>Staff logins</button>
-        <button type="button" className={tab === 'roles' ? 'cranzo-btn-primary-amber' : 'cranzo-btn-secondary'} onClick={() => setTab('roles')}>Roles</button>
+        <button type="button" className={tab === 'staff' ? 'cranezo-btn-primary-amber' : 'cranezo-btn-secondary'} onClick={() => setTab('staff')}>Staff logins</button>
+        <button type="button" className={tab === 'roles' ? 'cranezo-btn-primary-amber' : 'cranezo-btn-secondary'} onClick={() => setTab('roles')}>Roles</button>
       </div>
 
       {tab === 'staff' && !staffForm && (
-        <Section title="Staff logins" right={<button type="button" className="cranzo-btn-primary" onClick={() => setStaffForm({ ...EMPTY_STAFF })} disabled={!roles.length}>New login</button>}>
+        <Section title="Staff logins" right={<button type="button" className="cranezo-btn-primary" onClick={() => setStaffForm({ ...EMPTY_STAFF })} disabled={!roles.length}>New login</button>}>
           {!roles.length && <div style={{ ...muted, marginBottom: 10 }}>Create a role first (Roles tab), then add a login.</div>}
           <Table headers={['Person', 'Role', 'Status', 'Last sign-in', '']} rows={staffRows} empty="No logins yet." minWidth={640} />
         </Section>
@@ -191,14 +191,14 @@ export const AdminAccess = () => {
             )}
           </div>
           <div style={{ marginTop: 16, display: 'flex', gap: 10 }}>
-            <button type="button" className="cranzo-btn-primary" disabled={saving} onClick={saveStaff}>{saving ? 'Saving…' : 'Save'}</button>
-            <button type="button" className="cranzo-btn-secondary" onClick={() => setStaffForm(null)}>Cancel</button>
+            <button type="button" className="cranezo-btn-primary" disabled={saving} onClick={saveStaff}>{saving ? 'Saving…' : 'Save'}</button>
+            <button type="button" className="cranezo-btn-secondary" onClick={() => setStaffForm(null)}>Cancel</button>
           </div>
         </Section>
       )}
 
       {tab === 'roles' && !roleForm && (
-        <Section title="Roles" right={<button type="button" className="cranzo-btn-primary" onClick={() => setRoleForm({ ...EMPTY_ROLE })}>New role</button>}>
+        <Section title="Roles" right={<button type="button" className="cranezo-btn-primary" onClick={() => setRoleForm({ ...EMPTY_ROLE })}>New role</button>}>
           <Table headers={['Role', 'Pages', 'Logins', 'Status', '']} rows={roleRows} empty="No roles yet." minWidth={640} />
         </Section>
       )}
@@ -247,8 +247,8 @@ export const AdminAccess = () => {
           <div style={{ ...muted, fontSize: 12, marginTop: 10 }}>Admins & Roles and the Super Admin settings are never given to a role.</div>
 
           <div style={{ marginTop: 16, display: 'flex', gap: 10 }}>
-            <button type="button" className="cranzo-btn-primary" disabled={saving} onClick={saveRole}>{saving ? 'Saving…' : 'Save role'}</button>
-            <button type="button" className="cranzo-btn-secondary" onClick={() => setRoleForm(null)}>Cancel</button>
+            <button type="button" className="cranezo-btn-primary" disabled={saving} onClick={saveRole}>{saving ? 'Saving…' : 'Save role'}</button>
+            <button type="button" className="cranezo-btn-secondary" onClick={() => setRoleForm(null)}>Cancel</button>
           </div>
         </Section>
       )}

@@ -111,7 +111,7 @@ const usageBlock = (b) => {
 const cancellationBlock = (b) => {
   if (![BOOKING_STATUS.CANCELLED, BOOKING_STATUS.DECLINED, BOOKING_STATUS.EXPIRED].includes(b.status)) return null;
   const paid = Number(b.paidAmount);
-  const byLabel = { customer: 'You (Customer)', owner: 'Crane Owner', system: 'Cranzo' };
+  const byLabel = { customer: 'You (Customer)', owner: 'Crane Owner', system: 'Cranezo' };
   const declined = b.status === BOOKING_STATUS.DECLINED;
   const expired = b.status === BOOKING_STATUS.EXPIRED;
   return {

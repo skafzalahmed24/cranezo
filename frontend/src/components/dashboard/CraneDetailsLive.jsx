@@ -7,8 +7,8 @@ const dateTime = (value) => (value ? new Date(value).toLocaleString('en-IN') : '
 const BADGE = { 0: 'pending', 1: 'active', 2: 'blocked' };
 
 const Section = ({ title, children }) => (
-  <div className="cranzo-card" style={{ padding: '18px 20px', marginBottom: '16px' }}>
-    <h3 className="cranzo-card-title" style={{ margin: '0 0 14px' }}>{title}</h3>
+  <div className="cranezo-card" style={{ padding: '18px 20px', marginBottom: '16px' }}>
+    <h3 className="cranezo-card-title" style={{ margin: '0 0 14px' }}>{title}</h3>
     {children}
   </div>
 );
@@ -75,35 +75,35 @@ export const CraneDetailsLive = ({ craneId, onBack, onSelectMember, onReviewed }
   };
 
   if (loading && !crane) {
-    return <div className="cranzo-content-view"><p style={{ color: 'var(--dash-text-muted)' }}>Loading...</p></div>;
+    return <div className="cranezo-content-view"><p style={{ color: 'var(--dash-text-muted)' }}>Loading...</p></div>;
   }
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
-      <button type="button" className="cranzo-btn-secondary" onClick={onBack} style={{ marginBottom: '16px' }}>
+    <div className="cranezo-content-view animate-fade-in">
+      <button type="button" className="cranezo-btn-secondary" onClick={onBack} style={{ marginBottom: '16px' }}>
         <ArrowLeft size={15} /> Back
       </button>
 
       {error && (
-        <div className="cranzo-card" style={{ padding: '12px 16px', marginBottom: '12px', color: '#ef4444' }}>{error}</div>
+        <div className="cranezo-card" style={{ padding: '12px 16px', marginBottom: '12px', color: '#ef4444' }}>{error}</div>
       )}
 
       {crane && (
         <>
-          <div className="cranzo-card" style={{ padding: '20px', marginBottom: '16px' }}>
+          <div className="cranezo-card" style={{ padding: '20px', marginBottom: '16px' }}>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <h2 className="cranzo-greeting-title" style={{ margin: 0 }}>
+              <h2 className="cranezo-greeting-title" style={{ margin: 0 }}>
                 {crane.crane_code} · {crane.model_name || crane.crane_type_name}
               </h2>
-              <span className={`cranzo-status-badge ${BADGE[crane.approval_status]}`}>{crane.approval_label}</span>
+              <span className={`cranezo-status-badge ${BADGE[crane.approval_status]}`}>{crane.approval_label}</span>
               <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
                 {crane.approval_status !== 2 && !rejecting && (
-                  <button type="button" className="cranzo-btn-danger-outline" onClick={() => setRejecting(true)}>
+                  <button type="button" className="cranezo-btn-danger-outline" onClick={() => setRejecting(true)}>
                     <XCircle size={14} /> Reject
                   </button>
                 )}
                 {crane.approval_status !== 1 && !rejecting && (
-                  <button type="button" className="cranzo-btn-primary-amber" disabled={acting} onClick={() => review('approve')}>
+                  <button type="button" className="cranezo-btn-primary-amber" disabled={acting} onClick={() => review('approve')}>
                     <CheckCircle2 size={14} /> Approve
                   </button>
                 )}
@@ -130,8 +130,8 @@ export const CraneDetailsLive = ({ craneId, onBack, onSelectMember, onReviewed }
                   }}
                 />
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>
-                  <button type="button" className="cranzo-btn-secondary" onClick={() => setRejecting(false)}>Back</button>
-                  <button type="button" className="cranzo-btn-danger-outline" disabled={acting} onClick={() => review('reject')}>
+                  <button type="button" className="cranezo-btn-secondary" onClick={() => setRejecting(false)}>Back</button>
+                  <button type="button" className="cranezo-btn-danger-outline" disabled={acting} onClick={() => review('reject')}>
                     <XCircle size={14} /> Confirm Reject
                   </button>
                 </div>
@@ -181,12 +181,12 @@ export const CraneDetailsLive = ({ craneId, onBack, onSelectMember, onReviewed }
             />
             <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
               {crane.owner && (
-                <button type="button" className="cranzo-btn-secondary" onClick={() => onSelectMember(crane.owner.id, 'owner')}>
+                <button type="button" className="cranezo-btn-secondary" onClick={() => onSelectMember(crane.owner.id, 'owner')}>
                   View Owner
                 </button>
               )}
               {crane.operator && (
-                <button type="button" className="cranzo-btn-secondary" onClick={() => onSelectMember(crane.operator.id, 'operator')}>
+                <button type="button" className="cranezo-btn-secondary" onClick={() => onSelectMember(crane.operator.id, 'operator')}>
                   View Operator
                 </button>
               )}

@@ -12,7 +12,7 @@ function App() {
 
   const [userSession, setUserSession] = useState(() => {
     try {
-      const saved = localStorage.getItem('cranzo_admin');
+      const saved = localStorage.getItem('cranezo_admin');
       return saved ? JSON.parse(saved) : null;
     } catch (e) {
       return null;
@@ -40,8 +40,8 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('cranzo_token');
-    localStorage.removeItem('cranzo_admin');
+    localStorage.removeItem('cranezo_token');
+    localStorage.removeItem('cranezo_admin');
     setUserSession(null);
     navigate('/admin/login');
   };
@@ -68,7 +68,7 @@ function App() {
 
   // Route 2: Admin Dashboard at "/admin/dashboard" or "/admin"
   if (currentPath === '/admin/dashboard' || currentPath === '/admin') {
-    const token = localStorage.getItem('cranzo_token');
+    const token = localStorage.getItem('cranezo_token');
     // If not logged in, route to login
     if (!token && !userSession) {
       navigate('/admin/login');
@@ -81,7 +81,7 @@ function App() {
           userSession || {
             name: 'Admin',
             role: 'Super Admin',
-            email: 'superadmin@cranzo.com',
+            email: 'superadmin@cranezo.com',
           }
         }
         onLogout={handleLogout}

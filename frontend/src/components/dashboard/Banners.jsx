@@ -126,14 +126,14 @@ export const Banners = () => {
   const set = (patch) => setForm({ ...form, ...patch });
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
-      <div className="cranzo-users-header-row">
+    <div className="cranezo-content-view animate-fade-in">
+      <div className="cranezo-users-header-row">
         <div>
-          <h2 className="cranzo-greeting-title">Banners</h2>
-          <p className="cranzo-greeting-subtitle">The banners shown on the app home screen. Choose who sees them, when, and what a tap does.</p>
+          <h2 className="cranezo-greeting-title">Banners</h2>
+          <p className="cranezo-greeting-subtitle">The banners shown on the app home screen. Choose who sees them, when, and what a tap does.</p>
         </div>
-        <div className="cranzo-header-actions-group">
-          <button type="button" className="cranzo-btn-primary-amber" onClick={() => setForm({ ...emptyForm })}>
+        <div className="cranezo-header-actions-group">
+          <button type="button" className="cranezo-btn-primary-amber" onClick={() => setForm({ ...emptyForm })}>
             <Plus size={15} /> Add banner
           </button>
         </div>
@@ -165,20 +165,20 @@ export const Banners = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginTop: 16 }}>
             <div>
               <label style={label}>Who sees it</label>
-              <select className="cranzo-select-dropdown" style={{ width: '100%' }} value={form.audience} onChange={(e) => set({ audience: e.target.value })}>
+              <select className="cranezo-select-dropdown" style={{ width: '100%' }} value={form.audience} onChange={(e) => set({ audience: e.target.value })}>
                 {AUDIENCES.map(([id, text]) => <option key={id} value={id}>{text}</option>)}
               </select>
             </div>
             <div>
               <label style={label}>When tapped</label>
-              <select className="cranzo-select-dropdown" style={{ width: '100%' }} value={form.action_type} onChange={(e) => set({ action_type: e.target.value, action_value: '' })}>
+              <select className="cranezo-select-dropdown" style={{ width: '100%' }} value={form.action_type} onChange={(e) => set({ action_type: e.target.value, action_value: '' })}>
                 {ACTIONS.map(([id, text]) => <option key={id} value={id}>{text}</option>)}
               </select>
             </div>
             {form.action_type === 'screen' && (
               <div>
                 <label style={label}>Screen</label>
-                <select className="cranzo-select-dropdown" style={{ width: '100%' }} value={form.action_value} onChange={(e) => set({ action_value: e.target.value })}>
+                <select className="cranezo-select-dropdown" style={{ width: '100%' }} value={form.action_value} onChange={(e) => set({ action_value: e.target.value })}>
                   <option value="">Choose a screen</option>
                   {SCREENS.map(([id, text]) => <option key={id} value={id}>{text}</option>)}
                 </select>
@@ -204,10 +204,10 @@ export const Banners = () => {
             <label style={{ display: 'flex', gap: 6, alignItems: 'center', color: 'var(--dash-text-body)', fontSize: 13 }}>
               <input type="checkbox" checked={form.is_active} onChange={(e) => set({ is_active: e.target.checked })} /> Visible in the apps
             </label>
-            <button type="button" className="cranzo-btn-primary-amber" style={{ marginLeft: 'auto' }} disabled={saving || !form.image} onClick={save}>
+            <button type="button" className="cranezo-btn-primary-amber" style={{ marginLeft: 'auto' }} disabled={saving || !form.image} onClick={save}>
               {saving ? 'Saving...' : 'Save banner'}
             </button>
-            <button type="button" className="cranzo-btn-secondary" onClick={() => setForm(null)}>Cancel</button>
+            <button type="button" className="cranezo-btn-secondary" onClick={() => setForm(null)}>Cancel</button>
           </div>
         </div>
       )}
@@ -218,7 +218,7 @@ export const Banners = () => {
           <div style={{ flex: 1, minWidth: 220 }}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               <strong style={{ color: 'var(--dash-text-title)' }}>{b.title || '(image only)'}</strong>
-              <span className={`cranzo-status-badge ${b.is_live ? 'active' : b.is_active ? 'pending' : 'blocked'}`}>
+              <span className={`cranezo-status-badge ${b.is_live ? 'active' : b.is_active ? 'pending' : 'blocked'}`}>
                 {b.is_live ? 'Live' : b.is_active ? 'Scheduled / ended' : 'Hidden'}
               </span>
             </div>
@@ -230,12 +230,12 @@ export const Banners = () => {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button type="button" className="cranzo-action-btn" title="Move up" disabled={index === 0} onClick={() => move(index, -1)}><ArrowUp size={15} /></button>
-            <button type="button" className="cranzo-action-btn" title="Move down" disabled={index === banners.length - 1} onClick={() => move(index, 1)}><ArrowDown size={15} /></button>
-            <button type="button" className="cranzo-action-btn" title="Edit" onClick={() => edit(b)}><Pencil size={15} /></button>
+            <button type="button" className="cranezo-action-btn" title="Move up" disabled={index === 0} onClick={() => move(index, -1)}><ArrowUp size={15} /></button>
+            <button type="button" className="cranezo-action-btn" title="Move down" disabled={index === banners.length - 1} onClick={() => move(index, 1)}><ArrowDown size={15} /></button>
+            <button type="button" className="cranezo-action-btn" title="Edit" onClick={() => edit(b)}><Pencil size={15} /></button>
             <button
               type="button"
-              className="cranzo-action-btn"
+              className="cranezo-action-btn"
               title={b.is_active ? 'Hide' : 'Show'}
               onClick={() => run(() => apiRequest(`/admin/banners/${b.id}`, { method: 'PUT', body: { is_active: !b.is_active } }))}
             >

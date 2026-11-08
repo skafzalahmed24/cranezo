@@ -58,7 +58,7 @@ export const CraneRequests = () => {
   };
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader
         title="Crane Requests"
         subtitle="Customer requests sent to nearby owners. When no owner takes one, the customer can send it to the team: call them and arrange a crane."
@@ -77,7 +77,7 @@ export const CraneRequests = () => {
       <Section
         title="Requests"
         right={(
-          <select className="cranzo-select-dropdown" value={status} onChange={(e) => { setPage(0); setStatus(e.target.value); }}>
+          <select className="cranezo-select-dropdown" value={status} onChange={(e) => { setPage(0); setStatus(e.target.value); }}>
             {FILTERS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
           </select>
         )}
@@ -113,8 +113,8 @@ export const CraneRequests = () => {
                   onChange={(e) => setNotes({ ...notes, [r.request_id]: e.target.value })}
                 />
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button type="button" className={r.admin_status === 'contacted' ? 'cranzo-btn-primary-amber' : 'cranzo-btn-secondary'} onClick={() => update(r, 'contacted')}>Contacted</button>
-                  <button type="button" className={r.admin_status === 'closed' ? 'cranzo-btn-primary-amber' : 'cranzo-btn-secondary'} onClick={() => update(r, 'closed')}>Closed</button>
+                  <button type="button" className={r.admin_status === 'contacted' ? 'cranezo-btn-primary-amber' : 'cranezo-btn-secondary'} onClick={() => update(r, 'contacted')}>Contacted</button>
+                  <button type="button" className={r.admin_status === 'closed' ? 'cranezo-btn-primary-amber' : 'cranezo-btn-secondary'} onClick={() => update(r, 'closed')}>Closed</button>
                 </div>
               </div>
             ) : (r.admin_note || '-'),

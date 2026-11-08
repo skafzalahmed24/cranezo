@@ -450,7 +450,7 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
   };
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       {/* Top Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
         <div>
@@ -458,14 +458,14 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
             Crane Management
           </h2>
           <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0 0' }}>
-            Manage the registered crane fleet across Cranzo.
+            Manage the registered crane fleet across Cranezo.
           </p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <button
             type="button"
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             style={{ height: '38px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <Download size={14} />
@@ -473,7 +473,7 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
           </button>
           <button
             type="button"
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             style={{ height: '38px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <Filter size={14} />
@@ -481,7 +481,7 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
           </button>
           <button
             type="button"
-            className="cranzo-btn-primary-amber"
+            className="cranezo-btn-primary-amber"
             onClick={() => onAddCrane?.()}
             style={{ height: '38px', padding: '0 16px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
@@ -492,18 +492,18 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
       </div>
 
       {/* 4 Stat Cards */}
-      <div className="cranzo-stats-grid-4">
+      <div className="cranezo-stats-grid-4">
         {statCards.map((card) => {
           const IconComponent = card.icon;
           return (
-            <div key={card.id} className="cranzo-stat-card">
-              <div className="cranzo-stat-card-left">
-                <div className={`cranzo-stat-icon-box ${card.color}`}>
+            <div key={card.id} className="cranezo-stat-card">
+              <div className="cranezo-stat-card-left">
+                <div className={`cranezo-stat-icon-box ${card.color}`}>
                   <IconComponent size={20} />
                 </div>
-                <div className="cranzo-stat-info">
-                  <span className="cranzo-stat-label">{card.label}</span>
-                  <span className="cranzo-stat-value">{card.value}</span>
+                <div className="cranezo-stat-info">
+                  <span className="cranezo-stat-label">{card.label}</span>
+                  <span className="cranezo-stat-value">{card.value}</span>
                 </div>
               </div>
               <div
@@ -525,10 +525,10 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
       </div>
 
       {/* Structured Two-Row Filter Card */}
-      <div className="cranzo-filter-card">
+      <div className="cranezo-filter-card">
         {/* Row 1 */}
-        <div className="cranzo-filter-row">
-          <div className="cranzo-filter-search-field">
+        <div className="cranezo-filter-row">
+          <div className="cranezo-filter-search-field">
             <Search size={15} />
             <input
               type="text"
@@ -539,7 +539,7 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
           </div>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
           >
@@ -553,7 +553,7 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={selectedCapacity}
             onChange={(e) => setSelectedCapacity(e.target.value)}
           >
@@ -570,7 +570,7 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={selectedOwner}
             onChange={(e) => setSelectedOwner(e.target.value)}
           >
@@ -589,9 +589,9 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
         </div>
 
         {/* Row 2 */}
-        <div className="cranzo-filter-row">
+        <div className="cranezo-filter-row">
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={selectedOperator}
             onChange={(e) => setSelectedOperator(e.target.value)}
           >
@@ -609,7 +609,7 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={selectedAvailability}
             onChange={(e) => setSelectedAvailability(e.target.value)}
           >
@@ -620,7 +620,7 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={selectedDocs}
             onChange={(e) => setSelectedDocs(e.target.value)}
           >
@@ -631,7 +631,7 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={selectedGps}
             onChange={(e) => setSelectedGps(e.target.value)}
           >
@@ -642,7 +642,7 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
 
           <button
             type="button"
-            className="cranzo-filter-reset-btn"
+            className="cranezo-filter-reset-btn"
             onClick={resetFilters}
           >
             Reset Filters
@@ -651,9 +651,9 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
       </div>
 
       {/* Cranes Table Card */}
-      <div className="cranzo-card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="cranezo-card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
-          <table className="cranzo-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="cranezo-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 <th style={{ width: '40px', padding: '14px 12px 14px 18px' }}>
@@ -815,7 +815,7 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <button
               type="button"
-              className="cranzo-action-btn"
+              className="cranezo-action-btn"
               disabled={currentPage === 1}
               style={{ width: '28px', height: '28px' }}
             >
@@ -915,7 +915,7 @@ export const CranesList = ({ onSelectCrane, onAddCrane }) => {
             </button>
             <button
               type="button"
-              className="cranzo-action-btn"
+              className="cranezo-action-btn"
               style={{ width: '28px', height: '28px' }}
             >
               <ChevronRight size={14} />

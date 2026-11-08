@@ -19,9 +19,9 @@ export const Button = ({
   ...props
 }) => {
   const buttonClasses = [
-    'cranzo-btn',
-    `cranzo-btn--${variant}`,
-    isLoading ? 'cranzo-btn--loading' : '',
+    'cranezo-btn',
+    `cranezo-btn--${variant}`,
+    isLoading ? 'cranezo-btn--loading' : '',
     className,
   ]
     .filter(Boolean)
@@ -37,15 +37,15 @@ export const Button = ({
       {...props}
     >
       {isLoading ? (
-        <span className="cranzo-btn__content">
+        <span className="cranezo-btn__content">
           <Loader2 size={18} className="animate-spin" />
           <span>Processing...</span>
         </span>
       ) : (
-        <span className="cranzo-btn__content">
-          {icon && iconPosition === 'left' && <span className="cranzo-btn__icon">{icon}</span>}
+        <span className="cranezo-btn__content">
+          {icon && iconPosition === 'left' && <span className="cranezo-btn__icon">{icon}</span>}
           <span>{children}</span>
-          {icon && iconPosition === 'right' && <span className="cranzo-btn__icon">{icon}</span>}
+          {icon && iconPosition === 'right' && <span className="cranezo-btn__icon">{icon}</span>}
         </span>
       )}
     </button>

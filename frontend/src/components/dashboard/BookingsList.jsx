@@ -316,7 +316,7 @@ export const BookingsList = ({ onSelectBooking }) => {
   };
 
   return (
-    <div className="cranzo-content-view animate-fade-in" style={{ paddingBottom: '40px' }}>
+    <div className="cranezo-content-view animate-fade-in" style={{ paddingBottom: '40px' }}>
       {/* Top Header */}
       <div
         style={{
@@ -332,14 +332,14 @@ export const BookingsList = ({ onSelectBooking }) => {
             Bookings
           </h2>
           <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0 0' }}>
-            Manage and monitor all crane bookings across Cranzo.
+            Manage and monitor all crane bookings across Cranezo.
           </p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <button
             type="button"
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             style={{ height: '38px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <Download size={14} />
@@ -347,7 +347,7 @@ export const BookingsList = ({ onSelectBooking }) => {
           </button>
           <button
             type="button"
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             style={{ height: '38px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <Filter size={14} />
@@ -370,7 +370,7 @@ export const BookingsList = ({ onSelectBooking }) => {
           return (
             <div
               key={card.id}
-              className="cranzo-card"
+              className="cranezo-card"
               style={{
                 padding: '16px 20px',
                 display: 'flex',
@@ -405,10 +405,10 @@ export const BookingsList = ({ onSelectBooking }) => {
       </div>
 
       {/* Structured Two-Row Filter Card */}
-      <div className="cranzo-filter-card">
+      <div className="cranezo-filter-card">
         {/* Row 1 */}
-        <div className="cranzo-filter-row">
-          <div className="cranzo-filter-search-field">
+        <div className="cranezo-filter-row">
+          <div className="cranezo-filter-search-field">
             <Search size={15} />
             <input
               type="text"
@@ -444,7 +444,7 @@ export const BookingsList = ({ onSelectBooking }) => {
           </div>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={bookingStatus}
             onChange={(e) => setBookingStatus(e.target.value)}
           >
@@ -457,7 +457,7 @@ export const BookingsList = ({ onSelectBooking }) => {
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={paymentStatus}
             onChange={(e) => setPaymentStatus(e.target.value)}
           >
@@ -469,9 +469,9 @@ export const BookingsList = ({ onSelectBooking }) => {
         </div>
 
         {/* Row 2 */}
-        <div className="cranzo-filter-row">
+        <div className="cranezo-filter-row">
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={craneType}
             onChange={(e) => setCraneType(e.target.value)}
           >
@@ -483,7 +483,7 @@ export const BookingsList = ({ onSelectBooking }) => {
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={owner}
             onChange={(e) => setOwner(e.target.value)}
           >
@@ -496,7 +496,7 @@ export const BookingsList = ({ onSelectBooking }) => {
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={operator}
             onChange={(e) => setOperator(e.target.value)}
           >
@@ -510,7 +510,7 @@ export const BookingsList = ({ onSelectBooking }) => {
 
           <button
             type="button"
-            className="cranzo-filter-reset-btn"
+            className="cranezo-filter-reset-btn"
             onClick={resetFilters}
           >
             Reset
@@ -519,9 +519,9 @@ export const BookingsList = ({ onSelectBooking }) => {
       </div>
 
       {/* Bookings Table */}
-      <div className="cranzo-card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="cranezo-card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
-          <table className="cranzo-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="cranezo-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 <th style={{ width: '40px', padding: '14px 12px 14px 18px' }}>
@@ -621,7 +621,7 @@ export const BookingsList = ({ onSelectBooking }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <button
               type="button"
-              className="cranzo-action-btn"
+              className="cranezo-action-btn"
               disabled={currentPage === 1}
               style={{ width: '28px', height: '28px' }}
             >
@@ -642,23 +642,23 @@ export const BookingsList = ({ onSelectBooking }) => {
             >
               1
             </button>
-            <button type="button" className="cranzo-action-btn" style={{ width: '26px', height: '26px' }}>
+            <button type="button" className="cranezo-action-btn" style={{ width: '26px', height: '26px' }}>
               2
             </button>
-            <button type="button" className="cranzo-action-btn" style={{ width: '26px', height: '26px' }}>
+            <button type="button" className="cranezo-action-btn" style={{ width: '26px', height: '26px' }}>
               3
             </button>
-            <button type="button" className="cranzo-action-btn" style={{ width: '26px', height: '26px' }}>
+            <button type="button" className="cranezo-action-btn" style={{ width: '26px', height: '26px' }}>
               4
             </button>
-            <button type="button" className="cranzo-action-btn" style={{ width: '26px', height: '26px' }}>
+            <button type="button" className="cranezo-action-btn" style={{ width: '26px', height: '26px' }}>
               5
             </button>
             <span style={{ padding: '0 4px', color: '#64748b' }}>..</span>
-            <button type="button" className="cranzo-action-btn" style={{ width: '28px', height: '26px' }}>
+            <button type="button" className="cranezo-action-btn" style={{ width: '28px', height: '26px' }}>
               125
             </button>
-            <button type="button" className="cranzo-action-btn" style={{ width: '28px', height: '28px' }}>
+            <button type="button" className="cranezo-action-btn" style={{ width: '28px', height: '28px' }}>
               <ChevronRight size={14} />
             </button>
           </div>

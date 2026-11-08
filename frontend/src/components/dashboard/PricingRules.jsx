@@ -61,7 +61,7 @@ export const PricingRules = () => {
   }, 'Minimum price saved.');
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader
         title="Pricing Rules"
         subtitle="Minimum prices and how booking requests behave. Owners set their own rates but never below these minimums. Only the Super Admin can change them."
@@ -79,7 +79,7 @@ export const PricingRules = () => {
             </div>
           ))}
         </div>
-        <button type="button" className="cranzo-btn-primary-amber" style={{ marginTop: 14 }} onClick={saveRules}>Save rules</button>
+        <button type="button" className="cranezo-btn-primary-amber" style={{ marginTop: 14 }} onClick={saveRules}>Save rules</button>
       </Section>
 
       <Section title="Minimum crane hire per hour (₹)">
@@ -87,8 +87,8 @@ export const PricingRules = () => {
           The customer's first offer starts at this price x hours. Leave 0 when there is no minimum (the cheapest nearby crane is used instead).
         </p>
         {data && (
-          <div className="cranzo-table-container">
-            <table className="cranzo-table" style={{ minWidth: 520 }}>
+          <div className="cranezo-table-container">
+            <table className="cranezo-table" style={{ minWidth: 520 }}>
               <thead>
                 <tr>
                   <th>Crane type</th>
@@ -109,7 +109,7 @@ export const PricingRules = () => {
                           onChange={(e) => setMins({ ...mins, [key]: e.target.value })} />
                       </td>
                       <td style={{ width: 90 }}>
-                        <button type="button" className="cranzo-btn-secondary" onClick={() => saveMinimum(t.id, c.id)}>Save</button>
+                        <button type="button" className="cranezo-btn-secondary" onClick={() => saveMinimum(t.id, c.id)}>Save</button>
                       </td>
                     </tr>
                   );

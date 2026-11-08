@@ -88,11 +88,11 @@ export const Announcements = () => {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
-      <div className="cranzo-users-header-row">
+    <div className="cranezo-content-view animate-fade-in">
+      <div className="cranezo-users-header-row">
         <div>
-          <h2 className="cranzo-greeting-title">Announcements</h2>
-          <p className="cranzo-greeting-subtitle">Send a notification to every customer, operator or owner, for example about a new feature.</p>
+          <h2 className="cranezo-greeting-title">Announcements</h2>
+          <p className="cranezo-greeting-subtitle">Send a notification to every customer, operator or owner, for example about a new feature.</p>
         </div>
       </div>
 
@@ -100,7 +100,7 @@ export const Announcements = () => {
         {error && <div style={{ color: '#ef4444', marginBottom: 12 }}>{error}</div>}
         {notice && <div style={{ color: '#10b981', marginBottom: 12 }}>{notice}</div>}
         <label style={label}>Send to</label>
-        <select className="cranzo-select-dropdown" style={{ width: '100%', marginBottom: 14 }} value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })}>
+        <select className="cranezo-select-dropdown" style={{ width: '100%', marginBottom: 14 }} value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })}>
           {AUDIENCES.map(([id, text]) => <option key={id} value={id}>{text}</option>)}
         </select>
         <label style={label}>Title</label>
@@ -114,14 +114,14 @@ export const Announcements = () => {
           maxLength={1000}
           onChange={(e) => setForm({ ...form, body: e.target.value })}
         />
-        <button type="submit" className="cranzo-btn-primary-amber" disabled={sending || !form.title.trim() || !form.body.trim()}>
+        <button type="submit" className="cranezo-btn-primary-amber" disabled={sending || !form.title.trim() || !form.body.trim()}>
           <Send size={14} /> {sending ? 'Sending...' : 'Send announcement'}
         </button>
       </form>
 
       <div style={{ ...card, padding: '8px' }}>
-        <div className="cranzo-table-container">
-          <table className="cranzo-table">
+        <div className="cranezo-table-container">
+          <table className="cranezo-table">
             <thead>
               <tr>
                 <th>SENT</th>
@@ -149,11 +149,11 @@ export const Announcements = () => {
             </tbody>
           </table>
         </div>
-        <div className="cranzo-pagination-bar">
-          <span className="cranzo-pagination-text">{total} announcement(s) · page {page} of {totalPages}</span>
-          <div className="cranzo-pagination-controls">
-            <button type="button" className="cranzo-btn-secondary" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button>
-            <button type="button" className="cranzo-btn-secondary" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Next</button>
+        <div className="cranezo-pagination-bar">
+          <span className="cranezo-pagination-text">{total} announcement(s) · page {page} of {totalPages}</span>
+          <div className="cranezo-pagination-controls">
+            <button type="button" className="cranezo-btn-secondary" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button>
+            <button type="button" className="cranezo-btn-secondary" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Next</button>
           </div>
         </div>
       </div>

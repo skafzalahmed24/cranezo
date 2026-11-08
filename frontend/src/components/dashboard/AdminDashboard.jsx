@@ -54,7 +54,7 @@ export const AdminDashboard = ({ onNavigate }) => {
   ] : [];
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader title="Dashboard" subtitle="Live numbers. Refreshes every minute." />
       <ErrorBox message={error} />
       {d && d.alerts > 0 && (
@@ -94,7 +94,7 @@ export const AdminDashboard = ({ onNavigate }) => {
         </div>
       )}
       {d && (
-        <Section title="Latest bookings" right={<button type="button" className="cranzo-btn-secondary" onClick={() => onNavigate('bookings')}>View all</button>}>
+        <Section title="Latest bookings" right={<button type="button" className="cranezo-btn-secondary" onClick={() => onNavigate('bookings')}>View all</button>}>
           <Table
             headers={['Booked', 'Booking', 'Crane', 'Customer', 'Owner', 'Total', 'Status']}
             rows={d.recent_bookings.map((b) => [

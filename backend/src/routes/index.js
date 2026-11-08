@@ -42,7 +42,7 @@ router.use('/places', placesRoutes);
 router.get('/health', (req, res) => {
   res.json({
     status: 'ONLINE',
-    service: 'Cranzo Heavy Lifting API',
+    service: 'Cranezo Heavy Lifting API',
     // whether phones get push notifications (Firebase key found and loaded); no secrets here
     push: require('../services/notification.service').getMessaging() ? 'enabled' : 'disabled',
     timestamp: new Date().toISOString()

@@ -2,14 +2,14 @@
    INPUT COMPONENT STYLES
    ========================================================================== */
 
-.cranzo-input-group {
+.cranezo-input-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
   width: 100%;
 }
 
-.cranzo-input-label {
+.cranezo-input-label {
   font-family: var(--font-family-primary);
   font-size: 14px;
   font-weight: 500;
@@ -17,7 +17,7 @@
   user-select: none;
 }
 
-.cranzo-input-wrapper {
+.cranezo-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
@@ -31,22 +31,22 @@
   -webkit-backdrop-filter: blur(8px);
 }
 
-.cranzo-input-wrapper:hover {
+.cranezo-input-wrapper:hover {
   border-color: var(--input-border-hover);
   background: var(--input-bg-hover);
 }
 
-.cranzo-input-wrapper:focus-within {
+.cranezo-input-wrapper:focus-within {
   border-color: var(--input-border-focus);
   box-shadow: var(--input-shadow-focus);
   background: var(--input-bg-focus);
 }
 
-.cranzo-input-wrapper:focus-within .cranzo-input-icon--left {
+.cranezo-input-wrapper:focus-within .cranezo-input-icon--left {
   color: var(--input-icon-focus);
 }
 
-.cranzo-input {
+.cranezo-input {
   width: 100%;
   height: 100%;
   padding: 12px 16px;
@@ -58,20 +58,20 @@
   outline: none;
 }
 
-.cranzo-input::placeholder {
+.cranezo-input::placeholder {
   color: var(--input-placeholder);
   opacity: 0.85;
 }
 
-.cranzo-input--has-left-icon {
+.cranezo-input--has-left-icon {
   padding-left: 44px;
 }
 
-.cranzo-input--has-right-icon {
+.cranezo-input--has-right-icon {
   padding-right: 44px;
 }
 
-.cranzo-input-icon {
+.cranezo-input-icon {
   position: absolute;
   display: flex;
   align-items: center;
@@ -81,11 +81,11 @@
   transition: color var(--transition-fast);
 }
 
-.cranzo-input-icon--left {
+.cranezo-input-icon--left {
   left: 14px;
 }
 
-.cranzo-input-toggle-btn {
+.cranezo-input-toggle-btn {
   position: absolute;
   right: 12px;
   display: flex;
@@ -100,16 +100,16 @@
   transition: color var(--transition-fast), background var(--transition-fast);
 }
 
-.cranzo-input-toggle-btn:hover {
+.cranezo-input-toggle-btn:hover {
   color: #ffffff;
   background: rgba(255, 255, 255, 0.08);
 }
 
 /* Autofill dark background override */
-.cranzo-input:-webkit-autofill,
-.cranzo-input:-webkit-autofill:hover,
-.cranzo-input:-webkit-autofill:focus,
-.cranzo-input:-webkit-autofill:active {
+.cranezo-input:-webkit-autofill,
+.cranezo-input:-webkit-autofill:hover,
+.cranezo-input:-webkit-autofill:focus,
+.cranezo-input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px #09101f inset !important;
   -webkit-text-fill-color: #ffffff !important;
   caret-color: #ffffff !important;
@@ -118,12 +118,12 @@
 }
 
 /* Error State */
-.cranzo-input-group--error .cranzo-input-wrapper {
+.cranezo-input-group--error .cranezo-input-wrapper {
   border-color: var(--color-error);
   box-shadow: 0 0 0 3px var(--color-error-bg);
 }
 
-.cranzo-input-error-msg {
+.cranezo-input-error-msg {
   display: flex;
   align-items: center;
   gap: 6px;

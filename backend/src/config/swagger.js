@@ -3,12 +3,12 @@ const defaultToken = process.env.DEFAULT_AUTH_TOKEN || '';
 const swaggerDefinition = {
   openapi: '3.0.3',
   info: {
-    title: 'Cranzo Heavy Lifting & Crane Telemetry API',
+    title: 'Cranezo Heavy Lifting & Crane Telemetry API',
     version: '1.0.0',
     description: `
-### Cranzo Platform API Documentation
+### Cranezo Platform API Documentation
 
-Official REST API documentation for the **Cranzo Heavy Lifting & Crane Dispatch Platform**.
+Official REST API documentation for the **Cranezo Heavy Lifting & Crane Dispatch Platform**.
 
 #### 🔑 Authentication Instructions:
 To access protected endpoints:
@@ -20,8 +20,8 @@ ${defaultToken}
 3. Paste the token into the **Value** field and click **Authorize**.
 `,
     contact: {
-      name: 'Cranzo API Support',
-      email: 'support@cranzo.com',
+      name: 'Cranezo API Support',
+      email: 'support@cranezo.com',
       url: 'https://cranezo.com'
     }
   },
@@ -76,7 +76,7 @@ ${defaultToken}
                   type: 'object',
                   properties: {
                     status: { type: 'string', example: 'ONLINE' },
-                    service: { type: 'string', example: 'Cranzo Heavy Lifting API' },
+                    service: { type: 'string', example: 'Cranezo Heavy Lifting API' },
                     timestamp: { type: 'string', format: 'date-time' }
                   }
                 }
@@ -354,7 +354,7 @@ ${defaultToken}
                 type: 'object',
                 required: ['email', 'password'],
                 properties: {
-                  email: { type: 'string', format: 'email', example: 'superadmin@cranzo.com' },
+                  email: { type: 'string', format: 'email', example: 'superadmin@cranezo.com' },
                   password: { type: 'string', format: 'password', example: 'Admin@12345' }
                 }
               }
@@ -588,7 +588,7 @@ ${defaultToken}
       post: {
         tags: ['File Upload'],
         summary: 'Upload Single or Multiple Files',
-        description: 'Upload files to the Cranzo platform. Pass type = 1 for single upload, or type = 2 for multiple upload. Files are stored in /public/uploads/ and returned with timestamps.',
+        description: 'Upload files to the Cranezo platform. Pass type = 1 for single upload, or type = 2 for multiple upload. Files are stored in /public/uploads/ and returned with timestamps.',
         requestBody: {
           required: true,
           content: {

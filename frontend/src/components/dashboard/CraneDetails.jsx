@@ -74,7 +74,7 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
   ];
 
   return (
-    <div className="cranzo-content-view animate-fade-in" style={{ paddingBottom: '40px' }}>
+    <div className="cranezo-content-view animate-fade-in" style={{ paddingBottom: '40px' }}>
       {/* Breadcrumbs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#64748b' }}>
         <span
@@ -103,7 +103,7 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
           <button
             type="button"
             onClick={onBack}
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             style={{
               width: '36px',
               height: '36px',
@@ -144,7 +144,7 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <button
             type="button"
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             style={{
               height: '38px',
               padding: '0 16px',
@@ -160,7 +160,7 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
           </button>
           <button
             type="button"
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             style={{
               height: '38px',
               padding: '0 16px',
@@ -188,7 +188,7 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
       >
         {/* Left Hero Card */}
         <div
-          className="cranzo-card"
+          className="cranezo-card"
           style={{
             display: 'flex',
             gap: '20px',
@@ -362,7 +362,7 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
         {/* Right 2x2 Stat Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
           {/* Card 1: Total Bookings */}
-          <div className="cranzo-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div className="cranezo-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div
                 style={{
@@ -400,7 +400,7 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
           </div>
 
           {/* Card 2: Completed Jobs */}
-          <div className="cranzo-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div className="cranezo-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div
                 style={{
@@ -438,7 +438,7 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
           </div>
 
           {/* Card 3: GPS Connection */}
-          <div className="cranzo-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div className="cranezo-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div
                 style={{
@@ -465,7 +465,7 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
           </div>
 
           {/* Card 4: Documents */}
-          <div className="cranzo-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div className="cranezo-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div
                 style={{
@@ -540,7 +540,7 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
           }}
         >
           {/* Panel 1: Crane Specifications */}
-          <div className="cranzo-card" style={{ padding: '20px' }}>
+          <div className="cranezo-card" style={{ padding: '20px' }}>
             <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#ffffff', margin: '0 0 16px 0' }}>
               Crane Specifications
             </h4>
@@ -566,7 +566,7 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
           </div>
 
           {/* Panel 2: Location & Availability */}
-          <div className="cranzo-card" style={{ padding: '20px' }}>
+          <div className="cranezo-card" style={{ padding: '20px' }}>
             <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#ffffff', margin: '0 0 14px 0' }}>
               Location & Availability
             </h4>
@@ -687,7 +687,7 @@ export const CraneDetails = ({ craneId = 'CRN-1045', onBack, onNavigateToBooking
           </div>
 
           {/* Panel 3: Recent Booking History */}
-          <div className="cranzo-card" style={{ padding: '20px' }}>
+          <div className="cranezo-card" style={{ padding: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
               <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#ffffff', margin: 0 }}>
                 Recent Booking History

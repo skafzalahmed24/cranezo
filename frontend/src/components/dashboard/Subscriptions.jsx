@@ -98,7 +98,7 @@ export const Subscriptions = () => {
   ]);
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader
         title="Subscriptions"
         subtitle="Crane owners get a free first month, then pay monthly or yearly. The online payment fee is added at payment. Only the Super Admin can change prices."
@@ -119,7 +119,7 @@ export const Subscriptions = () => {
       <Section title="Owners">
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12, alignItems: 'center' }}>
           {FILTERS.map(([key, text]) => (
-            <button key={key || 'all'} type="button" className={filter === key ? 'cranzo-btn-primary-amber' : 'cranzo-btn-secondary'} onClick={() => { setFilter(key); setPage(0); }}>
+            <button key={key || 'all'} type="button" className={filter === key ? 'cranezo-btn-primary-amber' : 'cranezo-btn-secondary'} onClick={() => { setFilter(key); setPage(0); }}>
               {text}
             </button>
           ))}
@@ -145,7 +145,7 @@ export const Subscriptions = () => {
           ))}
         </div>
         <div style={{ marginTop: 16 }}>
-          <button type="button" className="cranzo-btn-primary" onClick={savePlans} disabled={saving}>{saving ? 'Saving…' : 'Save plans'}</button>
+          <button type="button" className="cranezo-btn-primary" onClick={savePlans} disabled={saving}>{saving ? 'Saving…' : 'Save plans'}</button>
         </div>
       </Section>
     </div>

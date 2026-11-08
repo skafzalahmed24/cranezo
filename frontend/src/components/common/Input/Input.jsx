@@ -25,16 +25,16 @@ export const Input = ({
   const effectiveType = isPasswordType ? (showPassword ? 'text' : 'password') : type;
 
   return (
-    <div className={`cranzo-input-group ${error ? 'cranzo-input-group--error' : ''} ${className}`}>
+    <div className={`cranezo-input-group ${error ? 'cranezo-input-group--error' : ''} ${className}`}>
       {label && (
-        <label htmlFor={id} className="cranzo-input-label">
+        <label htmlFor={id} className="cranezo-input-label">
           {label}
         </label>
       )}
 
-      <div className="cranzo-input-wrapper">
+      <div className="cranezo-input-wrapper">
         {IconComponent && (
-          <span className="cranzo-input-icon cranzo-input-icon--left">
+          <span className="cranezo-input-icon cranezo-input-icon--left">
             <IconComponent size={18} />
           </span>
         )}
@@ -48,8 +48,8 @@ export const Input = ({
           onChange={onChange}
           disabled={disabled}
           autoComplete={autoComplete}
-          className={`cranzo-input ${IconComponent ? 'cranzo-input--has-left-icon' : ''} ${
-            isPasswordType ? 'cranzo-input--has-right-icon' : ''
+          className={`cranezo-input ${IconComponent ? 'cranezo-input--has-left-icon' : ''} ${
+            isPasswordType ? 'cranezo-input--has-right-icon' : ''
           }`}
           {...props}
         />
@@ -57,7 +57,7 @@ export const Input = ({
         {isPasswordType && (
           <button
             type="button"
-            className="cranzo-input-toggle-btn"
+            className="cranezo-input-toggle-btn"
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             tabIndex={-1}
@@ -68,7 +68,7 @@ export const Input = ({
       </div>
 
       {error && (
-        <div className="cranzo-input-error-msg">
+        <div className="cranezo-input-error-msg">
           <AlertCircle size={14} />
           <span>{error}</span>
         </div>

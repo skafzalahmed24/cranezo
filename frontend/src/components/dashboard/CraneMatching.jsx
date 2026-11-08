@@ -96,7 +96,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
   };
 
   return (
-    <div className="cranzo-content-view animate-fade-in" style={{ paddingBottom: '90px' }}>
+    <div className="cranezo-content-view animate-fade-in" style={{ paddingBottom: '90px' }}>
       {/* Breadcrumbs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#64748b' }}>
         <span
@@ -136,7 +136,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
           <button
             type="button"
             onClick={onBack}
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             style={{ height: '38px', padding: '0 16px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <ArrowLeft size={14} />
@@ -144,7 +144,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
           </button>
           <button
             type="button"
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             style={{ height: '38px', padding: '0 16px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <RotateCw size={14} />
@@ -155,7 +155,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
 
       {/* Booking Details & Radar Map Card */}
       <div
-        className="cranzo-card"
+        className="cranezo-card"
         style={{
           padding: '20px 24px',
           display: 'grid',
@@ -405,7 +405,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
 
       {/* 4 Stat Badges */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px' }}>
-        <div className="cranzo-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div className="cranezo-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div
             style={{
               width: '38px',
@@ -426,7 +426,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
           </div>
         </div>
 
-        <div className="cranzo-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div className="cranezo-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div
             style={{
               width: '38px',
@@ -447,7 +447,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
           </div>
         </div>
 
-        <div className="cranzo-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div className="cranezo-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div
             style={{
               width: '38px',
@@ -468,7 +468,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
           </div>
         </div>
 
-        <div className="cranzo-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div className="cranezo-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div
             style={{
               width: '38px',
@@ -491,10 +491,10 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
       </div>
 
       {/* Filter Card */}
-      <div className="cranzo-filter-card">
+      <div className="cranezo-filter-card">
         {/* Row 1 */}
-        <div className="cranzo-filter-row">
-          <div className="cranzo-filter-search-field">
+        <div className="cranezo-filter-row">
+          <div className="cranezo-filter-search-field">
             <Search size={15} />
             <input
               type="text"
@@ -505,7 +505,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
           </div>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={craneTypeFilter}
             onChange={(e) => setCraneTypeFilter(e.target.value)}
           >
@@ -515,7 +515,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={capacityFilter}
             onChange={(e) => setCapacityFilter(e.target.value)}
           >
@@ -525,7 +525,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={distanceFilter}
             onChange={(e) => setDistanceFilter(e.target.value)}
           >
@@ -535,7 +535,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={availabilityFilter}
             onChange={(e) => setAvailabilityFilter(e.target.value)}
           >
@@ -545,9 +545,9 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
         </div>
 
         {/* Row 2 */}
-        <div className="cranzo-filter-row">
+        <div className="cranezo-filter-row">
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={documentsFilter}
             onChange={(e) => setDocumentsFilter(e.target.value)}
           >
@@ -556,7 +556,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={operatorFilter}
             onChange={(e) => setOperatorFilter(e.target.value)}
           >
@@ -565,7 +565,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
           </select>
 
           <select
-            className="cranzo-filter-dropdown"
+            className="cranezo-filter-dropdown"
             value={gpsFilter}
             onChange={(e) => setGpsFilter(e.target.value)}
           >
@@ -576,7 +576,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
 
           <button
             type="button"
-            className="cranzo-filter-reset-btn"
+            className="cranezo-filter-reset-btn"
             onClick={resetFilters}
           >
             Reset Filters
@@ -585,9 +585,9 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
       </div>
 
       {/* Eligible Cranes Table */}
-      <div className="cranzo-card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="cranezo-card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
-          <table className="cranzo-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="cranezo-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 <th style={{ width: '36px', padding: '14px 12px 14px 18px' }}>
@@ -846,7 +846,7 @@ export const CraneMatching = ({ bookingId = 'CRZ10245', onBack, onSelectCraneDet
         <button
           type="button"
           onClick={() => alert(`Crane ${selectedCrane.craneId} successfully assigned to booking #${bookingId}!`)}
-          className="cranzo-btn-primary-amber"
+          className="cranezo-btn-primary-amber"
           style={{ height: '42px', padding: '0 24px', fontSize: '13.5px', display: 'flex', alignItems: 'center', gap: '8px' }}
         >
           <span>Continue to Assignment</span>

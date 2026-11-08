@@ -741,7 +741,7 @@ class JobService {
     }[kind];
     await notificationService.notify(b.ownerId, { ...copy, data: { booking_id: b.id, booking_code: b.bookingCode, issue_id: issue.id, kind } });
     if (kind === 'emergency') {
-      // the Cranzo support team sees it first in Admin > Support
+      // the Cranezo support team sees it first in Admin > Support
       await supportService.createEmergencyTicket(operatorId, 2, {
         bookingId: b.id,
         latitude: coords.latitude,
@@ -758,8 +758,8 @@ class JobService {
       description,
       status: issue.status,
       message: kind === 'emergency'
-        ? 'Help has been requested. The owner and the Cranzo team have been alerted.'
-        : 'Reported. The owner and the Cranzo team have been notified.'
+        ? 'Help has been requested. The owner and the Cranezo team have been alerted.'
+        : 'Reported. The owner and the Cranezo team have been notified.'
     };
   }
 

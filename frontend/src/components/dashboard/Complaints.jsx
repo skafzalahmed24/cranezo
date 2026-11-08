@@ -48,7 +48,7 @@ export const Complaints = () => {
   if (openId) return <ComplaintDetail id={openId} onBack={() => setOpenId(null)} />;
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader title="Complaints" subtitle="Customer complaints and payment disputes. The owner sees the same complaint and can reply; only you can close one as not upheld." />
       <ErrorBox message={error} />
       {summary && (
@@ -66,7 +66,7 @@ export const Complaints = () => {
         right={(
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <input style={{ ...input, width: 220 }} placeholder="Code, subject or booking" value={search} onChange={(e) => { setPage(0); setSearch(e.target.value); }} />
-            <select className="cranzo-select-dropdown" value={status} onChange={(e) => { setPage(0); setStatus(e.target.value); }}>
+            <select className="cranezo-select-dropdown" value={status} onChange={(e) => { setPage(0); setStatus(e.target.value); }}>
               <option value="active">Open and in review</option>
               <option value="open">Open</option>
               <option value="in_review">In review</option>
@@ -136,8 +136,8 @@ const ComplaintDetail = ({ id, onBack }) => {
   };
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
-      <button type="button" className="cranzo-btn-secondary" onClick={onBack} style={{ marginBottom: 14 }}>
+    <div className="cranezo-content-view animate-fade-in">
+      <button type="button" className="cranezo-btn-secondary" onClick={onBack} style={{ marginBottom: 14 }}>
         <ArrowLeft size={15} /> Back to complaints
       </button>
       <ErrorBox message={error} />
@@ -196,11 +196,11 @@ const ComplaintDetail = ({ id, onBack }) => {
             <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', marginTop: 12, flexWrap: 'wrap' }}>
               <div>
                 <label style={label}>Status</label>
-                <select className="cranzo-select-dropdown" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+                <select className="cranezo-select-dropdown" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
                   {STATUS_OPTIONS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
                 </select>
               </div>
-              <button type="button" className="cranzo-btn-primary-amber" disabled={saving} onClick={save}>{saving ? 'Saving...' : 'Save'}</button>
+              <button type="button" className="cranezo-btn-primary-amber" disabled={saving} onClick={save}>{saving ? 'Saving...' : 'Save'}</button>
               <span style={muted}>Closing a complaint needs a message explaining the outcome.</span>
             </div>
           </Section>

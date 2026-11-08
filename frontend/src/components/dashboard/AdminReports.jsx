@@ -25,9 +25,9 @@ export const AdminReports = () => {
   const max = r ? Math.max(1, ...r.monthly.map((m) => m.gross)) : 1;
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader title="Reports" subtitle="Bookings, money and crane requests by month (India time).">
-        <select className="cranzo-select-dropdown" value={months} onChange={(e) => setMonths(Number(e.target.value))}>
+        <select className="cranezo-select-dropdown" value={months} onChange={(e) => setMonths(Number(e.target.value))}>
           {[3, 6, 12, 24].map((m) => <option key={m} value={m}>Last {m} months</option>)}
         </select>
       </PageHeader>

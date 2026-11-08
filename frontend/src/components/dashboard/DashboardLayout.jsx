@@ -112,7 +112,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
   // Custom added users state persisted to localStorage
   const [customUsers, setCustomUsers] = useState(() => {
     try {
-      const saved = localStorage.getItem('cranzo_custom_users');
+      const saved = localStorage.getItem('cranezo_custom_users');
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
       return [];
@@ -123,7 +123,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
     const updated = [newUser, ...customUsers];
     setCustomUsers(updated);
     try {
-      localStorage.setItem('cranzo_custom_users', JSON.stringify(updated));
+      localStorage.setItem('cranezo_custom_users', JSON.stringify(updated));
     } catch (e) {}
     setActiveView('users');
   };
@@ -135,7 +135,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
   // Theme state: defaults to dark or saved preference
   const [theme, setTheme] = useState(() => {
     try {
-      const saved = localStorage.getItem('cranzo_theme');
+      const saved = localStorage.getItem('cranezo_theme');
       return saved === 'light' ? 'light' : 'dark';
     } catch (e) {
       return 'dark';
@@ -146,7 +146,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
     try {
-      localStorage.setItem('cranzo_theme', nextTheme);
+      localStorage.setItem('cranezo_theme', nextTheme);
     } catch (e) {
       // ignore
     }
@@ -212,10 +212,10 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
 
 
   return (
-    <div className="cranzo-admin-layout" data-theme={theme}>
+    <div className="cranezo-admin-layout" data-theme={theme}>
       {/* Mobile Drawer Overlay */}
       <div
-        className={`cranzo-sidebar-overlay ${mobileSidebarOpen ? 'active' : ''}`}
+        className={`cranezo-sidebar-overlay ${mobileSidebarOpen ? 'active' : ''}`}
         onClick={() => setMobileSidebarOpen(false)}
       />
 
@@ -231,7 +231,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
       />
 
       {/* Main Content Area (offset by fixed sidebar) */}
-      <div className="cranzo-main-wrapper">
+      <div className="cranezo-main-wrapper">
         <Header
           activeView={activeView}
           userSession={access ? { ...userSession, name: access.name || userSession.name, role: access.access_role || userSession.role, access_role: access.access_role } : userSession}
@@ -244,11 +244,11 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
 
         <main style={{ flex: 1, width: '100%', boxSizing: 'border-box' }}>
           {!allowed && (
-            <div className="cranzo-content-view animate-fade-in">
-              <div className="cranzo-card" style={{ padding: '40px', textAlign: 'center' }}>
-                <h3 className="cranzo-card-title" style={{ fontSize: '20px' }}>{permissions ? 'No access' : 'Loading…'}</h3>
+            <div className="cranezo-content-view animate-fade-in">
+              <div className="cranezo-card" style={{ padding: '40px', textAlign: 'center' }}>
+                <h3 className="cranezo-card-title" style={{ fontSize: '20px' }}>{permissions ? 'No access' : 'Loading…'}</h3>
                 {permissions && (
-                  <p className="cranzo-card-subtitle" style={{ marginTop: '8px', fontSize: '14px' }}>
+                  <p className="cranezo-card-subtitle" style={{ marginTop: '8px', fontSize: '14px' }}>
                     Your login does not include this page. Ask the Super Admin to change your role.
                   </p>
                 )}
@@ -390,18 +390,18 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
             'reports',
             'notifications',
           ].includes(activeView) && (
-            <div className="cranzo-content-view animate-fade-in">
-              <div className="cranzo-card" style={{ padding: '40px', textAlign: 'center' }}>
-                <h3 className="cranzo-card-title" style={{ fontSize: '20px', textTransform: 'capitalize' }}>
+            <div className="cranezo-content-view animate-fade-in">
+              <div className="cranezo-card" style={{ padding: '40px', textAlign: 'center' }}>
+                <h3 className="cranezo-card-title" style={{ fontSize: '20px', textTransform: 'capitalize' }}>
                   {activeView} Module
                 </h3>
-                <p className="cranzo-card-subtitle" style={{ marginTop: '8px', fontSize: '14px' }}>
+                <p className="cranezo-card-subtitle" style={{ marginTop: '8px', fontSize: '14px' }}>
                   This section is being synchronized with the fleet control network.
                 </p>
                 <div style={{ marginTop: '20px' }}>
                   <button
                     type="button"
-                    className="cranzo-btn-primary-amber"
+                    className="cranezo-btn-primary-amber"
                     onClick={() => setActiveView('dashboard')}
                   >
                     Return to Dashboard

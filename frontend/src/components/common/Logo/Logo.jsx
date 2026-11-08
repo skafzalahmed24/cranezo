@@ -3,20 +3,20 @@ import './Logo.css';
 import logoImg from '../../../assets/logo.png';
 
 /**
- * Pure React Cranzo Brand Logo Component
+ * Pure React Cranezo Brand Logo Component
  */
 export const Logo = ({
   size = 'md',
   onClick,
   className = '',
-  alt = 'Cranzo Logo',
+  alt = 'Cranezo Logo',
 }) => {
   return (
     <div
-      className={`cranzo-logo-wrapper cranzo-logo--${size} ${onClick ? 'cranzo-logo--clickable' : ''} ${className}`}
+      className={`cranezo-logo-wrapper cranezo-logo--${size} ${onClick ? 'cranezo-logo--clickable' : ''} ${className}`}
       onClick={onClick}
     >
-      <img src={logoImg} alt={alt} className="cranzo-logo-img" />
+      <img src={logoImg} alt={alt} className="cranezo-logo-img" />
     </div>
   );
 };

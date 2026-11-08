@@ -1,6 +1,6 @@
 # cranezo
 
-Cranzo - Heavy Lifting & Crane Dispatch Platform.
+Cranezo - Heavy Lifting & Crane Dispatch Platform.
 
 ## Architecture & Structure
 - **`backend/`**: Node.js, Express, PostgreSQL (Sequelize ORM), JWT Authentication, Swagger API documentation, static dropdowns, role management, and file upload services.

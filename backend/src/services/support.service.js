@@ -239,7 +239,7 @@ class SupportService {
 
   messageView(m, viewer) {
     const own = m.senderType === viewer;
-    const labels = { user: viewer === 'user' ? 'You' : 'Customer', admin: 'Cranzo Support', system: 'Cranzo' };
+    const labels = { user: viewer === 'user' ? 'You' : 'Customer', admin: 'Cranezo Support', system: 'Cranezo' };
     return {
       id: m.id,
       sender_type: m.senderType,
@@ -547,7 +547,7 @@ class SupportService {
       latitude: ticket.latitude !== null ? Number(ticket.latitude) : null,
       longitude: ticket.longitude !== null ? Number(ticket.longitude) : null,
       unread_from_user: 0,
-      messages: messages.map((m) => ({ ...this.messageView(m, 'admin'), sender_label: m.senderType === 'user' ? 'Customer' : (m.senderType === 'admin' ? 'Cranzo Support' : 'System') }))
+      messages: messages.map((m) => ({ ...this.messageView(m, 'admin'), sender_label: m.senderType === 'user' ? 'Customer' : (m.senderType === 'admin' ? 'Cranezo Support' : 'System') }))
     };
   }
 

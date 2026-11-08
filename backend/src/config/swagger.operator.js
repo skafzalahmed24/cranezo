@@ -151,7 +151,7 @@ module.exports = {
     ),
     '/api/operator/jobs/emergency': step(
       'Emergency: Get Help Now',
-      'Creates an emergency record and alerts the owner immediately. Allowed on any active job. Contacting the Cranzo team beyond this record is not automated yet.',
+      'Creates an emergency record and alerts the owner immediately. Allowed on any active job. Contacting the Cranezo team beyond this record is not automated yet.',
       { ...bookingId, latitude: { type: 'number' }, longitude: { type: 'number' } }
     ),
     '/api/operator/jobs/finish': step(

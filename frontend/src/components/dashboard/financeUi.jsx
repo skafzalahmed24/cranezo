@@ -23,12 +23,12 @@ export const when = (iso) =>
 export const day = (iso) => (iso ? new Date(iso).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-');
 
 export const PageHeader = ({ title, subtitle, children }) => (
-  <div className="cranzo-users-header-row">
+  <div className="cranezo-users-header-row">
     <div>
-      <h2 className="cranzo-greeting-title">{title}</h2>
-      {subtitle && <p className="cranzo-greeting-subtitle">{subtitle}</p>}
+      <h2 className="cranezo-greeting-title">{title}</h2>
+      {subtitle && <p className="cranezo-greeting-subtitle">{subtitle}</p>}
     </div>
-    {children && <div className="cranzo-header-actions-group">{children}</div>}
+    {children && <div className="cranezo-header-actions-group">{children}</div>}
   </div>
 );
 
@@ -36,7 +36,7 @@ export const Section = ({ title, right, children, style }) => (
   <div style={{ ...card, marginBottom: 16, ...style }}>
     {(title || right) && (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
-        {title && <h3 className="cranzo-card-title" style={{ margin: 0 }}>{title}</h3>}
+        {title && <h3 className="cranezo-card-title" style={{ margin: 0 }}>{title}</h3>}
         {right}
       </div>
     )}
@@ -58,8 +58,8 @@ export const Stats = ({ items }) => (
 
 /** headers: [text]; rows: [[cell]]; onRow(i) makes a row clickable */
 export const Table = ({ headers, rows, empty = 'Nothing to show.', onRow, minWidth = 640 }) => (
-  <div className="cranzo-table-container">
-    <table className="cranzo-table" style={{ minWidth }}>
+  <div className="cranezo-table-container">
+    <table className="cranezo-table" style={{ minWidth }}>
       <thead>
         <tr>{headers.map((h) => <th key={h}>{h}</th>)}</tr>
       </thead>
@@ -80,7 +80,7 @@ export const Table = ({ headers, rows, empty = 'Nothing to show.', onRow, minWid
 );
 
 const TONES = { good: 'active', warn: 'pending', bad: 'blocked' };
-export const Badge = ({ tone = 'warn', children }) => <span className={`cranzo-status-badge ${TONES[tone] || ''}`}>{children}</span>;
+export const Badge = ({ tone = 'warn', children }) => <span className={`cranezo-status-badge ${TONES[tone] || ''}`}>{children}</span>;
 
 export const ErrorBox = ({ message }) => (message ? <div style={{ ...card, color: '#ef4444', marginBottom: 12 }}>{message}</div> : null);
 export const OkBox = ({ message }) => (message ? <div style={{ ...card, color: '#22c55e', marginBottom: 12 }}>{message}</div> : null);
@@ -92,8 +92,8 @@ export const Pager = ({ page, size, total, onPage }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10, marginTop: 12, ...muted }}>
       <span>{page * size + 1}-{Math.min(total, (page + 1) * size)} of {total}</span>
-      <button type="button" className="cranzo-btn-secondary" disabled={page === 0} onClick={() => onPage(page - 1)}>Previous</button>
-      <button type="button" className="cranzo-btn-secondary" disabled={page >= last} onClick={() => onPage(page + 1)}>Next</button>
+      <button type="button" className="cranezo-btn-secondary" disabled={page === 0} onClick={() => onPage(page - 1)}>Previous</button>
+      <button type="button" className="cranezo-btn-secondary" disabled={page >= last} onClick={() => onPage(page + 1)}>Next</button>
     </div>
   );
 };

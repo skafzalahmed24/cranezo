@@ -55,7 +55,7 @@ Object.values(swaggerGroups).forEach(({ path: docsPath, title, spec }) => {
 
 // Swagger API Documentation endpoint
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customSiteTitle: 'Cranzo API Documentation | Swagger UI',
+  customSiteTitle: 'Cranezo API Documentation | Swagger UI',
   customCss: '.swagger-ui section.models { display: none !important; }',
   swaggerOptions: {
     persistAuthorization: true,

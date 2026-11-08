@@ -166,64 +166,64 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
   ];
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       {/* Top Greeting & Date Row */}
-      <div className="cranzo-top-greeting-row">
+      <div className="cranezo-top-greeting-row">
         <div>
-          <h2 className="cranzo-greeting-title">
+          <h2 className="cranezo-greeting-title">
             Good morning, Admin <span role="img" aria-label="wave">👋</span>
           </h2>
-          <p className="cranzo-greeting-subtitle">
-            Here's what's happening across Cranzo today.
+          <p className="cranezo-greeting-subtitle">
+            Here's what's happening across Cranezo today.
           </p>
         </div>
 
-        <div className="cranzo-date-pill">
+        <div className="cranezo-date-pill">
           <CalendarDays size={16} color="#f59e0b" />
           <span>Wednesday, 08 Oct 2026</span>
         </div>
       </div>
 
       {/* 8 Metric KPI Cards Grid */}
-      <div className="cranzo-stats-grid-8">
+      <div className="cranezo-stats-grid-8">
         {statCards.map((card) => {
           const IconComponent = card.icon;
           return (
             <div
               key={card.id}
-              className="cranzo-stat-card"
+              className="cranezo-stat-card"
               style={{ cursor: 'pointer' }}
               onClick={() => onNavigate(card.route)}
             >
-              <div className="cranzo-stat-card-left">
-                <div className="cranzo-stat-icon-box">
+              <div className="cranezo-stat-card-left">
+                <div className="cranezo-stat-icon-box">
                   <IconComponent size={20} />
                 </div>
-                <div className="cranzo-stat-info">
-                  <span className="cranzo-stat-label">{card.label}</span>
-                  <span className="cranzo-stat-value">{card.value}</span>
+                <div className="cranezo-stat-info">
+                  <span className="cranezo-stat-label">{card.label}</span>
+                  <span className="cranezo-stat-value">{card.value}</span>
                 </div>
               </div>
-              <span className="cranzo-trend-pill up">{card.trend}</span>
+              <span className="cranezo-trend-pill up">{card.trend}</span>
             </div>
           );
         })}
       </div>
 
       {/* Charts Row (Booking Overview & Revenue Overview) */}
-      <div className="cranzo-charts-row">
+      <div className="cranezo-charts-row">
         {/* Card 1: Booking Overview */}
-        <div className="cranzo-card">
-          <div className="cranzo-card-header">
+        <div className="cranezo-card">
+          <div className="cranezo-card-header">
             <div>
-              <h3 className="cranzo-card-title">Booking Overview</h3>
+              <h3 className="cranezo-card-title">Booking Overview</h3>
             </div>
-            <div className="cranzo-filter-pills-group">
+            <div className="cranezo-filter-pills-group">
               {['Today', '7 Days', '30 Days', '12 Months'].map((pill) => (
                 <button
                   key={pill}
                   type="button"
-                  className={`cranzo-filter-pill-btn ${
+                  className={`cranezo-filter-pill-btn ${
                     bookingFilter === pill ? 'active' : ''
                   }`}
                   onClick={() => setBookingFilter(pill)}
@@ -234,9 +234,9 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
             </div>
           </div>
 
-          <div className="cranzo-chart-wrapper">
+          <div className="cranezo-chart-wrapper">
             <svg
-              className="cranzo-chart-svg"
+              className="cranezo-chart-svg"
               viewBox="0 0 500 180"
               preserveAspectRatio="none"
             >
@@ -253,7 +253,7 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
                     x="25"
                     y={grid.y + 3}
                     textAnchor="end"
-                    className="cranzo-chart-axis-label"
+                    className="cranezo-chart-axis-label"
                   >
                     {grid.label}
                   </text>
@@ -262,7 +262,7 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
                     y1={grid.y}
                     x2="480"
                     y2={grid.y}
-                    className="cranzo-chart-grid-line"
+                    className="cranezo-chart-grid-line"
                   />
                 </g>
               ))}
@@ -283,7 +283,7 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
                       y={y}
                       width={barWidth}
                       height={height}
-                      className="cranzo-chart-bar"
+                      className="cranezo-chart-bar"
                       onMouseEnter={() =>
                         setActiveTooltip({
                           type: 'bar',
@@ -299,7 +299,7 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
                       x={x + barWidth / 2}
                       y="176"
                       textAnchor="middle"
-                      className="cranzo-chart-axis-label"
+                      className="cranezo-chart-axis-label"
                     >
                       {item.day}
                     </text>
@@ -334,17 +334,17 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
         </div>
 
         {/* Card 2: Revenue Overview */}
-        <div className="cranzo-card">
-          <div className="cranzo-card-header">
+        <div className="cranezo-card">
+          <div className="cranezo-card-header">
             <div>
-              <h3 className="cranzo-card-title">Revenue Overview</h3>
+              <h3 className="cranezo-card-title">Revenue Overview</h3>
             </div>
-            <div className="cranzo-filter-pills-group">
+            <div className="cranezo-filter-pills-group">
               {['Today', '7 Days', '30 Days', '12 Months'].map((pill) => (
                 <button
                   key={pill}
                   type="button"
-                  className={`cranzo-filter-pill-btn ${
+                  className={`cranezo-filter-pill-btn ${
                     revenueFilter === pill ? 'active' : ''
                   }`}
                   onClick={() => setRevenueFilter(pill)}
@@ -355,9 +355,9 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
             </div>
           </div>
 
-          <div className="cranzo-chart-wrapper">
+          <div className="cranezo-chart-wrapper">
             <svg
-              className="cranzo-chart-svg"
+              className="cranezo-chart-svg"
               viewBox="0 0 500 180"
               preserveAspectRatio="none"
             >
@@ -385,7 +385,7 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
                     x="25"
                     y={grid.y + 3}
                     textAnchor="end"
-                    className="cranzo-chart-axis-label"
+                    className="cranezo-chart-axis-label"
                   >
                     {grid.label}
                   </text>
@@ -394,7 +394,7 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
                     y1={grid.y}
                     x2="480"
                     y2={grid.y}
-                    className="cranzo-chart-grid-line"
+                    className="cranezo-chart-grid-line"
                   />
                 </g>
               ))}
@@ -433,7 +433,7 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
                           cx={pt.x}
                           cy={pt.y}
                           r="4"
-                          className="cranzo-chart-dot"
+                          className="cranezo-chart-dot"
                           onMouseEnter={() =>
                             setActiveTooltip({
                               type: 'line',
@@ -449,7 +449,7 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
                           x={pt.x}
                           y="176"
                           textAnchor="middle"
-                          className="cranzo-chart-axis-label"
+                          className="cranezo-chart-axis-label"
                         >
                           {pt.day}
                         </text>
@@ -487,20 +487,20 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
       </div>
 
       {/* Recent Bookings Table Card */}
-      <div className="cranzo-card" style={{ width: '100%', boxSizing: 'border-box' }}>
-        <div className="cranzo-card-header">
-          <h3 className="cranzo-card-title">Recent Bookings</h3>
+      <div className="cranezo-card" style={{ width: '100%', boxSizing: 'border-box' }}>
+        <div className="cranezo-card-header">
+          <h3 className="cranezo-card-title">Recent Bookings</h3>
           <button
             type="button"
-            className="cranzo-action-link"
+            className="cranezo-action-link"
             onClick={() => onNavigate('bookings')}
           >
             View All
           </button>
         </div>
 
-        <div className="cranzo-table-container">
-          <table className="cranzo-table" style={{ width: '100%' }}>
+        <div className="cranezo-table-container">
+          <table className="cranezo-table" style={{ width: '100%' }}>
             <thead>
               <tr>
                 <th style={{ minWidth: '110px' }}>BOOKING ID</th>
@@ -516,10 +516,10 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
             <tbody>
               {recentBookings.map((row) => (
                 <tr key={row.id}>
-                  <td className="cranzo-booking-id">{row.id}</td>
+                  <td className="cranezo-booking-id">{row.id}</td>
                   <td>
                     <span
-                      className="cranzo-link-text"
+                      className="cranezo-link-text"
                       onClick={() => onSelectUser(row.userId)}
                     >
                       {row.customer}
@@ -532,14 +532,14 @@ export const DashboardOverview = ({ onNavigate, onSelectUser }) => {
                     {row.amount}
                   </td>
                   <td>
-                    <span className={`cranzo-status-badge ${row.statusClass}`}>
+                    <span className={`cranezo-status-badge ${row.statusClass}`}>
                       {row.status}
                     </span>
                   </td>
                   <td style={{ textAlign: 'center' }}>
                     <button
                       type="button"
-                      className="cranzo-action-btn"
+                      className="cranezo-action-btn"
                       title="More options"
                       onClick={() => onSelectUser(row.userId)}
                     >

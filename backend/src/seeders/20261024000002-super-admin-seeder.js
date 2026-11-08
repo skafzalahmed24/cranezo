@@ -16,7 +16,7 @@ module.exports = {
         {
           id: adminId,
           name: process.env.SUPER_ADMIN_NAME || 'Super Admin',
-          email: (process.env.SUPER_ADMIN_EMAIL || 'superadmin@cranzo.com').toLowerCase(),
+          email: (process.env.SUPER_ADMIN_EMAIL || 'superadmin@cranezo.com').toLowerCase(),
           password: hashedPassword,
           role_id: 4, // 4 for Super Admin
           is_active: true,
@@ -28,6 +28,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('admins', { email: 'superadmin@cranzo.com' }, {});
+    await queryInterface.bulkDelete('admins', { email: 'superadmin@cranezo.com' }, {});
   }
 };

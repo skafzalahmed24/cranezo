@@ -234,20 +234,20 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
   ];
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       {/* Top Header & Actions Row */}
-      <div className="cranzo-users-header-row">
+      <div className="cranezo-users-header-row">
         <div>
-          <h2 className="cranzo-greeting-title">Users</h2>
-          <p className="cranzo-greeting-subtitle">
-            Manage and monitor all customers registered on Cranzo.
+          <h2 className="cranezo-greeting-title">Users</h2>
+          <p className="cranezo-greeting-subtitle">
+            Manage and monitor all customers registered on Cranezo.
           </p>
         </div>
 
-        <div className="cranzo-header-actions-group">
+        <div className="cranezo-header-actions-group">
           <button
             type="button"
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             onClick={() => alert('Exporting user report as CSV/Excel...')}
           >
             <Download size={15} />
@@ -255,7 +255,7 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
           </button>
           <button
             type="button"
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             onClick={() => {}}
           >
             <Filter size={15} />
@@ -263,7 +263,7 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
           </button>
           <button
             type="button"
-            className="cranzo-btn-primary-amber"
+            className="cranezo-btn-primary-amber"
             onClick={onAddUserClick}
           >
             <Plus size={16} strokeWidth={2.5} />
@@ -273,21 +273,21 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
       </div>
 
       {/* 4 KPI Cards */}
-      <div className="cranzo-stats-grid-4">
+      <div className="cranezo-stats-grid-4">
         {statCards.map((card, idx) => {
           const IconComponent = card.icon;
           return (
-            <div key={idx} className="cranzo-stat-card">
-              <div className="cranzo-stat-card-left">
-                <div className={`cranzo-stat-icon-box ${card.boxClass}`}>
+            <div key={idx} className="cranezo-stat-card">
+              <div className="cranezo-stat-card-left">
+                <div className={`cranezo-stat-icon-box ${card.boxClass}`}>
                   <IconComponent size={20} />
                 </div>
-                <div className="cranzo-stat-info">
-                  <span className="cranzo-stat-label">{card.label}</span>
-                  <span className="cranzo-stat-value">{card.value}</span>
+                <div className="cranezo-stat-info">
+                  <span className="cranezo-stat-label">{card.label}</span>
+                  <span className="cranezo-stat-value">{card.value}</span>
                 </div>
               </div>
-              <span className={`cranzo-trend-pill ${card.trendType}`}>
+              <span className={`cranezo-trend-pill ${card.trendType}`}>
                 {card.trend}
               </span>
             </div>
@@ -296,12 +296,12 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
       </div>
 
       {/* Search & Filter Toolbar */}
-      <div className="cranzo-filter-toolbar">
-        <div className="cranzo-filter-search-box">
+      <div className="cranezo-filter-toolbar">
+        <div className="cranezo-filter-search-box">
           <Search size={15} />
           <input
             type="text"
-            className="cranzo-filter-search-input"
+            className="cranezo-filter-search-input"
             placeholder="Search by name, email or phone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -309,7 +309,7 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
         </div>
 
         <select
-          className="cranzo-select-dropdown"
+          className="cranezo-select-dropdown"
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value)}
         >
@@ -319,7 +319,7 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
         </select>
 
         <select
-          className="cranzo-select-dropdown"
+          className="cranezo-select-dropdown"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
         >
@@ -329,7 +329,7 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
         </select>
 
         <select
-          className="cranzo-select-dropdown"
+          className="cranezo-select-dropdown"
           value={selectedLocation}
           onChange={(e) => setSelectedLocation(e.target.value)}
         >
@@ -345,7 +345,7 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
         </select>
 
         <select
-          className="cranzo-select-dropdown"
+          className="cranezo-select-dropdown"
           value={selectedActivity}
           onChange={(e) => setSelectedActivity(e.target.value)}
         >
@@ -357,7 +357,7 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
 
         <button
           type="button"
-          className="cranzo-filter-reset"
+          className="cranezo-filter-reset"
           onClick={resetFilters}
         >
           Reset
@@ -365,9 +365,9 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
       </div>
 
       {/* Users Table Card */}
-      <div className="cranzo-card" style={{ padding: '8px 16px 16px 16px', width: '100%', boxSizing: 'border-box' }}>
-        <div className="cranzo-table-container">
-          <table className="cranzo-table" style={{ width: '100%' }}>
+      <div className="cranezo-card" style={{ padding: '8px 16px 16px 16px', width: '100%', boxSizing: 'border-box' }}>
+        <div className="cranezo-table-container">
+          <table className="cranezo-table" style={{ width: '100%' }}>
             <thead>
               <tr>
                 <th style={{ width: '40px' }}>
@@ -420,11 +420,11 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
                     </td>
                     <td style={{ color: '#64748b' }}>{user.id}</td>
                     <td>
-                      <div className="cranzo-user-cell">
-                        <div className="cranzo-table-avatar">{initials}</div>
+                      <div className="cranezo-user-cell">
+                        <div className="cranezo-table-avatar">{initials}</div>
                         <div>
                           <span
-                            className="cranzo-link-text"
+                            className="cranezo-link-text"
                             onClick={() => onSelectUser(user.userId)}
                           >
                             {user.name}
@@ -442,7 +442,7 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
                     </td>
                     <td>{user.joined}</td>
                     <td>
-                      <span className={`cranzo-status-badge ${user.statusClass}`}>
+                      <span className={`cranezo-status-badge ${user.statusClass}`}>
                         {user.status}
                       </span>
                     </td>
@@ -456,7 +456,7 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
                       >
                         <button
                           type="button"
-                          className="cranzo-action-btn"
+                          className="cranezo-action-btn"
                           title="View Details"
                           onClick={() => onSelectUser(user.userId)}
                         >
@@ -464,7 +464,7 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
                         </button>
                         <button
                           type="button"
-                          className="cranzo-action-btn"
+                          className="cranezo-action-btn"
                           title="Edit User"
                           onClick={() =>
                             alert(`Editing user: ${user.name} (${user.userId})`)
@@ -482,15 +482,15 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
         </div>
 
         {/* Pagination Bar */}
-        <div className="cranzo-pagination-bar">
-          <span className="cranzo-pagination-text">
+        <div className="cranezo-pagination-bar">
+          <span className="cranezo-pagination-text">
             Showing 1 to {filteredUsers.length} of 2,458 users
           </span>
 
-          <div className="cranzo-pagination-controls">
+          <div className="cranezo-pagination-controls">
             <button
               type="button"
-              className={`cranzo-page-btn ${currentPage === 1 ? 'disabled' : ''}`}
+              className={`cranezo-page-btn ${currentPage === 1 ? 'disabled' : ''}`}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
             >
@@ -498,35 +498,35 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
             </button>
             <button
               type="button"
-              className={`cranzo-page-btn ${currentPage === 1 ? 'active' : ''}`}
+              className={`cranezo-page-btn ${currentPage === 1 ? 'active' : ''}`}
               onClick={() => setCurrentPage(1)}
             >
               1
             </button>
             <button
               type="button"
-              className={`cranzo-page-btn ${currentPage === 2 ? 'active' : ''}`}
+              className={`cranezo-page-btn ${currentPage === 2 ? 'active' : ''}`}
               onClick={() => setCurrentPage(2)}
             >
               2
             </button>
             <button
               type="button"
-              className={`cranzo-page-btn ${currentPage === 3 ? 'active' : ''}`}
+              className={`cranezo-page-btn ${currentPage === 3 ? 'active' : ''}`}
               onClick={() => setCurrentPage(3)}
             >
               3
             </button>
             <button
               type="button"
-              className={`cranzo-page-btn ${currentPage === 4 ? 'active' : ''}`}
+              className={`cranezo-page-btn ${currentPage === 4 ? 'active' : ''}`}
               onClick={() => setCurrentPage(4)}
             >
               4
             </button>
             <button
               type="button"
-              className={`cranzo-page-btn ${currentPage === 5 ? 'active' : ''}`}
+              className={`cranezo-page-btn ${currentPage === 5 ? 'active' : ''}`}
               onClick={() => setCurrentPage(5)}
             >
               5
@@ -536,14 +536,14 @@ export const UsersList = ({ onSelectUser, onAddUserClick, customUsers = [] }) =>
             </span>
             <button
               type="button"
-              className="cranzo-page-btn"
+              className="cranezo-page-btn"
               onClick={() => setCurrentPage(246)}
             >
               246
             </button>
             <button
               type="button"
-              className="cranzo-page-btn"
+              className="cranezo-page-btn"
               onClick={() => setCurrentPage((p) => p + 1)}
             >
               <ChevronRight size={14} />

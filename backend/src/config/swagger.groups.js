@@ -4,19 +4,19 @@ const fullSpec = require('./swagger');
 const GROUPS = {
   auth: {
     path: '/api/docs/auth',
-    title: 'Cranzo Authentication API',
+    title: 'Cranezo Authentication API',
     description: 'Login, OTP, token refresh and session endpoints.',
     tags: ['System', 'Authentication']
   },
   admin: {
     path: '/api/docs/admin',
-    title: 'Cranzo Admin API',
+    title: 'Cranezo Admin API',
     description: 'Admin dashboard, crane approvals and settings (dropdown management). Requires an admin Bearer token.',
     tags: ['Admin', 'Admin Crane Approvals', 'Admin Members', 'Admin Banners', 'Admin Support', 'Admin Legal Pages', 'Admin Settings']
   },
   user: {
     path: '/api/docs/user',
-    title: 'Cranzo User API',
+    title: 'Cranezo User API',
     description: 'Endpoints used by the mobile apps (Crane Owner, Operator, Customer): my profile, settings, crane management, dropdowns, roles and uploads.',
     tags: ['Home', 'Help & Support', 'Book a Crane', 'Crane Requests', 'Owner Jobs', 'Owner Earnings', 'Operator Jobs', 'Operator Earnings', 'Notifications', 'My Profile', 'App Content', 'Operator', 'Owner Cranes', 'Dropdowns & Metadata', 'Roles', 'File Upload']
   }

@@ -1,7 +1,7 @@
 {
-  "name": "cranzo-backend",
+  "name": "cranezo-backend",
   "version": "1.0.0",
-  "description": "Cranzo Heavy Lifting & Crane Dispatch Platform API",
+  "description": "Cranezo Heavy Lifting & Crane Dispatch Platform API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -18,14 +18,14 @@
     "push:test": "node scripts/push-test.js"
   },
   "keywords": [
-    "cranzo",
+    "cranezo",
     "express",
     "sequelize",
     "postgresql",
     "heavy-machinery",
     "crane-dispatch"
   ],
-  "author": "Cranzo Team",
+  "author": "Cranezo Team",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -53,7 +53,7 @@ export const AppVersions = () => {
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader
         title="App Versions"
         subtitle="Force update for the Android app. Use the version name of the app (for example 1.0.4), not the build number. Only the Super Admin can change this."
@@ -89,7 +89,7 @@ export const AppVersions = () => {
           </div>
         </div>
         <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 14 }}>
-          <button type="button" className="cranzo-btn-primary" onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save'}</button>
+          <button type="button" className="cranezo-btn-primary" onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save'}</button>
           {updatedAt ? <span style={{ ...muted, fontSize: 12 }}>Last saved {when(updatedAt)}</span> : null}
         </div>
       </Section>

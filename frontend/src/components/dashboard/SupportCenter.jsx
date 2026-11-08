@@ -44,7 +44,7 @@ const ago = (value) => {
 };
 const when = (value) => (value ? new Date(value).toLocaleString('en-IN') : '-');
 
-const Badge = ({ status, text }) => <span className={`cranzo-status-badge ${STATUS_CLASS[status] || 'pending'}`}>{text}</span>;
+const Badge = ({ status, text }) => <span className={`cranezo-status-badge ${STATUS_CLASS[status] || 'pending'}`}>{text}</span>;
 
 // ------------------------------------------------------------------ ticket detail
 
@@ -108,7 +108,7 @@ const TicketDetail = ({ ticketId, onClose, onChanged }) => {
 
   return (
     <div
-      className="cranzo-modal-backdrop"
+      className="cranezo-modal-backdrop"
       onClick={(e) => e.target === e.currentTarget && onClose()}
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
@@ -121,7 +121,7 @@ const TicketDetail = ({ ticketId, onClose, onChanged }) => {
               {ticket.priority}
             </span>
           )}
-          <button type="button" className="cranzo-modal-close-icon-btn" onClick={onClose} style={{ marginLeft: 'auto' }} title="Close">
+          <button type="button" className="cranezo-modal-close-icon-btn" onClick={onClose} style={{ marginLeft: 'auto' }} title="Close">
             <X size={16} />
           </button>
         </div>
@@ -175,7 +175,7 @@ const TicketDetail = ({ ticketId, onClose, onChanged }) => {
                     onChange={(e) => setReply(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send(); }}
                   />
-                  <button type="button" className="cranzo-btn-primary-amber" disabled={busy || ticket.status === 3 || !reply.trim()} onClick={send}>
+                  <button type="button" className="cranezo-btn-primary-amber" disabled={busy || ticket.status === 3 || !reply.trim()} onClick={send}>
                     <Send size={14} /> Send
                   </button>
                 </div>
@@ -208,7 +208,7 @@ const TicketDetail = ({ ticketId, onClose, onChanged }) => {
               )}
 
               <div style={{ ...label, marginTop: '14px' }}>Status</div>
-              <select className="cranzo-select-dropdown" style={{ width: '100%' }} value={ticket.status} disabled={busy} onChange={(e) => update({ status: Number(e.target.value) })}>
+              <select className="cranezo-select-dropdown" style={{ width: '100%' }} value={ticket.status} disabled={busy} onChange={(e) => update({ status: Number(e.target.value) })}>
                 <option value={0}>Open</option>
                 <option value={1}>In Progress</option>
                 <option value={2}>Resolved</option>
@@ -216,7 +216,7 @@ const TicketDetail = ({ ticketId, onClose, onChanged }) => {
               </select>
 
               <div style={{ ...label, marginTop: '12px' }}>Priority</div>
-              <select className="cranzo-select-dropdown" style={{ width: '100%' }} value={ticket.priority} disabled={busy} onChange={(e) => update({ priority: e.target.value })}>
+              <select className="cranezo-select-dropdown" style={{ width: '100%' }} value={ticket.priority} disabled={busy} onChange={(e) => update({ priority: e.target.value })}>
                 <option value="normal">Normal</option>
                 <option value="high">High</option>
                 <option value="urgent">Urgent</option>
@@ -224,7 +224,7 @@ const TicketDetail = ({ ticketId, onClose, onChanged }) => {
 
               <div style={{ ...label, marginTop: '12px' }}>Assigned to</div>
               <div style={{ marginBottom: '8px' }}>{ticket.assignee ? ticket.assignee.name : 'Nobody yet'}</div>
-              <button type="button" className="cranzo-btn-secondary" disabled={busy} onClick={() => update({ assign_to_me: true })}>
+              <button type="button" className="cranezo-btn-secondary" disabled={busy} onClick={() => update({ assign_to_me: true })}>
                 <UserCheck size={14} /> Assign to me
               </button>
 
@@ -315,7 +315,7 @@ const TicketsTab = ({ onChanged }) => {
           <button
             key={text}
             type="button"
-            className={status === value ? 'cranzo-btn-primary-amber' : 'cranzo-btn-secondary'}
+            className={status === value ? 'cranezo-btn-primary-amber' : 'cranezo-btn-secondary'}
             onClick={() => { setStatus(value); setPage(1); }}
           >
             {text}
@@ -323,18 +323,18 @@ const TicketsTab = ({ onChanged }) => {
         ))}
       </div>
 
-      <div className="cranzo-filter-toolbar">
-        <div className="cranzo-filter-search-box">
+      <div className="cranezo-filter-toolbar">
+        <div className="cranezo-filter-search-box">
           <Search size={15} />
           <input
             type="text"
-            className="cranzo-filter-search-input"
+            className="cranezo-filter-search-input"
             placeholder="Search code, subject, name, mobile..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
-        <select className="cranzo-select-dropdown" value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }}>
+        <select className="cranezo-select-dropdown" value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }}>
           <option value="">All categories</option>
           <option value="emergency">Emergency</option>
           <option value="chat">Chat</option>
@@ -343,13 +343,13 @@ const TicketsTab = ({ onChanged }) => {
           <option value="payment_help">Payment Help</option>
           <option value="general">General</option>
         </select>
-        <select className="cranzo-select-dropdown" value={priority} onChange={(e) => { setPriority(e.target.value); setPage(1); }}>
+        <select className="cranezo-select-dropdown" value={priority} onChange={(e) => { setPriority(e.target.value); setPage(1); }}>
           <option value="">Any priority</option>
           <option value="urgent">Urgent</option>
           <option value="high">High</option>
           <option value="normal">Normal</option>
         </select>
-        <select className="cranzo-select-dropdown" value={role} onChange={(e) => { setRole(e.target.value); setPage(1); }}>
+        <select className="cranezo-select-dropdown" value={role} onChange={(e) => { setRole(e.target.value); setPage(1); }}>
           <option value="">All users</option>
           <option value="3">Customers</option>
           <option value="2">Operators</option>
@@ -360,8 +360,8 @@ const TicketsTab = ({ onChanged }) => {
       {error && <div style={{ ...card, color: '#ef4444', marginBottom: '12px' }}>{error}</div>}
 
       <div style={{ ...card, padding: '8px' }}>
-        <div className="cranzo-table-container">
-          <table className="cranzo-table">
+        <div className="cranezo-table-container">
+          <table className="cranezo-table">
             <thead>
               <tr>
                 <th>REQUEST</th>
@@ -377,7 +377,7 @@ const TicketsTab = ({ onChanged }) => {
               {rows.map((t) => (
                 <tr key={t.ticket_id} style={{ cursor: 'pointer' }} onClick={() => setOpenId(t.ticket_id)}>
                   <td>
-                    <span className="cranzo-booking-id highlight">{t.ticket_code}</span>
+                    <span className="cranezo-booking-id highlight">{t.ticket_code}</span>
                     {t.unread_from_user > 0 && (
                       <span style={{ marginLeft: 6, background: '#ef4444', color: '#fff', borderRadius: 999, padding: '1px 7px', fontSize: 11 }}>
                         {t.unread_from_user}
@@ -403,11 +403,11 @@ const TicketsTab = ({ onChanged }) => {
             </tbody>
           </table>
         </div>
-        <div className="cranzo-pagination-bar">
-          <span className="cranzo-pagination-text">{total} request(s) · page {page} of {totalPages}</span>
-          <div className="cranzo-pagination-controls">
-            <button type="button" className="cranzo-btn-secondary" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button>
-            <button type="button" className="cranzo-btn-secondary" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Next</button>
+        <div className="cranezo-pagination-bar">
+          <span className="cranezo-pagination-text">{total} request(s) · page {page} of {totalPages}</span>
+          <div className="cranezo-pagination-controls">
+            <button type="button" className="cranezo-btn-secondary" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button>
+            <button type="button" className="cranezo-btn-secondary" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Next</button>
           </div>
         </div>
       </div>
@@ -487,18 +487,18 @@ const FaqsTab = () => {
     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
       <div style={{ ...card, width: '260px', flexShrink: 0 }}>
         <div style={label}>Categories</div>
-        <button type="button" className={`cranzo-nav-item ${categoryId === '' ? 'active' : ''}`} style={{ width: '100%' }} onClick={() => setCategoryId('')}>
+        <button type="button" className={`cranezo-nav-item ${categoryId === '' ? 'active' : ''}`} style={{ width: '100%' }} onClick={() => setCategoryId('')}>
           <span>All FAQs</span>
         </button>
         {categories.map((c) => (
           <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 4, opacity: c.is_active ? 1 : 0.5 }}>
-            <button type="button" className={`cranzo-nav-item ${String(categoryId) === String(c.id) ? 'active' : ''}`} style={{ flex: 1, justifyContent: 'space-between' }} onClick={() => setCategoryId(String(c.id))}>
+            <button type="button" className={`cranezo-nav-item ${String(categoryId) === String(c.id) ? 'active' : ''}`} style={{ flex: 1, justifyContent: 'space-between' }} onClick={() => setCategoryId(String(c.id))}>
               <span>{c.name}</span>
               <span style={{ fontSize: 11, opacity: 0.7 }}>{c.faq_count}</span>
             </button>
             <button
               type="button"
-              className="cranzo-action-btn"
+              className="cranezo-action-btn"
               title={c.is_active ? 'Hide category' : 'Show category'}
               onClick={() => run(() => apiRequest(`/admin/support/faq-categories/${c.id}`, { method: 'PUT', body: { is_active: !c.is_active } }))}
             >
@@ -510,14 +510,14 @@ const FaqsTab = () => {
           <div style={label}>Add category</div>
           <input style={{ ...input, marginBottom: 6 }} placeholder="code (e.g. safety)" value={newCategory.code} onChange={(e) => setNewCategory({ ...newCategory, code: e.target.value })} />
           <input style={{ ...input, marginBottom: 6 }} placeholder="Name" value={newCategory.name} onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })} />
-          <button type="submit" className="cranzo-btn-secondary"><Plus size={14} /> Add</button>
+          <button type="submit" className="cranezo-btn-secondary"><Plus size={14} /> Add</button>
         </form>
       </div>
 
       <div style={{ flex: 1, minWidth: '340px' }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
           <input style={{ ...input, flex: 1, minWidth: 200 }} placeholder="Search questions and answers..." value={search} onChange={(e) => setSearch(e.target.value)} />
-          <button type="button" className="cranzo-btn-primary-amber" onClick={() => setEditing({ ...emptyFaq, category_id: categoryId || (categories[0] ? categories[0].id : '') })}>
+          <button type="button" className="cranezo-btn-primary-amber" onClick={() => setEditing({ ...emptyFaq, category_id: categoryId || (categories[0] ? categories[0].id : '') })}>
             <Plus size={14} /> Add FAQ
           </button>
         </div>
@@ -528,13 +528,13 @@ const FaqsTab = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
               <div>
                 <label style={label}>Category</label>
-                <select className="cranzo-select-dropdown" style={{ width: '100%' }} value={editing.category_id} onChange={(e) => setEditing({ ...editing, category_id: e.target.value })}>
+                <select className="cranezo-select-dropdown" style={{ width: '100%' }} value={editing.category_id} onChange={(e) => setEditing({ ...editing, category_id: e.target.value })}>
                   {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
               <div>
                 <label style={label}>Who sees it</label>
-                <select className="cranzo-select-dropdown" style={{ width: '100%' }} value={editing.audience} onChange={(e) => setEditing({ ...editing, audience: e.target.value })}>
+                <select className="cranezo-select-dropdown" style={{ width: '100%' }} value={editing.audience} onChange={(e) => setEditing({ ...editing, audience: e.target.value })}>
                   <option value="all">Everyone</option>
                   <option value="customer">Customers</option>
                   <option value="operator">Operators</option>
@@ -550,8 +550,8 @@ const FaqsTab = () => {
               <label style={{ display: 'flex', gap: 6, alignItems: 'center', color: 'var(--dash-text-body)', fontSize: 13 }}>
                 <input type="checkbox" checked={editing.is_active} onChange={(e) => setEditing({ ...editing, is_active: e.target.checked })} /> Visible in the apps
               </label>
-              <button type="button" className="cranzo-btn-primary-amber" style={{ marginLeft: 'auto' }} onClick={saveFaq}>Save</button>
-              <button type="button" className="cranzo-btn-secondary" onClick={() => setEditing(null)}>Cancel</button>
+              <button type="button" className="cranezo-btn-primary-amber" style={{ marginLeft: 'auto' }} onClick={saveFaq}>Save</button>
+              <button type="button" className="cranezo-btn-secondary" onClick={() => setEditing(null)}>Cancel</button>
             </div>
           </div>
         )}
@@ -567,7 +567,7 @@ const FaqsTab = () => {
                 </div>
                 <div style={{ fontSize: 13, color: 'var(--dash-text-body)', whiteSpace: 'pre-wrap' }}>{f.answer}</div>
               </div>
-              <button type="button" className="cranzo-action-btn" title="Edit" onClick={() => setEditing({ ...f })}><Pencil size={14} /></button>
+              <button type="button" className="cranezo-action-btn" title="Edit" onClick={() => setEditing({ ...f })}><Pencil size={14} /></button>
             </div>
           </div>
         ))}
@@ -629,7 +629,7 @@ const SettingsTab = () => {
       {field('hours_label', 'Support hours label', 'For example 24/7.')}
       {field('team_message', 'Support team message', 'The line under "Our Support Team is Available".')}
       {field('chat_welcome', 'Chat welcome message', 'The first message of every new chat.')}
-      <button type="button" className="cranzo-btn-primary-amber" onClick={save}>Save settings</button>
+      <button type="button" className="cranezo-btn-primary-amber" onClick={save}>Save settings</button>
     </div>
   );
 };
@@ -645,16 +645,16 @@ export const SupportCenter = ({ onChanged = () => {} }) => {
   ];
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
-      <div className="cranzo-users-header-row">
+    <div className="cranezo-content-view animate-fade-in">
+      <div className="cranezo-users-header-row">
         <div>
-          <h2 className="cranzo-greeting-title">Support</h2>
-          <p className="cranzo-greeting-subtitle">Answer requests from customers, operators and owners, and manage Help &amp; Support content.</p>
+          <h2 className="cranezo-greeting-title">Support</h2>
+          <p className="cranezo-greeting-subtitle">Answer requests from customers, operators and owners, and manage Help &amp; Support content.</p>
         </div>
       </div>
       <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
         {tabs.map(([id, text]) => (
-          <button key={id} type="button" className={tab === id ? 'cranzo-btn-primary-amber' : 'cranzo-btn-secondary'} onClick={() => setTab(id)}>
+          <button key={id} type="button" className={tab === id ? 'cranezo-btn-primary-amber' : 'cranezo-btn-secondary'} onClick={() => setTab(id)}>
             {text}
           </button>
         ))}

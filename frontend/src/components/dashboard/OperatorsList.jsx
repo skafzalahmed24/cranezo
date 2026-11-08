@@ -247,7 +247,7 @@ export const OperatorsList = ({ onSelectOperator }) => {
   };
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       {/* Top Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
         <div>
@@ -262,7 +262,7 @@ export const OperatorsList = ({ onSelectOperator }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <button
             type="button"
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             style={{ height: '38px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <Download size={14} />
@@ -270,7 +270,7 @@ export const OperatorsList = ({ onSelectOperator }) => {
           </button>
           <button
             type="button"
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             style={{ height: '38px', padding: '0 14px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <Filter size={14} />
@@ -278,7 +278,7 @@ export const OperatorsList = ({ onSelectOperator }) => {
           </button>
           <button
             type="button"
-            className="cranzo-btn-primary-amber"
+            className="cranezo-btn-primary-amber"
             style={{ height: '38px', padding: '0 16px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <Plus size={16} />
@@ -288,18 +288,18 @@ export const OperatorsList = ({ onSelectOperator }) => {
       </div>
 
       {/* 4 Stat Cards */}
-      <div className="cranzo-stats-grid-4">
+      <div className="cranezo-stats-grid-4">
         {statCards.map((card) => {
           const IconComponent = card.icon;
           return (
-            <div key={card.id} className="cranzo-stat-card">
-              <div className="cranzo-stat-card-left">
-                <div className={`cranzo-stat-icon-box ${card.color}`}>
+            <div key={card.id} className="cranezo-stat-card">
+              <div className="cranezo-stat-card-left">
+                <div className={`cranezo-stat-icon-box ${card.color}`}>
                   <IconComponent size={20} />
                 </div>
-                <div className="cranzo-stat-info">
-                  <span className="cranzo-stat-label">{card.label}</span>
-                  <span className="cranzo-stat-value">{card.value}</span>
+                <div className="cranezo-stat-info">
+                  <span className="cranezo-stat-label">{card.label}</span>
+                  <span className="cranezo-stat-value">{card.value}</span>
                 </div>
               </div>
               <div
@@ -322,7 +322,7 @@ export const OperatorsList = ({ onSelectOperator }) => {
 
       {/* Filter Row */}
       <div
-        className="cranzo-card"
+        className="cranezo-card"
         style={{
           padding: '16px 20px',
           display: 'flex',
@@ -490,9 +490,9 @@ export const OperatorsList = ({ onSelectOperator }) => {
       </div>
 
       {/* Operators Table */}
-      <div className="cranzo-card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="cranezo-card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
-          <table className="cranzo-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="cranezo-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 <th style={{ width: '40px', padding: '14px 12px 14px 18px' }}>
@@ -674,7 +674,7 @@ export const OperatorsList = ({ onSelectOperator }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <button
               type="button"
-              className="cranzo-action-btn"
+              className="cranezo-action-btn"
               disabled={currentPage === 1}
               style={{ width: '28px', height: '28px' }}
             >
@@ -774,7 +774,7 @@ export const OperatorsList = ({ onSelectOperator }) => {
             </button>
             <button
               type="button"
-              className="cranzo-action-btn"
+              className="cranezo-action-btn"
               style={{ width: '28px', height: '28px' }}
             >
               <ChevronRight size={14} />

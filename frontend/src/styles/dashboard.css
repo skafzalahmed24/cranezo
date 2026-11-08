@@ -1,12 +1,12 @@
 /* ==========================================================================
-   CRANZO ADMIN DASHBOARD DESIGN SYSTEM (PURE CSS)
+   CRANEZO ADMIN DASHBOARD DESIGN SYSTEM (PURE CSS)
    Complete Dark & Light Mode, Fixed Sidebar, Full-Width Table & Mobile Support
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
    Theme Variables
    -------------------------------------------------------------------------- */
-.cranzo-admin-layout[data-theme='dark'] {
+.cranezo-admin-layout[data-theme='dark'] {
   --dash-bg: #050a15;
   --dash-surface: #070d1d;
   --dash-card: #080f20;
@@ -28,7 +28,7 @@
   --dash-dropdown-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
-.cranzo-admin-layout[data-theme='light'] {
+.cranezo-admin-layout[data-theme='light'] {
   --dash-bg: #f4f6fa;
   --dash-surface: #ffffff;
   --dash-card: #ffffff;
@@ -51,7 +51,7 @@
 }
 
 /* Overall Dashboard Container */
-.cranzo-admin-layout {
+.cranezo-admin-layout {
   display: flex;
   min-height: 100vh;
   width: 100%;
@@ -64,7 +64,7 @@
 }
 
 /* Enforce cards inside admin dashboard span 100% full width */
-.cranzo-admin-layout .cranzo-card {
+.cranezo-admin-layout .cranezo-card {
   max-width: 100% !important;
   width: 100% !important;
   background: var(--dash-card);
@@ -80,7 +80,7 @@
 /* --------------------------------------------------------------------------
    Fixed Sidebar
    -------------------------------------------------------------------------- */
-.cranzo-sidebar {
+.cranezo-sidebar {
   width: 250px;
   min-width: 250px;
   background-color: var(--dash-surface);
@@ -96,7 +96,7 @@
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s ease, border-color 0.25s ease;
 }
 
-.cranzo-sidebar-brand {
+.cranezo-sidebar-brand {
   padding: 20px 20px 18px 20px;
   display: flex;
   align-items: center;
@@ -104,13 +104,13 @@
   border-bottom: 1px solid var(--dash-border-subtle);
 }
 
-.cranzo-sidebar-brand img {
+.cranezo-sidebar-brand img {
   height: 32px;
   width: auto;
   object-fit: contain;
 }
 
-.cranzo-mobile-close-btn {
+.cranezo-mobile-close-btn {
   display: none;
   background: transparent;
   border: none;
@@ -120,12 +120,12 @@
   border-radius: 6px;
 }
 
-.cranzo-mobile-close-btn:hover {
+.cranezo-mobile-close-btn:hover {
   color: var(--dash-text-title);
   background: var(--dash-table-hover);
 }
 
-.cranzo-sidebar-nav {
+.cranezo-sidebar-nav {
   flex: 1;
   overflow-y: auto;
   padding: 16px 14px;
@@ -134,15 +134,15 @@
   gap: 16px;
 }
 
-.cranzo-sidebar-nav::-webkit-scrollbar {
+.cranezo-sidebar-nav::-webkit-scrollbar {
   width: 4px;
 }
-.cranzo-sidebar-nav::-webkit-scrollbar-thumb {
+.cranezo-sidebar-nav::-webkit-scrollbar-thumb {
   background: var(--dash-border);
   border-radius: 4px;
 }
 
-.cranzo-nav-section-title {
+.cranezo-nav-section-title {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -151,7 +151,7 @@
   padding: 0 10px 4px 10px;
 }
 
-.cranzo-nav-list {
+.cranezo-nav-list {
   list-style: none;
   display: flex;
   flex-direction: column;
@@ -160,7 +160,7 @@
   padding: 0;
 }
 
-.cranzo-nav-item {
+.cranezo-nav-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -178,12 +178,12 @@
   text-align: left;
 }
 
-.cranzo-nav-item:hover {
+.cranezo-nav-item:hover {
   color: var(--dash-text-title);
   background: var(--dash-table-hover);
 }
 
-.cranzo-nav-item.active {
+.cranezo-nav-item.active {
   color: #f59e0b;
   background: rgba(245, 158, 11, 0.1);
   border: 1px solid rgba(245, 158, 11, 0.45);
@@ -191,12 +191,12 @@
   font-weight: 600;
 }
 
-.cranzo-nav-item.active svg {
+.cranezo-nav-item.active svg {
   color: #f59e0b;
 }
 
 /* Pending-count pill on a sidebar item (e.g. Crane Approvals) */
-.cranzo-nav-badge {
+.cranezo-nav-badge {
   margin-left: auto;
   min-width: 20px;
   height: 20px;
@@ -209,36 +209,36 @@
   line-height: 20px;
   text-align: center;
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.55);
-  animation: cranzo-badge-pulse 2s ease-in-out infinite;
+  animation: cranezo-badge-pulse 2s ease-in-out infinite;
 }
 
-.cranzo-nav-badge.danger {
+.cranezo-nav-badge.danger {
   background: #ef4444;
   color: #ffffff;
   box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
 }
 
-@keyframes cranzo-badge-pulse {
+@keyframes cranezo-badge-pulse {
   0%, 100% { box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
   50% { box-shadow: 0 0 14px rgba(245, 158, 11, 0.85); }
 }
 
-.cranzo-sidebar-footer {
+.cranezo-sidebar-footer {
   padding: 14px;
   border-top: 1px solid var(--dash-border);
 }
 
-.cranzo-nav-item-logout {
+.cranezo-nav-item-logout {
   color: var(--dash-text-muted);
 }
 
-.cranzo-nav-item-logout:hover {
+.cranezo-nav-item-logout:hover {
   color: #ef4444;
   background: rgba(239, 68, 68, 0.08);
 }
 
 /* Mobile Sidebar Drawer Overlay */
-.cranzo-sidebar-overlay {
+.cranezo-sidebar-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
@@ -250,7 +250,7 @@
 /* --------------------------------------------------------------------------
    Main Wrapper (Offset by fixed sidebar)
    -------------------------------------------------------------------------- */
-.cranzo-main-wrapper {
+.cranezo-main-wrapper {
   margin-left: 250px;
   width: calc(100% - 250px);
   min-width: 0;
@@ -265,7 +265,7 @@
 /* --------------------------------------------------------------------------
    Sticky Header / Top Navigation
    -------------------------------------------------------------------------- */
-.cranzo-top-header {
+.cranezo-top-header {
   height: 64px;
   background-color: var(--dash-surface);
   border-bottom: 1px solid var(--dash-border);
@@ -280,13 +280,13 @@
   transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
-.cranzo-header-left {
+.cranezo-header-left {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.cranzo-hamburger-btn {
+.cranezo-hamburger-btn {
   display: none;
   width: 38px;
   height: 38px;
@@ -299,7 +299,7 @@
   cursor: pointer;
 }
 
-.cranzo-header-title {
+.cranezo-header-title {
   font-size: 18px;
   font-weight: 700;
   color: var(--dash-text-title);
@@ -307,26 +307,26 @@
   margin: 0;
 }
 
-.cranzo-header-right {
+.cranezo-header-right {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.cranzo-header-search {
+.cranezo-header-search {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.cranzo-header-search-icon {
+.cranezo-header-search-icon {
   position: absolute;
   left: 14px;
   color: var(--dash-text-subtle);
   pointer-events: none;
 }
 
-.cranzo-header-search-input {
+.cranezo-header-search-input {
   background: var(--dash-input-bg);
   border: 1px solid var(--dash-input-border);
   border-radius: 8px;
@@ -338,18 +338,18 @@
   transition: all 0.2s ease;
 }
 
-.cranzo-header-search-input:focus {
+.cranezo-header-search-input:focus {
   border-color: #f59e0b;
   outline: none;
   box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15);
   width: 320px;
 }
 
-.cranzo-header-search-input::placeholder {
+.cranezo-header-search-input::placeholder {
   color: var(--dash-text-subtle);
 }
 
-.cranzo-icon-button {
+.cranezo-icon-button {
   width: 38px;
   height: 38px;
   border-radius: 8px;
@@ -364,13 +364,13 @@
   transition: all 0.15s ease;
 }
 
-.cranzo-icon-button:hover {
+.cranezo-icon-button:hover {
   color: var(--dash-text-title);
   border-color: #f59e0b;
   background: var(--dash-card-hover);
 }
 
-.cranzo-notification-badge {
+.cranezo-notification-badge {
   position: absolute;
   top: 7px;
   right: 7px;
@@ -381,7 +381,7 @@
   border: 1.5px solid var(--dash-surface);
 }
 
-.cranzo-user-pill {
+.cranezo-user-pill {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -394,12 +394,12 @@
   border: 1px solid transparent;
 }
 
-.cranzo-user-pill:hover {
+.cranezo-user-pill:hover {
   background: var(--dash-table-hover);
   border-color: var(--dash-border);
 }
 
-.cranzo-user-avatar {
+.cranezo-user-avatar {
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -413,20 +413,20 @@
   border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-.cranzo-user-meta {
+.cranezo-user-meta {
   display: flex;
   flex-direction: column;
   text-align: left;
 }
 
-.cranzo-user-name {
+.cranezo-user-name {
   font-size: 13px;
   font-weight: 600;
   color: var(--dash-text-title);
   line-height: 1.2;
 }
 
-.cranzo-user-role {
+.cranezo-user-role {
   font-size: 11px;
   color: var(--dash-text-muted);
   line-height: 1.2;
@@ -435,7 +435,7 @@
 /* --------------------------------------------------------------------------
    Dashboard Main Content View
    -------------------------------------------------------------------------- */
-.cranzo-content-view {
+.cranezo-content-view {
   padding: 24px 28px 40px 28px;
   display: flex;
   flex-direction: column;
@@ -444,7 +444,7 @@
   box-sizing: border-box;
 }
 
-.cranzo-top-greeting-row {
+.cranezo-top-greeting-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -452,7 +452,7 @@
   gap: 12px;
 }
 
-.cranzo-greeting-title {
+.cranezo-greeting-title {
   font-size: 22px;
   font-weight: 700;
   color: var(--dash-text-title);
@@ -462,13 +462,13 @@
   margin: 0;
 }
 
-.cranzo-greeting-subtitle {
+.cranezo-greeting-subtitle {
   font-size: 13.5px;
   color: var(--dash-text-muted);
   margin-top: 4px;
 }
 
-.cranzo-date-pill {
+.cranezo-date-pill {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -485,21 +485,21 @@
 /* --------------------------------------------------------------------------
    KPI Stat Cards (8 Grid & 4 Grid)
    -------------------------------------------------------------------------- */
-.cranzo-stats-grid-8 {
+.cranezo-stats-grid-8 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   width: 100%;
 }
 
-.cranzo-stats-grid-4 {
+.cranezo-stats-grid-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   width: 100%;
 }
 
-.cranzo-stat-card {
+.cranezo-stat-card {
   background: var(--dash-card);
   border: 1px solid var(--dash-border);
   border-radius: 12px;
@@ -511,18 +511,18 @@
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.25s ease;
 }
 
-.cranzo-stat-card:hover {
+.cranezo-stat-card:hover {
   transform: translateY(-2px);
   border-color: #f59e0b;
 }
 
-.cranzo-stat-card-left {
+.cranezo-stat-card-left {
   display: flex;
   align-items: center;
   gap: 14px;
 }
 
-.cranzo-stat-icon-box {
+.cranezo-stat-icon-box {
   width: 44px;
   height: 44px;
   border-radius: 10px;
@@ -535,37 +535,37 @@
   flex-shrink: 0;
 }
 
-.cranzo-stat-icon-box.green {
+.cranezo-stat-icon-box.green {
   background: rgba(16, 185, 129, 0.12);
   border-color: rgba(16, 185, 129, 0.25);
   color: #10b981;
 }
 
-.cranzo-stat-icon-box.red {
+.cranezo-stat-icon-box.red {
   background: rgba(239, 68, 68, 0.12);
   border-color: rgba(239, 68, 68, 0.25);
   color: #ef4444;
 }
 
-.cranzo-stat-icon-box.blue {
+.cranezo-stat-icon-box.blue {
   background: rgba(59, 130, 246, 0.12);
   border-color: rgba(59, 130, 246, 0.25);
   color: #3b82f6;
 }
 
-.cranzo-stat-info {
+.cranezo-stat-info {
   display: flex;
   flex-direction: column;
 }
 
-.cranzo-stat-label {
+.cranezo-stat-label {
   font-size: 12.5px;
   color: var(--dash-text-muted);
   font-weight: 500;
   line-height: 1.2;
 }
 
-.cranzo-stat-value {
+.cranezo-stat-value {
   font-size: 23px;
   font-weight: 700;
   color: var(--dash-text-title);
@@ -574,7 +574,7 @@
   letter-spacing: -0.02em;
 }
 
-.cranzo-trend-pill {
+.cranezo-trend-pill {
   font-size: 11.5px;
   font-weight: 600;
   padding: 3px 8px;
@@ -584,12 +584,12 @@
   gap: 2px;
 }
 
-.cranzo-trend-pill.up {
+.cranezo-trend-pill.up {
   color: #10b981;
   background: rgba(16, 185, 129, 0.12);
 }
 
-.cranzo-trend-pill.down {
+.cranezo-trend-pill.down {
   color: #ef4444;
   background: rgba(239, 68, 68, 0.12);
 }
@@ -597,14 +597,14 @@
 /* --------------------------------------------------------------------------
    Chart Cards & Grid
    -------------------------------------------------------------------------- */
-.cranzo-charts-row {
+.cranezo-charts-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   width: 100%;
 }
 
-.cranzo-card-header {
+.cranezo-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -613,20 +613,20 @@
   gap: 10px;
 }
 
-.cranzo-card-title {
+.cranezo-card-title {
   font-size: 15px;
   font-weight: 700;
   color: var(--dash-text-title);
   margin: 0;
 }
 
-.cranzo-card-subtitle {
+.cranezo-card-subtitle {
   font-size: 12px;
   color: var(--dash-text-muted);
   margin-top: 2px;
 }
 
-.cranzo-filter-pills-group {
+.cranezo-filter-pills-group {
   display: flex;
   background: var(--dash-bg);
   border: 1px solid var(--dash-border);
@@ -635,7 +635,7 @@
   gap: 2px;
 }
 
-.cranzo-filter-pill-btn {
+.cranezo-filter-pill-btn {
   font-size: 11.5px;
   font-weight: 600;
   padding: 4px 10px;
@@ -647,41 +647,41 @@
   transition: all 0.15s ease;
 }
 
-.cranzo-filter-pill-btn:hover {
+.cranezo-filter-pill-btn:hover {
   color: var(--dash-text-title);
 }
 
-.cranzo-filter-pill-btn.active {
+.cranezo-filter-pill-btn.active {
   background: #f59e0b;
   color: #050a15;
   font-weight: 700;
 }
 
 /* SVG Charts */
-.cranzo-chart-wrapper {
+.cranezo-chart-wrapper {
   width: 100%;
   height: 190px;
   position: relative;
 }
 
-.cranzo-chart-svg {
+.cranezo-chart-svg {
   width: 100%;
   height: 100%;
   overflow: visible;
 }
 
-.cranzo-chart-grid-line {
+.cranezo-chart-grid-line {
   stroke: var(--dash-gridline);
   stroke-dasharray: 3 3;
 }
 
-.cranzo-chart-axis-label {
+.cranezo-chart-axis-label {
   fill: var(--dash-text-subtle);
   font-size: 10.5px;
   font-family: inherit;
 }
 
-.cranzo-chart-bar {
+.cranezo-chart-bar {
   fill: #f59e0b;
   rx: 3;
   ry: 3;
@@ -689,12 +689,12 @@
   cursor: pointer;
 }
 
-.cranzo-chart-bar:hover {
+.cranezo-chart-bar:hover {
   fill: #fbbf24;
   filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.5));
 }
 
-.cranzo-chart-dot {
+.cranezo-chart-dot {
   fill: #f59e0b;
   stroke: var(--dash-card);
   stroke-width: 2.5;
@@ -702,7 +702,7 @@
   transition: all 0.2s ease;
 }
 
-.cranzo-chart-dot:hover {
+.cranezo-chart-dot:hover {
   r: 6;
   fill: #ffffff;
   filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.8));
@@ -711,20 +711,20 @@
 /* --------------------------------------------------------------------------
    Tables (100% Full Width & Responsive Overflow)
    -------------------------------------------------------------------------- */
-.cranzo-table-container {
+.cranezo-table-container {
   overflow-x: auto;
   width: 100%;
   -webkit-overflow-scrolling: touch;
 }
 
-.cranzo-table {
+.cranezo-table {
   width: 100%;
   min-width: 900px;
   border-collapse: collapse;
   text-align: left;
 }
 
-.cranzo-table th {
+.cranezo-table th {
   padding: 12px 14px;
   font-size: 11px;
   font-weight: 700;
@@ -735,7 +735,7 @@
   white-space: nowrap;
 }
 
-.cranzo-table td {
+.cranezo-table td {
   padding: 14px;
   font-size: 13px;
   color: var(--dash-text-body);
@@ -744,26 +744,26 @@
   white-space: nowrap;
 }
 
-.cranzo-table tr:hover td {
+.cranezo-table tr:hover td {
   background: var(--dash-table-hover);
 }
 
-.cranzo-booking-id {
+.cranezo-booking-id {
   color: var(--dash-text-title);
   font-weight: 600;
 }
 
-.cranzo-booking-id.highlight {
+.cranezo-booking-id.highlight {
   color: #f59e0b;
 }
 
-.cranzo-user-cell {
+.cranezo-user-cell {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.cranzo-table-avatar {
+.cranezo-table-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -777,18 +777,18 @@
   flex-shrink: 0;
 }
 
-.cranzo-link-text {
+.cranezo-link-text {
   color: var(--dash-text-title);
   font-weight: 600;
   cursor: pointer;
   transition: color 0.15s ease;
 }
 
-.cranzo-link-text:hover {
+.cranezo-link-text:hover {
   color: #f59e0b;
 }
 
-.cranzo-action-link {
+.cranezo-action-link {
   color: #f59e0b;
   font-size: 12.5px;
   font-weight: 600;
@@ -798,13 +798,13 @@
   border: none;
 }
 
-.cranzo-action-link:hover {
+.cranezo-action-link:hover {
   color: #fbbf24;
   text-decoration: underline;
 }
 
 /* Status Badges */
-.cranzo-status-badge {
+.cranezo-status-badge {
   font-size: 11.5px;
   font-weight: 600;
   padding: 4px 10px;
@@ -814,40 +814,40 @@
   white-space: nowrap;
 }
 
-.cranzo-status-badge.in-progress {
+.cranezo-status-badge.in-progress {
   color: #60a5fa;
   background: rgba(59, 130, 246, 0.12);
   border: 1px solid rgba(59, 130, 246, 0.25);
 }
 
-.cranzo-status-badge.confirmed {
+.cranezo-status-badge.confirmed {
   color: #2dd4bf;
   background: rgba(20, 184, 166, 0.12);
   border: 1px solid rgba(20, 184, 166, 0.25);
 }
 
-.cranzo-status-badge.completed,
-.cranzo-status-badge.active {
+.cranezo-status-badge.completed,
+.cranezo-status-badge.active {
   color: #10b981;
   background: rgba(16, 185, 129, 0.12);
   border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
-.cranzo-status-badge.pending {
+.cranezo-status-badge.pending {
   color: #f59e0b;
   background: rgba(245, 158, 11, 0.12);
   border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
-.cranzo-status-badge.cancelled,
-.cranzo-status-badge.blocked {
+.cranezo-status-badge.cancelled,
+.cranezo-status-badge.blocked {
   color: #ef4444;
   background: rgba(239, 68, 68, 0.12);
   border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
 /* Action More button */
-.cranzo-action-btn {
+.cranezo-action-btn {
   background: transparent;
   border: none;
   color: var(--dash-text-subtle);
@@ -860,7 +860,7 @@
   transition: all 0.15s ease;
 }
 
-.cranzo-action-btn:hover {
+.cranezo-action-btn:hover {
   color: var(--dash-text-title);
   background: var(--dash-table-hover);
 }
@@ -868,7 +868,7 @@
 /* --------------------------------------------------------------------------
    Users List Screen Styling
    -------------------------------------------------------------------------- */
-.cranzo-users-header-row {
+.cranezo-users-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -876,14 +876,14 @@
   gap: 12px;
 }
 
-.cranzo-header-actions-group {
+.cranezo-header-actions-group {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.cranzo-btn-secondary {
+.cranezo-btn-secondary {
   height: 38px;
   padding: 0 16px;
   border-radius: 8px;
@@ -899,13 +899,13 @@
   transition: all 0.15s ease;
 }
 
-.cranzo-btn-secondary:hover {
+.cranezo-btn-secondary:hover {
   background: var(--dash-card-hover);
   border-color: #f59e0b;
   color: var(--dash-text-title);
 }
 
-.cranzo-btn-primary-amber {
+.cranezo-btn-primary-amber {
   height: 38px;
   padding: 0 18px;
   border-radius: 8px;
@@ -922,7 +922,7 @@
   box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
 }
 
-.cranzo-filter-card {
+.cranezo-filter-card {
   background: var(--dash-card);
   border: 1px solid var(--dash-border);
   border-radius: 12px;
@@ -934,7 +934,7 @@
   box-sizing: border-box;
 }
 
-.cranzo-filter-row {
+.cranezo-filter-row {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -942,7 +942,7 @@
   flex-wrap: wrap;
 }
 
-.cranzo-filter-search-field {
+.cranezo-filter-search-field {
   position: relative;
   display: flex;
   align-items: center;
@@ -950,14 +950,14 @@
   min-width: 220px;
 }
 
-.cranzo-filter-search-field svg {
+.cranezo-filter-search-field svg {
   position: absolute;
   left: 12px;
   color: var(--dash-text-subtle);
   pointer-events: none;
 }
 
-.cranzo-filter-search-field input {
+.cranezo-filter-search-field input {
   width: 100%;
   height: 38px;
   background: var(--dash-input-bg);
@@ -971,11 +971,11 @@
   transition: border-color 0.15s ease;
 }
 
-.cranzo-filter-search-field input:focus {
+.cranezo-filter-search-field input:focus {
   border-color: #f59e0b;
 }
 
-.cranzo-filter-dropdown {
+.cranezo-filter-dropdown {
   height: 38px;
   flex: 1;
   min-width: 130px;
@@ -997,17 +997,17 @@
   white-space: nowrap;
 }
 
-.cranzo-filter-dropdown:focus {
+.cranezo-filter-dropdown:focus {
   border-color: #f59e0b;
 }
 
-.cranzo-filter-dropdown option {
+.cranezo-filter-dropdown option {
   background: #080f20;
   color: #ffffff;
   padding: 8px;
 }
 
-.cranzo-filter-reset-btn {
+.cranezo-filter-reset-btn {
   background: transparent;
   border: none;
   color: #f59e0b;
@@ -1019,13 +1019,13 @@
   transition: opacity 0.15s ease;
 }
 
-.cranzo-filter-reset-btn:hover {
+.cranezo-filter-reset-btn:hover {
   opacity: 0.8;
   text-decoration: underline;
 }
 
-.cranzo-filter-toolbar,
-.cranzo-filter-bar {
+.cranezo-filter-toolbar,
+.cranezo-filter-bar {
   background: var(--dash-card);
   border: 1px solid var(--dash-border);
   border-radius: 10px;
@@ -1039,7 +1039,7 @@
   box-sizing: border-box;
 }
 
-.cranzo-filter-search-wrap {
+.cranezo-filter-search-wrap {
   position: relative;
   display: flex;
   align-items: center;
@@ -1047,14 +1047,14 @@
   min-width: 200px;
 }
 
-.cranzo-filter-search-wrap svg {
+.cranezo-filter-search-wrap svg {
   position: absolute;
   left: 12px;
   color: #64748b;
   pointer-events: none;
 }
 
-.cranzo-filter-input {
+.cranezo-filter-input {
   width: 100%;
   height: 38px;
   background: #070D17;
@@ -1068,11 +1068,11 @@
   transition: border-color 0.15s ease;
 }
 
-.cranzo-filter-input:focus {
+.cranezo-filter-input:focus {
   border-color: #f59e0b;
 }
 
-.cranzo-filter-select {
+.cranezo-filter-select {
   height: 38px;
   background: #070D17;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1092,23 +1092,23 @@
   white-space: nowrap;
 }
 
-.cranzo-filter-select:focus {
+.cranezo-filter-select:focus {
   border-color: #f59e0b;
 }
 
-.cranzo-filter-select option {
+.cranezo-filter-select option {
   background: #0B131F;
   color: #ffffff;
   padding: 8px;
 }
 
-.cranzo-filter-search-box {
+.cranezo-filter-search-box {
   position: relative;
   flex: 1;
   min-width: 220px;
 }
 
-.cranzo-filter-search-box svg {
+.cranezo-filter-search-box svg {
   position: absolute;
   left: 12px;
   top: 50%;
@@ -1117,7 +1117,7 @@
   pointer-events: none;
 }
 
-.cranzo-filter-search-input {
+.cranezo-filter-search-input {
   width: 100%;
   height: 36px;
   background: var(--dash-input-bg);
@@ -1129,16 +1129,16 @@
   box-sizing: border-box;
 }
 
-.cranzo-filter-search-input:focus {
+.cranezo-filter-search-input:focus {
   border-color: #f59e0b;
   outline: none;
 }
 
-.cranzo-filter-search-input::placeholder {
+.cranezo-filter-search-input::placeholder {
   color: var(--dash-text-subtle);
 }
 
-.cranzo-select-dropdown {
+.cranezo-select-dropdown {
   height: 36px;
   background: var(--dash-input-bg);
   border: 1px solid var(--dash-input-border);
@@ -1153,13 +1153,13 @@
   background-position: right 10px center;
 }
 
-.cranzo-select-dropdown:focus {
+.cranezo-select-dropdown:focus {
   border-color: #f59e0b;
   color: var(--dash-text-title);
   outline: none;
 }
 
-.cranzo-filter-reset {
+.cranezo-filter-reset {
   color: var(--dash-text-muted);
   font-size: 12.5px;
   font-weight: 500;
@@ -1169,12 +1169,12 @@
   padding: 4px 8px;
 }
 
-.cranzo-filter-reset:hover {
+.cranezo-filter-reset:hover {
   color: #f59e0b;
 }
 
 /* Pagination */
-.cranzo-pagination-bar {
+.cranezo-pagination-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1183,18 +1183,18 @@
   gap: 10px;
 }
 
-.cranzo-pagination-text {
+.cranezo-pagination-text {
   font-size: 12.5px;
   color: var(--dash-text-muted);
 }
 
-.cranzo-pagination-controls {
+.cranezo-pagination-controls {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.cranzo-page-btn {
+.cranezo-page-btn {
   min-width: 30px;
   height: 30px;
   padding: 0 6px;
@@ -1211,18 +1211,18 @@
   transition: all 0.15s ease;
 }
 
-.cranzo-page-btn:hover:not(.disabled) {
+.cranezo-page-btn:hover:not(.disabled) {
   background: var(--dash-table-hover);
   color: var(--dash-text-title);
 }
 
-.cranzo-page-btn.active {
+.cranezo-page-btn.active {
   background: #f59e0b;
   color: #050a15;
   font-weight: 700;
 }
 
-.cranzo-page-btn.disabled {
+.cranezo-page-btn.disabled {
   opacity: 0.3;
   cursor: not-allowed;
 }
@@ -1230,7 +1230,7 @@
 /* --------------------------------------------------------------------------
    User Details Screen Styling
    -------------------------------------------------------------------------- */
-.cranzo-user-details-topbar {
+.cranezo-user-details-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1238,13 +1238,13 @@
   gap: 12px;
 }
 
-.cranzo-user-details-title-row {
+.cranezo-user-details-title-row {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.cranzo-btn-danger-outline {
+.cranezo-btn-danger-outline {
   height: 38px;
   padding: 0 16px;
   border-radius: 8px;
@@ -1260,19 +1260,19 @@
   transition: all 0.15s ease;
 }
 
-.cranzo-btn-danger-outline:hover {
+.cranezo-btn-danger-outline:hover {
   background: rgba(239, 68, 68, 0.18);
   border-color: #ef4444;
 }
 
-.cranzo-user-hero-grid {
+.cranezo-user-hero-grid {
   display: grid;
   grid-template-columns: 1.3fr 1fr;
   gap: 20px;
   width: 100%;
 }
 
-.cranzo-profile-card {
+.cranezo-profile-card {
   background: var(--dash-card);
   border: 1px solid var(--dash-border);
   border-radius: 12px;
@@ -1283,19 +1283,19 @@
   box-shadow: var(--dash-shadow);
 }
 
-.cranzo-profile-header-area {
+.cranezo-profile-header-area {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
 }
 
-.cranzo-profile-avatar-row {
+.cranezo-profile-avatar-row {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.cranzo-profile-large-avatar {
+.cranezo-profile-large-avatar {
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -1310,7 +1310,7 @@
   position: relative;
 }
 
-.cranzo-profile-large-avatar .online-dot {
+.cranezo-profile-large-avatar .online-dot {
   position: absolute;
   bottom: 0px;
   right: 0px;
@@ -1321,20 +1321,20 @@
   border-radius: 50%;
 }
 
-.cranzo-profile-meta-info h2 {
+.cranezo-profile-meta-info h2 {
   font-size: 18px;
   font-weight: 700;
   color: var(--dash-text-title);
   margin: 0;
 }
 
-.cranzo-profile-meta-info p {
+.cranezo-profile-meta-info p {
   font-size: 12.5px;
   color: var(--dash-text-muted);
   margin: 2px 0 6px 0;
 }
 
-.cranzo-profile-details-grid {
+.cranezo-profile-details-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px 24px;
@@ -1342,13 +1342,13 @@
   border-top: 1px solid var(--dash-border-subtle);
 }
 
-.cranzo-detail-field {
+.cranezo-detail-field {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.cranzo-detail-label {
+.cranezo-detail-label {
   font-size: 11px;
   color: var(--dash-text-subtle);
   display: flex;
@@ -1357,14 +1357,14 @@
   font-weight: 500;
 }
 
-.cranzo-detail-value {
+.cranezo-detail-value {
   font-size: 13.5px;
   color: var(--dash-text-title);
   font-weight: 600;
 }
 
 /* Quick Stats 2x2 Grid */
-.cranzo-quick-stats-card {
+.cranezo-quick-stats-card {
   background: var(--dash-card);
   border: 1px solid var(--dash-border);
   border-radius: 12px;
@@ -1372,14 +1372,14 @@
   box-shadow: var(--dash-shadow);
 }
 
-.cranzo-quick-stats-grid {
+.cranezo-quick-stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
   margin-top: 14px;
 }
 
-.cranzo-quick-stat-box {
+.cranezo-quick-stat-box {
   background: var(--dash-bg);
   border: 1px solid var(--dash-border);
   border-radius: 10px;
@@ -1390,7 +1390,7 @@
 }
 
 /* Tabs Navigation */
-.cranzo-tabs-nav {
+.cranezo-tabs-nav {
   display: flex;
   border-bottom: 1px solid var(--dash-border);
   gap: 28px;
@@ -1399,7 +1399,7 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.cranzo-tab-item {
+.cranezo-tab-item {
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
@@ -1415,31 +1415,31 @@
   white-space: nowrap;
 }
 
-.cranzo-tab-item:hover {
+.cranezo-tab-item:hover {
   color: var(--dash-text-title);
 }
 
-.cranzo-tab-item.active {
+.cranezo-tab-item.active {
   color: #f59e0b;
   border-bottom-color: #f59e0b;
   font-weight: 600;
 }
 
 /* Bottom Grid (Saved Addresses + Account Activity) */
-.cranzo-bottom-double-grid {
+.cranezo-bottom-double-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   width: 100%;
 }
 
-.cranzo-address-list {
+.cranezo-address-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.cranzo-address-item {
+.cranezo-address-item {
   background: var(--dash-bg);
   border: 1px solid var(--dash-border);
   border-radius: 8px;
@@ -1449,13 +1449,13 @@
   justify-content: space-between;
 }
 
-.cranzo-address-left {
+.cranezo-address-left {
   display: flex;
   align-items: center;
   gap: 14px;
 }
 
-.cranzo-address-icon-box {
+.cranezo-address-icon-box {
   width: 36px;
   height: 36px;
   border-radius: 8px;
@@ -1467,25 +1467,25 @@
   justify-content: center;
 }
 
-.cranzo-address-icon-box.gray {
+.cranezo-address-icon-box.gray {
   background: var(--dash-table-hover);
   border-color: var(--dash-border);
   color: var(--dash-text-muted);
 }
 
-.cranzo-address-title-row {
+.cranezo-address-title-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.cranzo-address-title {
+.cranezo-address-title {
   font-size: 13.5px;
   font-weight: 600;
   color: var(--dash-text-title);
 }
 
-.cranzo-default-badge {
+.cranezo-default-badge {
   font-size: 10px;
   font-weight: 600;
   padding: 2px 6px;
@@ -1494,14 +1494,14 @@
   color: #2dd4bf;
 }
 
-.cranzo-address-desc {
+.cranezo-address-desc {
   font-size: 12px;
   color: var(--dash-text-muted);
   margin-top: 2px;
 }
 
 /* Activity Timeline */
-.cranzo-activity-timeline {
+.cranezo-activity-timeline {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1509,7 +1509,7 @@
   padding-left: 20px;
 }
 
-.cranzo-activity-timeline::before {
+.cranezo-activity-timeline::before {
   content: '';
   position: absolute;
   left: 6px;
@@ -1519,14 +1519,14 @@
   background: var(--dash-border);
 }
 
-.cranzo-activity-item {
+.cranezo-activity-item {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.cranzo-activity-dot {
+.cranezo-activity-dot {
   position: absolute;
   left: -20px;
   top: 4px;
@@ -1536,18 +1536,18 @@
   border: 2px solid var(--dash-card);
 }
 
-.cranzo-activity-dot.amber { background: #f59e0b; }
-.cranzo-activity-dot.green { background: #10b981; }
-.cranzo-activity-dot.teal { background: #14b8a6; }
-.cranzo-activity-dot.red { background: #ef4444; }
+.cranezo-activity-dot.amber { background: #f59e0b; }
+.cranezo-activity-dot.green { background: #10b981; }
+.cranezo-activity-dot.teal { background: #14b8a6; }
+.cranezo-activity-dot.red { background: #ef4444; }
 
-.cranzo-activity-time {
+.cranezo-activity-time {
   font-size: 11px;
   color: var(--dash-text-subtle);
   font-weight: 500;
 }
 
-.cranzo-activity-desc {
+.cranezo-activity-desc {
   font-size: 12.5px;
   color: var(--dash-text-body);
 }
@@ -1555,7 +1555,7 @@
 /* --------------------------------------------------------------------------
    Add User Modal (Figma High-Fidelity Implementation)
    -------------------------------------------------------------------------- */
-.cranzo-modal-backdrop {
+.cranezo-modal-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(4, 8, 16, 0.82);
@@ -1565,12 +1565,12 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  animation: cranzoModalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: cranezoModalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   padding: 20px;
   box-sizing: border-box;
 }
 
-@keyframes cranzoModalFadeIn {
+@keyframes cranezoModalFadeIn {
   from {
     opacity: 0;
     transform: scale(0.98);
@@ -1581,7 +1581,7 @@
   }
 }
 
-.cranzo-add-user-modal-dialog {
+.cranezo-add-user-modal-dialog {
   background: #0B131F;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
@@ -1599,29 +1599,29 @@
 }
 
 /* Custom scrollbar for modal */
-.cranzo-add-user-modal-dialog::-webkit-scrollbar {
+.cranezo-add-user-modal-dialog::-webkit-scrollbar {
   width: 6px;
 }
-.cranzo-add-user-modal-dialog::-webkit-scrollbar-track {
+.cranezo-add-user-modal-dialog::-webkit-scrollbar-track {
   background: transparent;
 }
-.cranzo-add-user-modal-dialog::-webkit-scrollbar-thumb {
+.cranezo-add-user-modal-dialog::-webkit-scrollbar-thumb {
   background: #1e293b;
   border-radius: 4px;
 }
-.cranzo-add-user-modal-dialog::-webkit-scrollbar-thumb:hover {
+.cranezo-add-user-modal-dialog::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
 
 /* Modal Header */
-.cranzo-modal-header-v2 {
+.cranezo-modal-header-v2 {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
 }
 
-.cranzo-modal-title-v2 {
+.cranezo-modal-title-v2 {
   font-size: 20px;
   font-weight: 700;
   color: #ffffff;
@@ -1629,14 +1629,14 @@
   letter-spacing: -0.2px;
 }
 
-.cranzo-modal-subtitle-v2 {
+.cranezo-modal-subtitle-v2 {
   font-size: 13px;
   color: #94a3b8;
   margin: 4px 0 0 0;
   line-height: 1.4;
 }
 
-.cranzo-modal-close-icon-btn {
+.cranezo-modal-close-icon-btn {
   background: transparent;
   border: none;
   color: #94a3b8;
@@ -1650,13 +1650,13 @@
   flex-shrink: 0;
 }
 
-.cranzo-modal-close-icon-btn:hover {
+.cranezo-modal-close-icon-btn:hover {
   color: #ffffff;
   background: rgba(255, 255, 255, 0.08);
 }
 
 /* Photo Upload Area */
-.cranzo-photo-upload-container {
+.cranezo-photo-upload-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1665,20 +1665,20 @@
   margin: 2px 0 10px 0;
 }
 
-.cranzo-photo-label {
+.cranezo-photo-label {
   font-size: 13px;
   font-weight: 500;
   color: #e2e8f0;
 }
 
-.cranzo-photo-subtext {
+.cranezo-photo-subtext {
   font-size: 11.5px;
   color: #64748b;
   margin-top: 2px;
   margin-bottom: 12px;
 }
 
-.cranzo-avatar-upload-circle {
+.cranezo-avatar-upload-circle {
   width: 82px;
   height: 82px;
   border-radius: 50%;
@@ -1695,29 +1695,29 @@
   user-select: none;
 }
 
-.cranzo-avatar-upload-circle:hover {
+.cranezo-avatar-upload-circle:hover {
   border-color: #f59e0b;
   background: rgba(245, 158, 11, 0.04);
 }
 
-.cranzo-avatar-upload-circle:hover .cranzo-avatar-camera-icon,
-.cranzo-avatar-upload-circle:hover .cranzo-avatar-add-text {
+.cranezo-avatar-upload-circle:hover .cranezo-avatar-camera-icon,
+.cranezo-avatar-upload-circle:hover .cranezo-avatar-add-text {
   color: #f59e0b;
 }
 
-.cranzo-avatar-camera-icon {
+.cranezo-avatar-camera-icon {
   color: #94a3b8;
   transition: color 0.15s ease;
 }
 
-.cranzo-avatar-add-text {
+.cranezo-avatar-add-text {
   font-size: 11px;
   color: #94a3b8;
   font-weight: 500;
   transition: color 0.15s ease;
 }
 
-.cranzo-avatar-preview-box {
+.cranezo-avatar-preview-box {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -1725,13 +1725,13 @@
   position: relative;
 }
 
-.cranzo-avatar-preview-img {
+.cranezo-avatar-preview-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.cranzo-avatar-remove-btn {
+.cranezo-avatar-remove-btn {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
@@ -1745,11 +1745,11 @@
   cursor: pointer;
 }
 
-.cranzo-avatar-preview-box:hover .cranzo-avatar-remove-btn {
+.cranezo-avatar-preview-box:hover .cranezo-avatar-remove-btn {
   opacity: 1;
 }
 
-.cranzo-avatar-plus-badge {
+.cranezo-avatar-plus-badge {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -1766,50 +1766,50 @@
   transition: transform 0.15s ease;
 }
 
-.cranzo-avatar-upload-circle:hover .cranzo-avatar-plus-badge {
+.cranezo-avatar-upload-circle:hover .cranezo-avatar-plus-badge {
   transform: scale(1.1);
   background: #fbbf24;
 }
 
 /* Error Banner */
-.cranzo-form-error-banner {
+.cranezo-form-error-banner {
   background: rgba(239, 68, 68, 0.12);
   border: 1px solid rgba(239, 68, 68, 0.3);
   color: #fca5a5;
   padding: 8px 14px;
   border-radius: 8px;
   font-size: 12.5px;
-  animation: cranzoModalFadeIn 0.2s ease;
+  animation: cranezoModalFadeIn 0.2s ease;
 }
 
 /* Two Column Form Grid */
-.cranzo-add-user-form {
+.cranezo-add-user-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.cranzo-form-two-cols {
+.cranezo-form-two-cols {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px 24px;
 }
 
-.cranzo-form-col {
+.cranezo-form-col {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
 /* Input Groups (Scoped to Add User Modal) */
-.cranzo-modal-field-group {
+.cranezo-modal-field-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
   width: 100%;
 }
 
-.cranzo-modal-field-label {
+.cranezo-modal-field-label {
   font-size: 12.5px;
   font-weight: 500;
   color: #cbd5e1;
@@ -1818,12 +1818,12 @@
   gap: 4px;
 }
 
-.cranzo-req-star {
+.cranezo-req-star {
   color: #ef4444;
   font-weight: 600;
 }
 
-.cranzo-modal-input-box {
+.cranezo-modal-input-box {
   position: relative;
   display: flex;
   align-items: center;
@@ -1835,7 +1835,7 @@
   height: auto !important;
 }
 
-.cranzo-field-icon {
+.cranezo-field-icon {
   position: absolute;
   left: 13px;
   color: #64748b;
@@ -1844,7 +1844,7 @@
   z-index: 2;
 }
 
-.cranzo-modal-text-field {
+.cranezo-modal-text-field {
   width: 100%;
   height: 42px;
   background: #080E18;
@@ -1858,26 +1858,26 @@
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.cranzo-modal-text-field::placeholder {
+.cranezo-modal-text-field::placeholder {
   color: #475569;
 }
 
-.cranzo-modal-text-field:focus {
+.cranezo-modal-text-field:focus {
   border-color: #f59e0b !important;
   box-shadow: 0 0 0 1px #f59e0b !important;
   outline: none !important;
 }
 
-.cranzo-modal-input-box:focus-within .cranzo-field-icon {
+.cranezo-modal-input-box:focus-within .cranezo-field-icon {
   color: #f59e0b;
 }
 
 /* Verified Badge in Mobile Field */
-.cranzo-modal-text-field.has-verified-badge {
+.cranezo-modal-text-field.has-verified-badge {
   padding-right: 90px;
 }
 
-.cranzo-verified-badge {
+.cranezo-verified-badge {
   position: absolute;
   right: 8px;
   display: inline-flex;
@@ -1893,27 +1893,27 @@
   z-index: 3;
 }
 
-.cranzo-verified-badge.verified {
+.cranezo-verified-badge.verified {
   background: rgba(16, 185, 129, 0.12);
   border: 1px solid rgba(16, 185, 129, 0.28);
   color: #10b981;
 }
 
-.cranzo-verified-badge.unverified {
+.cranezo-verified-badge.unverified {
   background: rgba(245, 158, 11, 0.12);
   border: 1px solid rgba(245, 158, 11, 0.28);
   color: #f59e0b;
 }
 
 /* Radio buttons for User Type */
-.cranzo-radio-options-row {
+.cranezo-radio-options-row {
   display: flex;
   align-items: center;
   gap: 24px;
   height: 42px;
 }
 
-.cranzo-radio-label {
+.cranezo-radio-label {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1924,11 +1924,11 @@
   transition: color 0.15s ease;
 }
 
-.cranzo-radio-label.selected {
+.cranezo-radio-label.selected {
   color: #ffffff;
 }
 
-.cranzo-radio-circle {
+.cranezo-radio-circle {
   width: 17px;
   height: 17px;
   border-radius: 50%;
@@ -1940,15 +1940,15 @@
   flex-shrink: 0;
 }
 
-.cranzo-radio-label:hover .cranzo-radio-circle {
+.cranezo-radio-label:hover .cranezo-radio-circle {
   border-color: #94a3b8;
 }
 
-.cranzo-radio-label.selected .cranzo-radio-circle {
+.cranezo-radio-label.selected .cranezo-radio-circle {
   border-color: #f59e0b;
 }
 
-.cranzo-radio-inner-dot {
+.cranezo-radio-inner-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -1956,7 +1956,7 @@
 }
 
 /* Select Dropdown */
-.cranzo-modal-select-field {
+.cranezo-modal-select-field {
   width: 100%;
   height: 42px;
   background: #080E18;
@@ -1974,19 +1974,19 @@
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.cranzo-modal-select-field:focus {
+.cranezo-modal-select-field:focus {
   border-color: #f59e0b !important;
   box-shadow: 0 0 0 1px #f59e0b !important;
   outline: none !important;
 }
 
-.cranzo-modal-select-field option {
+.cranezo-modal-select-field option {
   background: #0B131F;
   color: #ffffff;
   padding: 8px;
 }
 
-.cranzo-select-arrow {
+.cranezo-select-arrow {
   position: absolute;
   right: 12px;
   color: #64748b;
@@ -1994,12 +1994,12 @@
 }
 
 /* Date Input */
-.cranzo-modal-date-field {
+.cranezo-modal-date-field {
   padding-right: 38px;
   color-scheme: dark;
 }
 
-.cranzo-date-right-icon {
+.cranezo-date-right-icon {
   position: absolute;
   right: 12px;
   color: #64748b;
@@ -2007,12 +2007,12 @@
   transition: color 0.15s ease;
 }
 
-.cranzo-date-right-icon:hover {
+.cranezo-date-right-icon:hover {
   color: #f59e0b;
 }
 
-/* Strict override for any lingering .cranzo-input-wrapper inside the dialog */
-.cranzo-add-user-modal-dialog .cranzo-input-wrapper {
+/* Strict override for any lingering .cranezo-input-wrapper inside the dialog */
+.cranezo-add-user-modal-dialog .cranezo-input-wrapper {
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
@@ -2020,14 +2020,14 @@
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
-.cranzo-add-user-modal-dialog .cranzo-input-wrapper:focus-within {
+.cranezo-add-user-modal-dialog .cranezo-input-wrapper:focus-within {
   border: none !important;
   box-shadow: none !important;
   background: transparent !important;
 }
 
 /* Modal Footer Actions */
-.cranzo-modal-footer-v2 {
+.cranezo-modal-footer-v2 {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -2037,7 +2037,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.cranzo-modal-cancel-btn {
+.cranezo-modal-cancel-btn {
   height: 40px;
   padding: 0 20px;
   border-radius: 8px;
@@ -2050,13 +2050,13 @@
   transition: all 0.15s ease;
 }
 
-.cranzo-modal-cancel-btn:hover {
+.cranezo-modal-cancel-btn:hover {
   background: #1e293b;
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.25);
 }
 
-.cranzo-modal-submit-btn {
+.cranezo-modal-submit-btn {
   height: 40px;
   padding: 0 22px;
   border-radius: 8px;
@@ -2073,18 +2073,18 @@
   box-shadow: 0 2px 10px rgba(245, 158, 11, 0.25);
 }
 
-.cranzo-modal-submit-btn:hover {
+.cranezo-modal-submit-btn:hover {
   background: #fbbf24;
   box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
   transform: translateY(-1px);
 }
 
-.cranzo-modal-submit-btn:active {
+.cranezo-modal-submit-btn:active {
   transform: translateY(0);
 }
 
 /* Success State Screen */
-.cranzo-modal-success-state {
+.cranezo-modal-success-state {
   padding: 40px 20px;
   text-align: center;
   display: flex;
@@ -2094,7 +2094,7 @@
   gap: 12px;
 }
 
-.cranzo-success-icon-bubble {
+.cranezo-success-icon-bubble {
   width: 72px;
   height: 72px;
   border-radius: 50%;
@@ -2103,24 +2103,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: cranzoModalFadeIn 0.3s ease;
+  animation: cranezoModalFadeIn 0.3s ease;
 }
 
-.cranzo-success-title {
+.cranezo-success-title {
   color: #ffffff;
   font-size: 18px;
   font-weight: 700;
   margin: 6px 0 0 0;
 }
 
-.cranzo-success-desc {
+.cranezo-success-desc {
   color: #94a3b8;
   font-size: 13.5px;
   margin: 0;
 }
 
 /* Legacy Support */
-.cranzo-modal-dialog {
+.cranezo-modal-dialog {
   background: var(--dash-card);
   border: 1px solid var(--dash-border);
   border-radius: 14px;
@@ -2134,7 +2134,7 @@
   box-sizing: border-box;
 }
 
-.cranzo-modal-actions {
+.cranezo-modal-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -2144,11 +2144,11 @@
 
 /* Mobile & Tablet Responsiveness for Modal */
 @media (max-width: 768px) {
-  .cranzo-add-user-modal-dialog {
+  .cranezo-add-user-modal-dialog {
     padding: 20px;
     max-height: 95vh;
   }
-  .cranzo-form-two-cols {
+  .cranezo-form-two-cols {
     grid-template-columns: 1fr;
     gap: 14px;
   }
@@ -2158,85 +2158,85 @@
    Responsive Adaptations & Mobile Drawer
    -------------------------------------------------------------------------- */
 @media (max-width: 1200px) {
-  .cranzo-stats-grid-8 {
+  .cranezo-stats-grid-8 {
     grid-template-columns: repeat(2, 1fr);
   }
-  .cranzo-stats-grid-4 {
+  .cranezo-stats-grid-4 {
     grid-template-columns: repeat(2, 1fr);
   }
-  .cranzo-charts-row,
-  .cranzo-user-hero-grid,
-  .cranzo-bottom-double-grid {
+  .cranezo-charts-row,
+  .cranezo-user-hero-grid,
+  .cranezo-bottom-double-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 1024px) {
-  .cranzo-sidebar {
+  .cranezo-sidebar {
     transform: translateX(-100%);
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.4);
   }
 
-  .cranzo-sidebar.open {
+  .cranezo-sidebar.open {
     transform: translateX(0);
   }
 
-  .cranzo-mobile-close-btn {
+  .cranezo-mobile-close-btn {
     display: inline-flex;
   }
 
-  .cranzo-sidebar-overlay.active {
+  .cranezo-sidebar-overlay.active {
     display: block;
   }
 
-  .cranzo-main-wrapper {
+  .cranezo-main-wrapper {
     margin-left: 0;
     width: 100%;
   }
 
-  .cranzo-hamburger-btn {
+  .cranezo-hamburger-btn {
     display: flex;
   }
 }
 
 @media (max-width: 768px) {
-  .cranzo-top-header {
+  .cranezo-top-header {
     padding: 0 16px;
   }
 
-  .cranzo-header-search-input {
+  .cranezo-header-search-input {
     width: 160px;
   }
 
-  .cranzo-header-search-input:focus {
+  .cranezo-header-search-input:focus {
     width: 200px;
   }
 
-  .cranzo-content-view {
+  .cranezo-content-view {
     padding: 16px;
     gap: 16px;
   }
 
-  .cranzo-stats-grid-8,
-  .cranzo-stats-grid-4 {
+  .cranezo-stats-grid-8,
+  .cranezo-stats-grid-4 {
     grid-template-columns: 1fr;
   }
 
-  .cranzo-user-meta {
+  .cranezo-user-meta {
     display: none;
   }
 
-  .cranzo-profile-details-grid {
+  .cranezo-profile-details-grid {
     grid-template-columns: 1fr;
   }
 
-  .cranzo-filter-toolbar {
+  .cranezo-filter-toolbar {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .cranzo-select-dropdown,
-  .cranzo-filter-search-box {
+  .cranezo-select-dropdown,
+  .cranezo-filter-search-box {
     width: 100%;
   }
 }

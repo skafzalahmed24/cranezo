@@ -45,24 +45,24 @@ export const ForgotPasswordForm = ({ onBackToLogin }) => {
   };
 
   return (
-    <div className="cranzo-forgot-password-form animate-fade-in">
+    <div className="cranezo-forgot-password-form animate-fade-in">
       {/* Top Golden Lock Badge */}
-      <div className="cranzo-lock-badge-container">
-        <div className="cranzo-lock-badge">
+      <div className="cranezo-lock-badge-container">
+        <div className="cranezo-lock-badge">
           <Lock size={32} strokeWidth={2.2} />
         </div>
       </div>
 
       {!isSubmitted ? (
         <>
-          <div className="cranzo-auth-header cranzo-auth-header--centered">
-            <h1 className="cranzo-auth-title">Forgot Password?</h1>
-            <p className="cranzo-auth-subtitle">
+          <div className="cranezo-auth-header cranezo-auth-header--centered">
+            <h1 className="cranezo-auth-title">Forgot Password?</h1>
+            <p className="cranezo-auth-subtitle">
               Enter your registered admin email address and we'll send you a secure link to reset your password.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="cranzo-auth-form" noValidate>
+          <form onSubmit={handleSubmit} className="cranezo-auth-form" noValidate>
             <Input
               id="forgot-email"
               name="email"
@@ -90,13 +90,13 @@ export const ForgotPasswordForm = ({ onBackToLogin }) => {
               Next
             </Button>
 
-            <div className="cranzo-auth-divider">
-              <span className="cranzo-auth-divider-text">or</span>
+            <div className="cranezo-auth-divider">
+              <span className="cranezo-auth-divider-text">or</span>
             </div>
 
             <button
               type="button"
-              className="cranzo-auth-back-btn"
+              className="cranezo-auth-back-btn"
               onClick={onBackToLogin}
             >
               <ArrowLeft size={16} strokeWidth={2.2} />
@@ -105,17 +105,17 @@ export const ForgotPasswordForm = ({ onBackToLogin }) => {
           </form>
         </>
       ) : (
-        <div className="cranzo-reset-success animate-fade-in" style={{ textAlign: 'center' }}>
-          <div className="cranzo-auth-header cranzo-auth-header--centered">
-            <h1 className="cranzo-auth-title">Check Your Email</h1>
-            <p className="cranzo-auth-subtitle">
+        <div className="cranezo-reset-success animate-fade-in" style={{ textAlign: 'center' }}>
+          <div className="cranezo-auth-header cranezo-auth-header--centered">
+            <h1 className="cranezo-auth-title">Check Your Email</h1>
+            <p className="cranezo-auth-subtitle">
               We've dispatched password reset instructions to{' '}
               <strong style={{ color: 'var(--brand-orange-primary)' }}>{email}</strong>.
             </p>
           </div>
 
           <div
-            className="cranzo-auth-alert cranzo-auth-alert--success"
+            className="cranezo-auth-alert cranezo-auth-alert--success"
             style={{ marginBottom: '24px', justifyContent: 'center' }}
           >
             <CheckCircle2 size={18} />

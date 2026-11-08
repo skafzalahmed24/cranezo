@@ -2,16 +2,16 @@
    AUTH COMPONENTS & FORM COMMON STYLES (PURE CSS)
    ========================================================================== */
 
-.cranzo-auth-header {
+.cranezo-auth-header {
   margin-bottom: 24px;
   text-align: left;
 }
 
-.cranzo-auth-header--centered {
+.cranezo-auth-header--centered {
   text-align: center;
 }
 
-.cranzo-auth-title {
+.cranezo-auth-title {
   font-family: var(--font-family-primary);
   font-weight: 700;
   font-size: var(--font-title-size, 38px);
@@ -21,7 +21,7 @@
   margin-bottom: 6px;
 }
 
-.cranzo-auth-subtitle {
+.cranezo-auth-subtitle {
   font-family: var(--font-family-primary);
   font-size: 14px;
   color: #94a3b8;
@@ -29,14 +29,14 @@
   font-weight: 400;
 }
 
-.cranzo-auth-form {
+.cranezo-auth-form {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
 /* Row with Checkbox and Forgot Password link */
-.cranzo-auth-actions-row {
+.cranezo-auth-actions-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -45,7 +45,7 @@
   font-size: 14px;
 }
 
-.cranzo-auth-forgot-link {
+.cranezo-auth-forgot-link {
   color: var(--brand-orange-primary);
   font-weight: 500;
   text-decoration: none;
@@ -58,13 +58,13 @@
   font-family: inherit;
 }
 
-.cranzo-auth-forgot-link:hover {
+.cranezo-auth-forgot-link:hover {
   color: var(--brand-orange-light);
   text-shadow: 0 0 10px rgba(245, 166, 35, 0.4);
 }
 
 /* Divider with 'or' */
-.cranzo-auth-divider {
+.cranezo-auth-divider {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -73,7 +73,7 @@
   width: 100%;
 }
 
-.cranzo-auth-divider::before {
+.cranezo-auth-divider::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -83,7 +83,7 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-.cranzo-auth-divider-text {
+.cranezo-auth-divider-text {
   position: relative;
   background: #030814;
   padding: 0 16px;
@@ -93,7 +93,7 @@
 }
 
 /* Footer / Back Link */
-.cranzo-auth-back-btn {
+.cranezo-auth-back-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -110,20 +110,20 @@
   align-self: center;
 }
 
-.cranzo-auth-back-btn:hover {
+.cranezo-auth-back-btn:hover {
   color: var(--text-white);
   transform: translateX(-3px);
 }
 
 /* Golden Circular Lock Badge Icon for Forgot Password */
-.cranzo-lock-badge-container {
+.cranezo-lock-badge-container {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.cranzo-lock-badge {
+.cranezo-lock-badge {
   width: 76px;
   height: 76px;
   border-radius: 50%;
@@ -137,7 +137,7 @@
 }
 
 /* Success / Notification Banner */
-.cranzo-auth-alert {
+.cranezo-auth-alert {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -147,20 +147,20 @@
   animation: fadeIn var(--transition-normal);
 }
 
-.cranzo-auth-alert--success {
+.cranezo-auth-alert--success {
   background: var(--color-success-bg);
   border: 1px solid rgba(16, 185, 129, 0.3);
   color: #34d399;
 }
 
-.cranzo-auth-alert--error {
+.cranezo-auth-alert--error {
   background: var(--color-error-bg);
   border: 1px solid rgba(239, 68, 68, 0.3);
   color: #f87171;
 }
 
 @media (max-width: 640px) {
-  .cranzo-auth-title {
+  .cranezo-auth-title {
     font-size: 30px;
     line-height: 38px;
   }

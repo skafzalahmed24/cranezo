@@ -69,7 +69,7 @@ export const OperatorDetails = ({ operatorId = 'OPR-1003', onBack }) => {
   ];
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       {/* Top Header Row */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
         <div>
@@ -121,7 +121,7 @@ export const OperatorDetails = ({ operatorId = 'OPR-1003', onBack }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <button
             type="button"
-            className="cranzo-btn-secondary"
+            className="cranezo-btn-secondary"
             style={{ height: '38px', padding: '0 16px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <Edit2 size={14} color="#f59e0b" />
@@ -129,7 +129,7 @@ export const OperatorDetails = ({ operatorId = 'OPR-1003', onBack }) => {
           </button>
           <button
             type="button"
-            className="cranzo-btn-danger-outline"
+            className="cranezo-btn-danger-outline"
             style={{ height: '38px', padding: '0 16px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <Ban size={14} />
@@ -140,7 +140,7 @@ export const OperatorDetails = ({ operatorId = 'OPR-1003', onBack }) => {
 
       {/* Operator Profile Card */}
       <div
-        className="cranzo-card"
+        className="cranezo-card"
         style={{
           padding: '24px',
           display: 'flex',
@@ -292,38 +292,38 @@ export const OperatorDetails = ({ operatorId = 'OPR-1003', onBack }) => {
 
       {/* 3 Stat Cards in Overview */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '4px' }}>
-        <div className="cranzo-stat-card">
-          <div className="cranzo-stat-card-left">
-            <div className="cranzo-stat-icon-box" style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b' }}>
+        <div className="cranezo-stat-card">
+          <div className="cranezo-stat-card-left">
+            <div className="cranezo-stat-icon-box" style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b' }}>
               <Briefcase size={20} />
             </div>
-            <div className="cranzo-stat-info">
-              <span className="cranzo-stat-label">Total Jobs</span>
-              <span className="cranzo-stat-value">18</span>
+            <div className="cranezo-stat-info">
+              <span className="cranezo-stat-label">Total Jobs</span>
+              <span className="cranezo-stat-value">18</span>
             </div>
           </div>
         </div>
 
-        <div className="cranzo-stat-card">
-          <div className="cranzo-stat-card-left">
-            <div className="cranzo-stat-icon-box green">
+        <div className="cranezo-stat-card">
+          <div className="cranezo-stat-card-left">
+            <div className="cranezo-stat-icon-box green">
               <CheckCircle2 size={20} />
             </div>
-            <div className="cranzo-stat-info">
-              <span className="cranzo-stat-label">Completed Jobs</span>
-              <span className="cranzo-stat-value">16</span>
+            <div className="cranezo-stat-info">
+              <span className="cranezo-stat-label">Completed Jobs</span>
+              <span className="cranezo-stat-value">16</span>
             </div>
           </div>
         </div>
 
-        <div className="cranzo-stat-card">
-          <div className="cranzo-stat-card-left">
-            <div className="cranzo-stat-icon-box red">
+        <div className="cranezo-stat-card">
+          <div className="cranezo-stat-card-left">
+            <div className="cranezo-stat-icon-box red">
               <XCircle size={20} />
             </div>
-            <div className="cranzo-stat-info">
-              <span className="cranzo-stat-label">Cancelled Jobs</span>
-              <span className="cranzo-stat-value">2</span>
+            <div className="cranezo-stat-info">
+              <span className="cranezo-stat-label">Cancelled Jobs</span>
+              <span className="cranezo-stat-value">2</span>
             </div>
           </div>
         </div>
@@ -332,7 +332,7 @@ export const OperatorDetails = ({ operatorId = 'OPR-1003', onBack }) => {
       {/* Two Column Grid: License Information & Assigned Crane */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
         {/* Left: License Information */}
-        <div className="cranzo-card" style={{ padding: '22px' }}>
+        <div className="cranezo-card" style={{ padding: '22px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px' }}>
             <Award size={16} color="#f59e0b" />
             <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#ffffff', margin: 0 }}>
@@ -380,7 +380,7 @@ export const OperatorDetails = ({ operatorId = 'OPR-1003', onBack }) => {
         </div>
 
         {/* Right: Assigned Crane */}
-        <div className="cranzo-card" style={{ padding: '22px' }}>
+        <div className="cranezo-card" style={{ padding: '22px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
             <Construction size={16} color="#f59e0b" />
             <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#ffffff', margin: 0 }}>
@@ -449,7 +449,7 @@ export const OperatorDetails = ({ operatorId = 'OPR-1003', onBack }) => {
       </div>
 
       {/* Recent Job History Table */}
-      <div className="cranzo-card" style={{ padding: '22px' }}>
+      <div className="cranezo-card" style={{ padding: '22px' }}>
         <div
           style={{
             display: 'flex',
@@ -480,7 +480,7 @@ export const OperatorDetails = ({ operatorId = 'OPR-1003', onBack }) => {
         </div>
 
         <div style={{ overflowX: 'auto' }}>
-          <table className="cranzo-table" style={{ width: '100%' }}>
+          <table className="cranezo-table" style={{ width: '100%' }}>
             <thead>
               <tr>
                 <th>Booking ID</th>

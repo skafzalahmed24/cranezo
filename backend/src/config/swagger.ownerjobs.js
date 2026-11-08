@@ -89,7 +89,7 @@ module.exports = {
         description: [
           'period: today, week (Monday to Sunday), month or all. Dates follow India time.',
           'Returns the **earnings** breakdown (gross, platform fee 5%, other deductions, **net**), jobs_completed, compared_to_previous (e.g. vs yesterday, change_percent), the four **cards** (today, week, month, all, net amounts) and **settlement** (settled amount with last settled date; pending amount with when it will be settled, 3 days after completion).',
-          'Net = final job amount - platform fee - other deductions. Other deductions are 0 until deduction rules exist. Jobs show as Pending until the Cranzo team marks them settled.'
+          'Net = final job amount - platform fee - other deductions. Other deductions are 0 until deduction rules exist. Jobs show as Pending until the Cranezo team marks them settled.'
         ].join('\n'),
         security: secured,
         requestBody: json({ period: { type: 'string', enum: ['today', 'week', 'month', 'all'], default: 'today' } }),

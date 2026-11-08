@@ -104,12 +104,12 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
   };
 
   return (
-    <aside className={`cranzo-sidebar ${mobileOpen ? 'open' : ''}`}>
-      <div className="cranzo-sidebar-brand">
-        <img src={logoImg} alt="Cranzo Heavy Equipment Platform" />
+    <aside className={`cranezo-sidebar ${mobileOpen ? 'open' : ''}`}>
+      <div className="cranezo-sidebar-brand">
+        <img src={logoImg} alt="Cranezo Heavy Equipment Platform" />
         <button
           type="button"
-          className="cranzo-mobile-close-btn"
+          className="cranezo-mobile-close-btn"
           onClick={onCloseMobile}
           title="Close sidebar"
         >
@@ -117,13 +117,13 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
         </button>
       </div>
 
-      <nav className="cranzo-sidebar-nav">
+      <nav className="cranezo-sidebar-nav">
         {navSections.map((section, idx) => (
-          <div key={idx} className="cranzo-nav-group">
+          <div key={idx} className="cranezo-nav-group">
             {section.title && (
-              <div className="cranzo-nav-section-title">{section.title}</div>
+              <div className="cranezo-nav-section-title">{section.title}</div>
             )}
-            <ul className="cranzo-nav-list">
+            <ul className="cranezo-nav-list">
               {section.items.map((item) => {
                 const IconComponent = item.icon;
                 const isActive =
@@ -137,14 +137,14 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
                   <li key={item.id}>
                     <button
                       type="button"
-                      className={`cranzo-nav-item ${isActive ? 'active' : ''}`}
+                      className={`cranezo-nav-item ${isActive ? 'active' : ''}`}
                       onClick={() => handleItemClick(item.id)}
                     >
                       <IconComponent size={18} />
                       <span>{item.label}</span>
                       {badgeCount(badges[item.id]) > 0 && (
                         <span
-                          className={`cranzo-nav-badge ${badges[item.id] && badges[item.id].danger ? 'danger' : ''}`}
+                          className={`cranezo-nav-badge ${badges[item.id] && badges[item.id].danger ? 'danger' : ''}`}
                           title={`${badgeCount(badges[item.id])} pending`}
                         >
                           {badgeCount(badges[item.id]) > 99 ? '99+' : badgeCount(badges[item.id])}
@@ -159,10 +159,10 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
         ))}
       </nav>
 
-      <div className="cranzo-sidebar-footer">
+      <div className="cranezo-sidebar-footer">
         <button
           type="button"
-          className="cranzo-nav-item cranzo-nav-item-logout"
+          className="cranezo-nav-item cranezo-nav-item-logout"
           onClick={handleLogoutClick}
         >
           <LogOut size={18} />

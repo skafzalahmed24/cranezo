@@ -111,13 +111,13 @@ export const SettingsDropdowns = () => {
   const showsPictures = activeType === 6;
 
   return (
-    <div className="cranzo-content-view animate-fade-in" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+    <div className="cranezo-content-view animate-fade-in" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
       <div style={{ ...cardStyle, padding: '8px', width: '260px', flexShrink: 0 }}>
         {types.map((t) => (
           <button
             key={t.type}
             type="button"
-            className={`cranzo-nav-item ${activeType === t.type ? 'active' : ''}`}
+            className={`cranezo-nav-item ${activeType === t.type ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'space-between' }}
             onClick={() => {
               setActiveType(t.type);
@@ -149,15 +149,15 @@ export const SettingsDropdowns = () => {
             placeholder="Add a new value"
             style={{ ...inputStyle, flex: 1, minWidth: 180 }}
           />
-          <button type="submit" className="cranzo-btn-primary-amber">
+          <button type="submit" className="cranezo-btn-primary-amber">
             <Plus size={14} /> Add
           </button>
         </form>
 
         {error && <p style={{ color: '#ef4444', margin: '0 0 12px' }}>{error}</p>}
 
-        <div className="cranzo-table-container">
-          <table className="cranzo-table" style={{ minWidth: '520px' }}>
+        <div className="cranezo-table-container">
+          <table className="cranezo-table" style={{ minWidth: '520px' }}>
             <thead>
               <tr>
                 <th>ID</th>
@@ -209,10 +209,10 @@ export const SettingsDropdowns = () => {
                   <td style={{ display: 'flex', gap: '6px' }}>
                     {editingId === item.id ? (
                       <>
-                        <button type="button" className="cranzo-btn-primary-amber" onClick={() => saveEdit(item.id)} title="Save">
+                        <button type="button" className="cranezo-btn-primary-amber" onClick={() => saveEdit(item.id)} title="Save">
                           <Check size={14} />
                         </button>
-                        <button type="button" className="cranzo-btn-secondary" onClick={() => setEditingId(null)} title="Cancel">
+                        <button type="button" className="cranezo-btn-secondary" onClick={() => setEditingId(null)} title="Cancel">
                           <X size={14} />
                         </button>
                       </>
@@ -220,7 +220,7 @@ export const SettingsDropdowns = () => {
                       <>
                         <button
                           type="button"
-                          className="cranzo-btn-secondary"
+                          className="cranezo-btn-secondary"
                           onClick={() => {
                             setEditingId(item.id);
                             setEdit({ name: item.name, description: item.description || '', image: item.image || '' });
@@ -229,7 +229,7 @@ export const SettingsDropdowns = () => {
                         >
                           <Pencil size={14} />
                         </button>
-                        <button type="button" className="cranzo-btn-secondary" onClick={() => toggleStatus(item)}>
+                        <button type="button" className="cranezo-btn-secondary" onClick={() => toggleStatus(item)}>
                           {item.status === 0 ? 'Set Inactive' : 'Set Active'}
                         </button>
                       </>

@@ -39,10 +39,10 @@ const startServer = async () => {
   require('./src/services/notification.service').getMessaging();
 
   app.listen(PORT, () => {
-    console.log(`[Cranzo Server] Heavy Lifting API running on http://localhost:${PORT}`);
-    console.log(`[Cranzo Server] Swagger Documentation: http://localhost:${PORT}/api/docs`);
-    console.log(`[Cranzo Server] Health Check: http://localhost:${PORT}/api/health`);
-    console.log(`[Cranzo Server] Super Admin Login: POST http://localhost:${PORT}/api/auth/login`);
+    console.log(`[Cranezo Server] Heavy Lifting API running on http://localhost:${PORT}`);
+    console.log(`[Cranezo Server] Swagger Documentation: http://localhost:${PORT}/api/docs`);
+    console.log(`[Cranezo Server] Health Check: http://localhost:${PORT}/api/health`);
+    console.log(`[Cranezo Server] Super Admin Login: POST http://localhost:${PORT}/api/auth/login`);
   });
 };
 

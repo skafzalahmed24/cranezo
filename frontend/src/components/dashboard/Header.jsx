@@ -70,25 +70,25 @@ export const Header = ({
   };
 
   return (
-    <header className="cranzo-top-header">
-      <div className="cranzo-header-left">
+    <header className="cranezo-top-header">
+      <div className="cranezo-header-left">
         <button
           type="button"
-          className="cranzo-hamburger-btn"
+          className="cranezo-hamburger-btn"
           onClick={onToggleMobileSidebar}
           title="Toggle Navigation Menu"
         >
           <Menu size={20} />
         </button>
-        <h1 className="cranzo-header-title">{getTitle()}</h1>
+        <h1 className="cranezo-header-title">{getTitle()}</h1>
       </div>
 
-      <div className="cranzo-header-right">
-        <div className="cranzo-header-search">
-          <Search size={16} className="cranzo-header-search-icon" />
+      <div className="cranezo-header-right">
+        <div className="cranezo-header-search">
+          <Search size={16} className="cranezo-header-search-icon" />
           <input
             type="text"
-            className="cranzo-header-search-input"
+            className="cranezo-header-search-input"
             placeholder={getSearchPlaceholder()}
           />
         </div>
@@ -96,7 +96,7 @@ export const Header = ({
         {/* Theme Toggle Button (Light / Dark Mode) */}
         <button
           type="button"
-          className="cranzo-icon-button"
+          className="cranezo-icon-button"
           onClick={onToggleTheme}
           title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           aria-label="Toggle Theme"
@@ -107,28 +107,28 @@ export const Header = ({
         {/* Notifications Button */}
         <button
           type="button"
-          className="cranzo-icon-button"
+          className="cranezo-icon-button"
           title="Notifications"
           onClick={() => onNavigate('notifications')}
         >
           <Bell size={18} />
-          <span className="cranzo-notification-badge" />
+          <span className="cranezo-notification-badge" />
         </button>
 
         {/* Profile Pill & Menu */}
         <div style={{ position: 'relative' }}>
           <div
-            className="cranzo-user-pill"
+            className="cranezo-user-pill"
             onClick={() => setShowProfileMenu((prev) => !prev)}
           >
-            <div className="cranzo-user-avatar">
+            <div className="cranezo-user-avatar">
               {userSession?.name?.slice(0, 1) || 'A'}
             </div>
-            <div className="cranzo-user-meta">
-              <span className="cranzo-user-name">
+            <div className="cranezo-user-meta">
+              <span className="cranezo-user-name">
                 {userSession?.name || 'Admin'}
               </span>
-              <span className="cranzo-user-role">
+              <span className="cranezo-user-role">
                 {userSession?.role || 'Super Admin'}
               </span>
             </div>
@@ -161,7 +161,7 @@ export const Header = ({
                 }}
               >
                 <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--dash-text-title)' }}>
-                  {userSession?.email || 'superadmin@cranzo.com'}
+                  {userSession?.email || 'superadmin@cranezo.com'}
                 </div>
                 <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 700, marginTop: '2px' }}>
                   {userSession?.access_role ? userSession.access_role.toUpperCase() : 'HQ CONTROL'}
@@ -169,7 +169,7 @@ export const Header = ({
               </div>
               <button
                 type="button"
-                className="cranzo-nav-item"
+                className="cranezo-nav-item"
                 style={{ padding: '8px 10px' }}
                 onClick={() => {
                   setShowProfileMenu(false);
@@ -181,7 +181,7 @@ export const Header = ({
               </button>
               <button
                 type="button"
-                className="cranzo-nav-item"
+                className="cranezo-nav-item"
                 style={{ padding: '8px 10px' }}
                 onClick={() => {
                   onToggleTheme();
@@ -193,7 +193,7 @@ export const Header = ({
               </button>
               <button
                 type="button"
-                className="cranzo-nav-item cranzo-nav-item-logout"
+                className="cranezo-nav-item cranezo-nav-item-logout"
                 style={{ padding: '8px 10px' }}
                 onClick={() => {
                   setShowProfileMenu(false);

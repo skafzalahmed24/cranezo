@@ -43,7 +43,7 @@ module.exports = {
         device_id: 'DEV-HYD-9981',
         device_unique_id: 'UNIQ-UUID-99812',
         platform_type: 'ANDROID',
-        device_details: 'Samsung Galaxy Tab S9 - Android 14 - Cranzo Mobile v1.0.4',
+        device_details: 'Samsung Galaxy Tab S9 - Android 14 - Cranezo Mobile v1.0.4',
         created_at: now,
         updated_at: now
       }

@@ -55,7 +55,7 @@ const BOOKING_CONFIG = {
   REQUEST_TTL_NOW_MINUTES: 10,
   REQUEST_TTL_SCHEDULED_MINUTES: 120,
   ADVANCE_PERCENT: 20,
-  // Cranzo's share of every completed job; the owner receives the rest
+  // Cranezo's share of every completed job; the owner receives the rest
   PLATFORM_FEE_PERCENT: 5,
   // a completed job is settled to the owner this many days after completion
   SETTLEMENT_DAYS: 3,

@@ -35,10 +35,10 @@ const initials = (name) =>
     .toUpperCase() || '?';
 
 const Person = ({ member, onOpen }) => (
-  <div className="cranzo-user-cell">
-    <div className="cranzo-table-avatar">{initials(displayName(member))}</div>
+  <div className="cranezo-user-cell">
+    <div className="cranezo-table-avatar">{initials(displayName(member))}</div>
     <div>
-      <span className="cranzo-link-text" onClick={() => onOpen(member.id)}>
+      <span className="cranezo-link-text" onClick={() => onOpen(member.id)}>
         {displayName(member)}
       </span>
       <div style={{ fontSize: '11px', color: 'var(--dash-text-subtle)' }}>
@@ -50,11 +50,11 @@ const Person = ({ member, onOpen }) => (
 );
 
 const MemberStatus = ({ member }) => (
-  <span className={`cranzo-status-badge ${member.status === 0 ? 'active' : 'blocked'}`}>{member.status_label}</span>
+  <span className={`cranezo-status-badge ${member.status === 0 ? 'active' : 'blocked'}`}>{member.status_label}</span>
 );
 
 const MobileBadge = ({ member }) => (
-  <span className={`cranzo-status-badge ${member.is_mobile_verified ? 'active' : 'pending'}`}>
+  <span className={`cranezo-status-badge ${member.is_mobile_verified ? 'active' : 'pending'}`}>
     {member.is_mobile_verified ? 'Verified' : 'Pending'}
   </span>
 );
@@ -84,7 +84,7 @@ const memberFetchers = (roleId) => ({
 const KINDS = {
   users: {
     title: 'Users',
-    subtitle: 'Manage and monitor all customers registered on Cranzo.',
+    subtitle: 'Manage and monitor all customers registered on Cranezo.',
     searchPlaceholder: 'Search by name, email, phone or city...',
     noun: 'Users',
     ...memberFetchers(3),
@@ -101,7 +101,7 @@ const KINDS = {
   },
   owners: {
     title: 'Owners',
-    subtitle: 'Crane owners registered on Cranzo and their fleets.',
+    subtitle: 'Crane owners registered on Cranezo and their fleets.',
     searchPlaceholder: 'Search by name, company, phone or member id...',
     noun: 'Owners',
     ...memberFetchers(1),
@@ -146,7 +146,7 @@ const KINDS = {
   },
   cranes: {
     title: 'Crane Fleet',
-    subtitle: 'Every crane registered on Cranzo with its review status.',
+    subtitle: 'Every crane registered on Cranezo with its review status.',
     searchPlaceholder: 'Search code, registration or location...',
     noun: 'Cranes',
     fetchPage: (payload) => apiRequest('/admin/cranes/list', { method: 'POST', body: payload }),
@@ -170,7 +170,7 @@ const KINDS = {
         header: 'CRANE',
         render: (c, ctx) => (
           <div>
-            <span className="cranzo-link-text" onClick={() => ctx.onOpen(c.id)}>
+            <span className="cranezo-link-text" onClick={() => ctx.onOpen(c.id)}>
               {c.crane_code}
             </span>
             <div style={{ fontSize: '11px', color: 'var(--dash-text-subtle)' }}>{dash(c.model_name)}</div>
@@ -191,7 +191,7 @@ const KINDS = {
       {
         header: 'STATUS',
         render: (c) => (
-          <span className={`cranzo-status-badge ${APPROVAL_CLASS[c.approval_status]}`}>{c.approval_label}</span>
+          <span className={`cranezo-status-badge ${APPROVAL_CLASS[c.approval_status]}`}>{c.approval_label}</span>
         ),
       },
     ],
@@ -259,26 +259,26 @@ export const DirectoryList = ({ kind, onSelect }) => {
   const cards = summary ? config.cards(summary) : [];
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
-      <div className="cranzo-users-header-row">
+    <div className="cranezo-content-view animate-fade-in">
+      <div className="cranezo-users-header-row">
         <div>
-          <h2 className="cranzo-greeting-title">{config.title}</h2>
-          <p className="cranzo-greeting-subtitle">{config.subtitle}</p>
+          <h2 className="cranezo-greeting-title">{config.title}</h2>
+          <p className="cranezo-greeting-subtitle">{config.subtitle}</p>
         </div>
       </div>
 
-      <div className="cranzo-stats-grid-4">
+      <div className="cranezo-stats-grid-4">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
-            <div key={card.label} className="cranzo-stat-card">
-              <div className="cranzo-stat-card-left">
-                <div className={`cranzo-stat-icon-box ${card.boxClass}`}>
+            <div key={card.label} className="cranezo-stat-card">
+              <div className="cranezo-stat-card-left">
+                <div className={`cranezo-stat-icon-box ${card.boxClass}`}>
                   <Icon size={20} />
                 </div>
-                <div className="cranzo-stat-info">
-                  <span className="cranzo-stat-label">{card.label}</span>
-                  <span className="cranzo-stat-value">{Number(card.value).toLocaleString('en-IN')}</span>
+                <div className="cranezo-stat-info">
+                  <span className="cranezo-stat-label">{card.label}</span>
+                  <span className="cranezo-stat-value">{Number(card.value).toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>
@@ -286,12 +286,12 @@ export const DirectoryList = ({ kind, onSelect }) => {
         })}
       </div>
 
-      <div className="cranzo-filter-toolbar">
-        <div className="cranzo-filter-search-box">
+      <div className="cranezo-filter-toolbar">
+        <div className="cranezo-filter-search-box">
           <Search size={15} />
           <input
             type="text"
-            className="cranzo-filter-search-input"
+            className="cranezo-filter-search-input"
             placeholder={config.searchPlaceholder}
             value={search}
             onChange={(e) => {
@@ -301,7 +301,7 @@ export const DirectoryList = ({ kind, onSelect }) => {
           />
         </div>
         <select
-          className="cranzo-select-dropdown"
+          className="cranezo-select-dropdown"
           value={status}
           onChange={(e) => {
             setStatus(e.target.value);
@@ -316,7 +316,7 @@ export const DirectoryList = ({ kind, onSelect }) => {
         </select>
         <button
           type="button"
-          className="cranzo-filter-reset"
+          className="cranezo-filter-reset"
           onClick={() => {
             setSearch('');
             setStatus('');
@@ -328,14 +328,14 @@ export const DirectoryList = ({ kind, onSelect }) => {
       </div>
 
       {error && (
-        <div className="cranzo-card" style={{ padding: '12px 16px', marginBottom: '12px', color: '#ef4444' }}>
+        <div className="cranezo-card" style={{ padding: '12px 16px', marginBottom: '12px', color: '#ef4444' }}>
           {error}
         </div>
       )}
 
-      <div className="cranzo-card" style={{ padding: '8px 16px 16px 16px', width: '100%', boxSizing: 'border-box' }}>
-        <div className="cranzo-table-container">
-          <table className="cranzo-table" style={{ width: '100%' }}>
+      <div className="cranezo-card" style={{ padding: '8px 16px 16px 16px', width: '100%', boxSizing: 'border-box' }}>
+        <div className="cranezo-table-container">
+          <table className="cranezo-table" style={{ width: '100%' }}>
             <thead>
               <tr>
                 <th style={{ width: '45px' }}>#</th>
@@ -358,13 +358,13 @@ export const DirectoryList = ({ kind, onSelect }) => {
                   ))}
                   <td style={{ textAlign: 'center' }}>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                      <button type="button" className="cranzo-action-btn" title="View Details" onClick={() => onSelect(row.id)}>
+                      <button type="button" className="cranezo-action-btn" title="View Details" onClick={() => onSelect(row.id)}>
                         <Eye size={15} />
                       </button>
                       {config.blockable && (
                         <button
                           type="button"
-                          className="cranzo-action-btn"
+                          className="cranezo-action-btn"
                           title={row.status === 0 ? 'Block' : 'Unblock'}
                           onClick={() => toggleBlock(row)}
                         >
@@ -393,25 +393,25 @@ export const DirectoryList = ({ kind, onSelect }) => {
           </table>
         </div>
 
-        <div className="cranzo-pagination-bar">
-          <span className="cranzo-pagination-text">
+        <div className="cranezo-pagination-bar">
+          <span className="cranezo-pagination-text">
             Showing {from} to {to} of {pagination.total} {config.noun.toLowerCase()}
           </span>
-          <div className="cranzo-pagination-controls">
+          <div className="cranezo-pagination-controls">
             <button
               type="button"
-              className={`cranzo-page-btn ${page === 1 ? 'disabled' : ''}`}
+              className={`cranezo-page-btn ${page === 1 ? 'disabled' : ''}`}
               disabled={page === 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
               <ChevronLeft size={14} />
             </button>
-            <button type="button" className="cranzo-page-btn active">
+            <button type="button" className="cranezo-page-btn active">
               {page}
             </button>
             <button
               type="button"
-              className={`cranzo-page-btn ${pagination.has_more ? '' : 'disabled'}`}
+              className={`cranezo-page-btn ${pagination.has_more ? '' : 'disabled'}`}
               disabled={!pagination.has_more}
               onClick={() => setPage((p) => p + 1)}
             >

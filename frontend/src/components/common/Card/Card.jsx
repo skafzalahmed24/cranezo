@@ -6,8 +6,8 @@ import './Card.css';
  */
 export const Card = ({ children, className = '', ...props }) => {
   return (
-    <div className={`cranzo-card animate-fade-in ${className}`} {...props}>
-      <div className="cranzo-card__inner">{children}</div>
+    <div className={`cranezo-card animate-fade-in ${className}`} {...props}>
+      <div className="cranezo-card__inner">{children}</div>
     </div>
   );
 };

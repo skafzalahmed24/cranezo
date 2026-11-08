@@ -48,7 +48,7 @@ export const Settlements = () => {
   }
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader
         title="Settlements"
         subtitle="Settle money between the platform and crane owners. Cash jobs: collect the platform fee. Online jobs: pay the owner their share."
@@ -57,8 +57,8 @@ export const Settlements = () => {
       <OkBox message={notice} />
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        <button type="button" className={tab === 'due' ? 'cranzo-btn-primary-amber' : 'cranzo-btn-secondary'} onClick={() => setTab('due')}>Due now</button>
-        <button type="button" className={tab === 'history' ? 'cranzo-btn-primary-amber' : 'cranzo-btn-secondary'} onClick={() => setTab('history')}>History</button>
+        <button type="button" className={tab === 'due' ? 'cranezo-btn-primary-amber' : 'cranezo-btn-secondary'} onClick={() => setTab('due')}>Due now</button>
+        <button type="button" className={tab === 'history' ? 'cranezo-btn-primary-amber' : 'cranezo-btn-secondary'} onClick={() => setTab('history')}>History</button>
       </div>
 
       {tab === 'history' ? (
@@ -89,7 +89,7 @@ export const Settlements = () => {
                 inr(r.platform_owes_owner),
                 <span key="net" style={{ color: netColor(r.net), fontWeight: 700 }}>{r.net_label}: {inr(Math.abs(r.net))}</span>,
                 day(r.oldest_job_at),
-                <button key="b" type="button" className="cranzo-btn-secondary" onClick={() => { setNotice(''); setOwner(r); }}>Settle</button>,
+                <button key="b" type="button" className="cranezo-btn-secondary" onClick={() => { setNotice(''); setOwner(r); }}>Settle</button>,
               ])}
               empty="Nothing to settle. Every paid job is settled."
               minWidth={900}
@@ -142,8 +142,8 @@ const OwnerSettlement = ({ owner, methods, onBack, onDone }) => {
   };
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
-      <button type="button" className="cranzo-btn-secondary" onClick={onBack} style={{ marginBottom: 14 }}>
+    <div className="cranezo-content-view animate-fade-in">
+      <button type="button" className="cranezo-btn-secondary" onClick={onBack} style={{ marginBottom: 14 }}>
         <ArrowLeft size={15} /> Back to settlements
       </button>
       <PageHeader title={`Settle with ${owner.owner.name || 'owner'}`} subtitle={`Member ID ${owner.owner.member_id || '-'}. Only jobs the customer has paid can be settled.`} />
@@ -180,7 +180,7 @@ const OwnerSettlement = ({ owner, methods, onBack, onDone }) => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
           <div>
             <label style={label}>Method</label>
-            <select className="cranzo-select-dropdown" style={{ width: '100%' }} value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })}>
+            <select className="cranezo-select-dropdown" style={{ width: '100%' }} value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })}>
               {methods.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
           </div>
@@ -196,7 +196,7 @@ const OwnerSettlement = ({ owner, methods, onBack, onDone }) => {
         <label style={{ ...label, marginTop: 12 }}>Note (optional)</label>
         <textarea style={{ ...input, minHeight: 60 }} value={form.note} maxLength={500} onChange={(e) => setForm({ ...form, note: e.target.value })} />
         <div style={{ marginTop: 14, display: 'flex', gap: 10, alignItems: 'center' }}>
-          <button type="button" className="cranzo-btn-primary-amber" disabled={saving || !chosen.length} onClick={save}>
+          <button type="button" className="cranezo-btn-primary-amber" disabled={saving || !chosen.length} onClick={save}>
             {saving ? 'Saving...' : 'Record settlement'}
           </button>
           <span style={muted}>The owner gets a notification. This cannot be undone from the panel.</span>
@@ -229,7 +229,7 @@ const History = () => {
     <Section
       title="Settlement history"
       right={(
-        <select className="cranzo-select-dropdown" value={kind} onChange={(e) => { setPage(0); setKind(e.target.value); }}>
+        <select className="cranezo-select-dropdown" value={kind} onChange={(e) => { setPage(0); setKind(e.target.value); }}>
           <option value="platform_owner">Platform and owners</option>
           <option value="owner_operator">Owners and operators</option>
         </select>

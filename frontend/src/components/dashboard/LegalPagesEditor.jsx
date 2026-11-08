@@ -132,16 +132,16 @@ export const LegalPagesEditor = () => {
   };
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
-      <div className="cranzo-users-header-row">
+    <div className="cranezo-content-view animate-fade-in">
+      <div className="cranezo-users-header-row">
         <div>
-          <h2 className="cranzo-greeting-title">Legal Pages</h2>
-          <p className="cranzo-greeting-subtitle">
-            Edit the Terms &amp; Conditions and Privacy Policy shown in the Cranzo apps.
+          <h2 className="cranezo-greeting-title">Legal Pages</h2>
+          <p className="cranezo-greeting-subtitle">
+            Edit the Terms &amp; Conditions and Privacy Policy shown in the Cranezo apps.
           </p>
         </div>
-        <div className="cranzo-header-actions-group">
-          <button type="button" className="cranzo-btn-primary-amber" disabled={!dirty || saving} onClick={save}>
+        <div className="cranezo-header-actions-group">
+          <button type="button" className="cranezo-btn-primary-amber" disabled={!dirty || saving} onClick={save}>
             <Save size={15} /> {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
@@ -152,7 +152,7 @@ export const LegalPagesEditor = () => {
           <button
             key={tab.type}
             type="button"
-            className={type === tab.type ? 'cranzo-btn-primary-amber' : 'cranzo-btn-secondary'}
+            className={type === tab.type ? 'cranezo-btn-primary-amber' : 'cranezo-btn-secondary'}
             onClick={() => switchTab(tab.type)}
           >
             {tab.label}
@@ -202,19 +202,19 @@ export const LegalPagesEditor = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <strong style={{ color: 'var(--dash-text-title)' }}>Section {index + 1}</strong>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px' }}>
-                  <button type="button" className="cranzo-action-btn" title="Move up" disabled={index === 0} onClick={() => moveSection(index, -1)}>
+                  <button type="button" className="cranezo-action-btn" title="Move up" disabled={index === 0} onClick={() => moveSection(index, -1)}>
                     <ArrowUp size={15} />
                   </button>
                   <button
                     type="button"
-                    className="cranzo-action-btn"
+                    className="cranezo-action-btn"
                     title="Move down"
                     disabled={index === draft.sections.length - 1}
                     onClick={() => moveSection(index, 1)}
                   >
                     <ArrowDown size={15} />
                   </button>
-                  <button type="button" className="cranzo-action-btn" title="Remove section" onClick={() => removeSection(index)}>
+                  <button type="button" className="cranezo-action-btn" title="Remove section" onClick={() => removeSection(index)}>
                     <Trash2 size={15} />
                   </button>
                 </div>
@@ -242,10 +242,10 @@ export const LegalPagesEditor = () => {
           ))}
 
           <div style={{ display: 'flex', gap: '10px', marginBottom: '24px' }}>
-            <button type="button" className="cranzo-btn-secondary" onClick={addSection}>
+            <button type="button" className="cranezo-btn-secondary" onClick={addSection}>
               <Plus size={15} /> Add section
             </button>
-            <button type="button" className="cranzo-btn-primary-amber" disabled={!dirty || saving} onClick={save}>
+            <button type="button" className="cranezo-btn-primary-amber" disabled={!dirty || saving} onClick={save}>
               <Save size={15} /> {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>

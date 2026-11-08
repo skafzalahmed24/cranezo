@@ -15,7 +15,7 @@ const authenticate = async (req, res, next) => {
 
     // Support pre-configured default admin token from .env
     if ((!decoded || !decoded.id) && process.env.DEFAULT_AUTH_TOKEN && token === process.env.DEFAULT_AUTH_TOKEN) {
-      decoded = { id: '00000000-0000-0000-0000-000000000001', email: 'superadmin@cranzo.com', role: 'SUPER_ADMIN' };
+      decoded = { id: '00000000-0000-0000-0000-000000000001', email: 'superadmin@cranezo.com', role: 'SUPER_ADMIN' };
     }
 
     if (!decoded || !decoded.id) {

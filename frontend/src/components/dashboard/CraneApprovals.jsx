@@ -128,7 +128,7 @@ export const CraneApprovals = ({ onReviewed }) => {
   };
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
         {STATUS_TABS.map((tab) => {
           const active = statusFilter === tab.id;
@@ -136,7 +136,7 @@ export const CraneApprovals = ({ onReviewed }) => {
             <button
               key={tab.id || 'all'}
               type="button"
-              className={active ? 'cranzo-btn-primary-amber' : 'cranzo-btn-secondary'}
+              className={active ? 'cranezo-btn-primary-amber' : 'cranezo-btn-secondary'}
               onClick={() => {
                 setStatusFilter(tab.id);
                 setPage(1);
@@ -175,8 +175,8 @@ export const CraneApprovals = ({ onReviewed }) => {
       )}
 
       <div style={{ ...cardStyle, padding: '8px' }}>
-        <div className="cranzo-table-container">
-          <table className="cranzo-table">
+        <div className="cranezo-table-container">
+          <table className="cranezo-table">
             <thead>
               <tr>
                 <th>Crane</th>
@@ -193,7 +193,7 @@ export const CraneApprovals = ({ onReviewed }) => {
               {cranes.map((crane) => (
                 <tr key={crane.id}>
                   <td>
-                    <span className="cranzo-booking-id highlight">{crane.crane_code}</span>
+                    <span className="cranezo-booking-id highlight">{crane.crane_code}</span>
                   </td>
                   <td>
                     {crane.crane_type_name} · {crane.capacity_name}
@@ -213,7 +213,7 @@ export const CraneApprovals = ({ onReviewed }) => {
                     <StatusBadge status={crane.approval_status} label={crane.approval_label} />
                   </td>
                   <td>
-                    <button type="button" className="cranzo-btn-secondary" onClick={() => openCrane(crane.id)}>
+                    <button type="button" className="cranezo-btn-secondary" onClick={() => openCrane(crane.id)}>
                       Review
                     </button>
                   </td>
@@ -241,12 +241,12 @@ export const CraneApprovals = ({ onReviewed }) => {
             {totalItems} crane(s) · page {page} of {totalPages}
           </span>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button type="button" className="cranzo-btn-secondary" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+            <button type="button" className="cranezo-btn-secondary" disabled={page <= 1} onClick={() => setPage(page - 1)}>
               Previous
             </button>
             <button
               type="button"
-              className="cranzo-btn-secondary"
+              className="cranezo-btn-secondary"
               disabled={page >= totalPages}
               onClick={() => setPage(page + 1)}
             >
@@ -258,7 +258,7 @@ export const CraneApprovals = ({ onReviewed }) => {
 
       {selected && (
         <div
-          className="cranzo-modal-backdrop"
+          className="cranezo-modal-backdrop"
           onClick={(e) => e.target === e.currentTarget && closeModal()}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
@@ -279,7 +279,7 @@ export const CraneApprovals = ({ onReviewed }) => {
               <StatusBadge status={selected.approval_status} label={selected.approval_label} />
               <button
                 type="button"
-                className="cranzo-modal-close-icon-btn"
+                className="cranezo-modal-close-icon-btn"
                 onClick={closeModal}
                 style={{ marginLeft: 'auto' }}
                 title="Close"
@@ -375,22 +375,22 @@ export const CraneApprovals = ({ onReviewed }) => {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>
               {rejecting ? (
                 <>
-                  <button type="button" className="cranzo-btn-secondary" onClick={() => setRejecting(false)}>
+                  <button type="button" className="cranezo-btn-secondary" onClick={() => setRejecting(false)}>
                     Back
                   </button>
-                  <button type="button" className="cranzo-btn-danger-outline" disabled={acting} onClick={() => review('reject')}>
+                  <button type="button" className="cranezo-btn-danger-outline" disabled={acting} onClick={() => review('reject')}>
                     <XCircle size={14} /> Confirm Reject
                   </button>
                 </>
               ) : (
                 <>
                   {selected.approval_status !== 2 && (
-                    <button type="button" className="cranzo-btn-danger-outline" onClick={() => setRejecting(true)}>
+                    <button type="button" className="cranezo-btn-danger-outline" onClick={() => setRejecting(true)}>
                       <XCircle size={14} /> Reject
                     </button>
                   )}
                   {selected.approval_status !== 1 && (
-                    <button type="button" className="cranzo-btn-primary-amber" disabled={acting} onClick={() => review('approve')}>
+                    <button type="button" className="cranezo-btn-primary-amber" disabled={acting} onClick={() => review('approve')}>
                       <CheckCircle2 size={14} /> Approve
                     </button>
                   )}

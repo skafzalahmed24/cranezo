@@ -10,12 +10,12 @@ import backgroundImg from '../assets/background.png';
 export const AuthLayout = ({ children, onLogoClick }) => {
   return (
     <div
-      className="cranzo-auth-layout"
+      className="cranezo-auth-layout"
       style={{ backgroundImage: `url(${backgroundImg})` }}
     >
-      <main className="cranzo-auth-layout__container">
-        <div className="cranzo-auth-layout__panel">
-          <div className="cranzo-auth-layout__logo-container">
+      <main className="cranezo-auth-layout__container">
+        <div className="cranezo-auth-layout__panel">
+          <div className="cranezo-auth-layout__logo-container">
             <Logo size="lg" onClick={onLogoClick} />
           </div>
 

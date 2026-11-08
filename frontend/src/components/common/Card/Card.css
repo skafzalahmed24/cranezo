@@ -3,7 +3,7 @@
    Translucent glassmorphic card container
    ========================================================================== */
 
-.cranzo-card {
+.cranezo-card {
   width: 100%;
   max-width: var(--card-max-width, 530px);
   background: var(--card-bg-glass, rgba(3, 8, 20, 0.65));
@@ -19,7 +19,7 @@
 }
 
 /* Subtle glowing top line */
-.cranzo-card::before {
+.cranezo-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -38,7 +38,7 @@
   border-top-right-radius: 40px;
 }
 
-.cranzo-card__inner {
+.cranezo-card__inner {
   padding: 44px 40px;
   display: flex;
   flex-direction: column;
@@ -48,16 +48,16 @@
 }
 
 @media (max-width: 640px) {
-  .cranzo-card {
+  .cranezo-card {
     border-radius: 28px;
   }
 
-  .cranzo-card::before {
+  .cranezo-card::before {
     border-top-left-radius: 28px;
     border-top-right-radius: 28px;
   }
 
-  .cranzo-card__inner {
+  .cranezo-card__inner {
     padding: 32px 22px;
   }
 }

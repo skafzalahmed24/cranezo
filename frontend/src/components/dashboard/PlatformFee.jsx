@@ -47,7 +47,7 @@ export const PlatformFee = () => {
   const fee = Math.round(taxable * pct) / 100;
 
   return (
-    <div className="cranzo-content-view animate-fade-in">
+    <div className="cranezo-content-view animate-fade-in">
       <PageHeader title="Platform Fee" subtitle="The share the platform keeps from every completed job. It is taken from the job amount before GST." />
       <ErrorBox message={error} />
       <OkBox message={notice} />
@@ -58,7 +58,7 @@ export const PlatformFee = () => {
             <label style={label}>Platform fee (%)</label>
             <input type="number" min="0" max="50" step="0.25" style={input} value={value} onChange={(e) => setValue(e.target.value)} />
           </div>
-          <button type="button" className="cranzo-btn-primary-amber" disabled={saving || value === '' || Number(value) === current} onClick={save}>
+          <button type="button" className="cranezo-btn-primary-amber" disabled={saving || value === '' || Number(value) === current} onClick={save}>
             {saving ? 'Saving...' : 'Save fee'}
           </button>
           {current !== null && <span style={muted}>Current: {current}%</span>}
@@ -70,7 +70,7 @@ export const PlatformFee = () => {
       </Section>
 
       <Section title="Example with this fee">
-        <table className="cranzo-table" style={{ maxWidth: 520 }}>
+        <table className="cranezo-table" style={{ maxWidth: 520 }}>
           <tbody>
             <tr><td>Crane hire</td><td style={{ textAlign: 'right' }}>{inr(EXAMPLE.hire)}</td></tr>
             <tr><td>Owner's additional charges</td><td style={{ textAlign: 'right' }}>{inr(EXAMPLE.charges)}</td></tr>
