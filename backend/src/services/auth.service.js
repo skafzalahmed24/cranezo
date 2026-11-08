@@ -2,6 +2,7 @@ const { Admin, User, Role, StaticDropdown } = require('../models');
 const { comparePassword } = require('../utils/password');
 const { generateAuthTokens, verifyRefreshToken } = require('../utils/jwt');
 const { generateUniqueMemberId, getRolePrefix } = require('../utils/memberIdGenerator');
+const { otpService } = require('./otp.service');
 const { ROLE_OWNER, ROLE_OPERATOR, ROLE_CUSTOMER, applyOperatorProfile, applyCustomerProfile } = require('./profile.service');
 
 class AuthService {
@@ -32,8 +33,8 @@ class AuthService {
       ? parseInt(role_id, 10)
       : null;
 
-    // Default OTP for testing (default: 123456)
-    const otp = process.env.DEFAULT_OTP || '123456';
+    // Real codes come from Twilio Verify; the fixed test code (123456) is used only when Twilio is not set up and not in production
+    const otp = otpService.testCode();
 
     let user = await User.findOne({
       where: {
@@ -88,13 +89,16 @@ class AuthService {
       });
     }
 
+    await otpService.send(user.countryCode, user.mobileNumber);
+
     return {
       user_id: user.id,
       country_code: user.countryCode,
       phone_number: user.mobileNumber,
       member_id: user.memberId || null,
       role_id: user.roleId || null,
-      otp: otp,
+      // the code is only ever returned for the fixed test code, never for a real SMS code
+      otp: otp || undefined,
       is_new_user: isNewUser
     };
   }
@@ -118,12 +122,7 @@ class AuthService {
       throw new Error('User not found with the provided user_id.');
     }
 
-    const enteredOtp = String(otp_number).trim();
-    const storedOtp = user.mobileOtp ? String(user.mobileOtp).trim() : null;
-
-    // The fixed test code is accepted only outside production, until an SMS provider sends real codes
-    const testCodeAllowed = process.env.NODE_ENV !== 'production' && enteredOtp === (process.env.DEFAULT_OTP || '123456');
-    if (storedOtp !== enteredOtp && !testCodeAllowed) {
+    if (!(await otpService.check(user.countryCode, user.mobileNumber, otp_number))) {
       throw new Error('Invalid or expired OTP.');
     }
 

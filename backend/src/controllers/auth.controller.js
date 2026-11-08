@@ -11,7 +11,7 @@ class AuthController {
       const result = await authService.registerOrLogin(req.body);
       return successResponse(res, 'OTP generated and sent successfully.', result, 200);
     } catch (error) {
-      return errorResponse(res, error.message, null, 400);
+      return errorResponse(res, error.message, null, error.statusCode || 400);
     }
   }
 
@@ -28,7 +28,7 @@ class AuthController {
       const result = await authService.verifyOtp(payload);
       return successResponse(res, 'OTP verified successfully.', result, 200);
     } catch (error) {
-      return errorResponse(res, error.message, null, 400);
+      return errorResponse(res, error.message, null, error.statusCode || 400);
     }
   }
 
@@ -45,7 +45,7 @@ class AuthController {
       const result = await authService.updateProfile(payload);
       return successResponse(res, 'User profile and role updated successfully.', result, 200);
     } catch (error) {
-      return errorResponse(res, error.message, null, 400);
+      return errorResponse(res, error.message, null, error.statusCode || 400);
     }
   }
 
@@ -76,7 +76,7 @@ class AuthController {
       const result = await authService.register(req.body);
       return successResponse(res, 'Registration successful.', result, 201);
     } catch (error) {
-      return errorResponse(res, error.message, null, 400);
+      return errorResponse(res, error.message, null, error.statusCode || 400);
     }
   }
 
