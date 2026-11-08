@@ -24,6 +24,7 @@ import PlatformFee from './PlatformFee';
 import CraneRequests from './CraneRequests';
 import PricingRules from './PricingRules';
 import AppVersions from './AppVersions';
+import Subscriptions from './Subscriptions';
 import AddUserModal from './AddUserModal';
 import AddCraneModal from './AddCraneModal';
 import { apiRequest } from '../../utils/api';
@@ -310,6 +311,8 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
 
           {activeView === 'app-versions' && <AppVersions />}
 
+          {activeView === 'subscriptions' && <Subscriptions />}
+
           {/* Placeholders for other subpages while keeping navigation active */}
           {![
             'dashboard',
@@ -336,6 +339,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
             'crane-requests',
             'pricing-rules',
             'app-versions',
+            'subscriptions',
             'reviews',
             'reports',
             'notifications',

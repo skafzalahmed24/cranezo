@@ -29,6 +29,12 @@ const startServer = async () => {
       .catch((error) => console.warn('[Crane requests] check failed: ' + error.message));
   }, 60 * 1000).unref();
 
+  // owners whose subscription is due soon (or overdue) get a reminder, at most once a day
+  setInterval(() => {
+    require('./src/services/subscription.service').subscriptionService.sendReminders()
+      .catch((error) => console.warn('[Subscriptions] reminders failed: ' + error.message));
+  }, 60 * 60 * 1000).unref();
+
   // say at start-up whether phones will get pushes (Firebase key found and valid)
   require('./src/services/notification.service').getMessaging();
 

@@ -97,7 +97,10 @@ class CraneRequestService {
     if (ownerId) where.ownerId = ownerId;
     if (customerId) where.ownerId = { ...(where.ownerId ? { [Op.eq]: where.ownerId } : {}), [Op.ne]: customerId };
     const cranes = await Crane.findAll({ where, include: craneIncludes });
+    // owners whose subscription has run out do not get requests
+    const blocked = await require('./subscription.service').subscriptionService.blockedOwnerIds([...new Set(cranes.map((c) => c.ownerId))]);
     const near = cranes
+      .filter((c) => !blocked.has(c.ownerId))
       .filter((c) => c.owner && c.owner.isActive === 0 && c.owner.isDeleted === 0)
       .map((c) => ({ crane: c, distanceKm: H.round1(H.haversineKm(latitude, longitude, Number(c.latitude), Number(c.longitude))) }))
       .filter((m) => m.distanceKm <= radius);
@@ -647,6 +650,7 @@ class CraneRequestService {
 
   /** First owner to accept wins: a booking "Awaiting Payment" is created and the crane is blocked */
   async accept(ownerId, input = {}) {
+    await require('./subscription.service').subscriptionService.assertActive(ownerId);
     if (!H.UUID_RE.test(String(input.request_id || ''))) throw new ServiceError('A valid request_id is required.');
     if (!H.UUID_RE.test(String(input.crane_id || ''))) throw new ServiceError('A valid crane_id is required.');
     await this.tick();

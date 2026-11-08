@@ -41,6 +41,14 @@ router.post('/billing/settings/save', ownerOnly, finance.ownerBillingSave);
 router.post('/jobs/commission', ownerOnly, finance.ownerSetCommission);
 router.post('/transactions', ownerOnly, finance.ownerTransactions);
 router.post('/settlements/platform', ownerOnly, finance.ownerPlatformPending);
+
+// Subscription: free trial, monthly and yearly plans paid with Razorpay
+const subscription = require('../controllers/subscription.controller');
+router.post('/subscription', ownerOnly, subscription.status);
+router.post('/subscription/start-trial', ownerOnly, subscription.startTrial);
+router.post('/subscription/order', ownerOnly, subscription.order);
+router.post('/subscription/verify', ownerOnly, subscription.verify);
+router.post('/subscription/sync', ownerOnly, subscription.sync);
 router.post('/settlements', ownerOnly, finance.ownerSettlements);
 router.post('/settlements/get', ownerOnly, finance.ownerSettlementGet);
 router.post('/operator-payments', ownerOnly, finance.ownerOperatorDues);

@@ -29,6 +29,8 @@ const defineComplaint = require('./Complaint');
 const defineComplaintUpdate = require('./ComplaintUpdate');
 const defineCraneRequest = require('./CraneRequest');
 const definePriceMinimum = require('./PriceMinimum');
+const defineOwnerSubscription = require('./OwnerSubscription');
+const defineSubscriptionPayment = require('./SubscriptionPayment');
 
 const Role = defineRole(sequelize);
 const Admin = defineAdmin(sequelize);
@@ -60,6 +62,8 @@ const Complaint = defineComplaint(sequelize);
 const ComplaintUpdate = defineComplaintUpdate(sequelize);
 const CraneRequest = defineCraneRequest(sequelize);
 const PriceMinimum = definePriceMinimum(sequelize);
+const OwnerSubscription = defineOwnerSubscription(sequelize);
+const SubscriptionPayment = defineSubscriptionPayment(sequelize);
 
 // Associations
 Admin.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
@@ -148,6 +152,8 @@ CraneRequest.belongsTo(StaticDropdown, { foreignKey: 'capacity', as: 'capacityIn
 
 module.exports = {
   sequelize,
+  OwnerSubscription,
+  SubscriptionPayment,
   Role,
   Admin,
   StaticDropdown,

@@ -53,6 +53,12 @@ router.post('/crane-requests/summary', adminOnly, craneRequests.adminSummary);
 router.put('/crane-requests/update', adminOnly, craneRequests.adminUpdate);
 router.post('/pricing', adminOnly, finance.adminPricing);
 
+// Owner subscriptions: who is on which plan and when it is due; the Super Admin sets prices and days
+const subscriptionController = require('../controllers/subscription.controller');
+router.post('/subscriptions/list', adminOnly, subscriptionController.list);
+router.post('/subscriptions/plans', adminOnly, subscriptionController.plans);
+router.put('/subscriptions/plans', [authenticate, requireSuperAdmin], subscriptionController.savePlans);
+
 // App versions and force update (Super Admin only)
 const appVersionController = require('../controllers/appVersion.controller');
 router.post('/app-version/get', [authenticate, requireSuperAdmin], appVersionController.list);

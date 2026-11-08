@@ -436,7 +436,11 @@ class OwnerJobService {
     // commission still to be paid to operators, shown on the dashboard so it is not forgotten
     const { settlementService } = require('./settlement.service');
     const dues = await settlementService.operatorDues(ownerId).catch(() => ({ total_due: 0, items: [] }));
+    const { subscriptionService } = require('./subscription.service');
+    // an owner who never chose a plan gets the free trial the first time the dashboard opens
+    const subscription = await subscriptionService.summary(ownerId, { autoTrial: true }).catch(() => null);
     return {
+      subscription,
       operator_dues: {
         amount: dues.total_due,
         operators: dues.items.length,

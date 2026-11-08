@@ -805,6 +805,7 @@ class BookingService {
 
   /** Accept: first, the crane must still be free; then the customer is told */
   async ownerAccept(ownerId, bookingId) {
+    await require('./subscription.service').subscriptionService.assertActive(ownerId);
     await this.expireStaleRequests();
     const outcome = await sequelize.transaction(async (transaction) => {
       const booking = await Booking.findOne({
