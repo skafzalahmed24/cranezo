@@ -1,6 +1,13 @@
 // How each notification type looks and where tapping it goes.
 // `icon` is a key the app maps to an icon; `category` groups types; `screen` is the app screen to open.
 const META = {
+  // admin decisions
+  crane_approved: { category: 'crane', icon: 'crane', screen: 'owner_crane' },
+  crane_rejected: { category: 'crane', icon: 'alert', screen: 'owner_crane' },
+  document_verified: { category: 'general', icon: 'check', screen: 'documents' },
+  document_rejected: { category: 'general', icon: 'alert', screen: 'documents' },
+  operator_verified: { category: 'general', icon: 'check', screen: null },
+  account_status: { category: 'general', icon: 'bell', screen: null },
   subscription_due: { category: 'payment', icon: 'payment', screen: 'subscription' },
   subscription_paid: { category: 'payment', icon: 'payment', screen: 'subscription' },
   booking_request: { category: 'booking', icon: 'booking', screen: 'owner_request' },

@@ -453,6 +453,18 @@ class CustomerJobService {
     await refresh(User, 'operatorId', b.operatorId);
     await refresh(User, 'ownerId', b.ownerId);
 
+    // the owner and the operator hear about the rating (this notice was defined but never sent)
+    for (const userId of [b.ownerId, b.operatorId]) {
+      if (!userId) continue; // eslint-disable-line no-continue
+      // eslint-disable-next-line no-await-in-loop
+      await notificationService.notify(userId, {
+        type: NOTIFICATION_TYPES.RATING_RECEIVED,
+        title: 'New Rating Received',
+        body: `${b.bookingCode}: the customer rated this job ${stars} out of 5.`,
+        data: { booking_id: b.id, booking_code: b.bookingCode, rating: stars }
+      }).catch(() => {});
+    }
+
     return this.get(customerId, bookingId);
   }
 

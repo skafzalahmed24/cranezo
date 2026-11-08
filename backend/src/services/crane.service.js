@@ -227,6 +227,9 @@ async function assertMinimumRate(craneType, capacity, rate) {
   }
 }
 
+/** "50 Ton Mobile Crane" (or the crane code when the details are missing) */
+const craneName = (v) => [v.capacity_name, v.crane_type_name].filter(Boolean).join(' ') || v.crane_code || 'Your crane';
+
 class CraneService {
   /**
    * Dropdowns + operators the Add Crane form needs.
@@ -627,7 +630,23 @@ class CraneService {
       reviewedAt: new Date(),
       reviewedBy: adminId
     });
-    return formatCrane(await loadCrane(id));
+    const view = formatCrane(await loadCrane(id));
+    await this.tellOwner(crane, view, {
+      type: 'crane_approved',
+      title: 'Crane Approved',
+      body: `${craneName(view)} is verified. Customers can now find and book it.`
+    });
+    return view;
+  }
+
+  /** Push + in-app notice to the crane's owner; a failure here never undoes the admin's decision */
+  async tellOwner(crane, view, { type, title, body }) {
+    try {
+      const { notificationService } = require('./notification.service');
+      await notificationService.notify(crane.ownerId, { type, title, body, data: { crane_id: crane.id, crane_code: view.crane_code } });
+    } catch (error) {
+      console.warn(`[Crane] could not notify the owner: ${error.message}`);
+    }
   }
 
   async rejectCrane(id, adminId, reason) {
@@ -641,7 +660,13 @@ class CraneService {
       reviewedAt: new Date(),
       reviewedBy: adminId
     });
-    return formatCrane(await loadCrane(id));
+    const view = formatCrane(await loadCrane(id));
+    await this.tellOwner(crane, view, {
+      type: 'crane_rejected',
+      title: 'Crane Not Approved',
+      body: `${craneName(view)} was not approved: ${trimmed}. Edit the crane and submit it again.`
+    });
+    return view;
   }
 }
 

@@ -1,3 +1,4 @@
+const { isVerifiedOperator } = require('../middlewares/verifiedOperator.middleware');
 const { Op, fn, col } = require('sequelize');
 const { User, Crane, CraneDocument, StaticDropdown, Role } = require('../models');
 const { CRANE_APPROVAL_LABELS } = require('../constants/roles');
@@ -300,8 +301,28 @@ class MemberService {
     const user = await User.findOne({ where: { id: userId, isDeleted: 0, roleId: 2 } });
     if (!user) throw new MemberServiceError('Operator not found.', 404);
     if (!doc.files.some((f) => user[f])) throw new MemberServiceError('This document has not been uploaded yet.');
+    const before = isVerifiedOperator(user);
+    const changed = user[doc.status] !== value;
     await user.update({ [doc.status]: value });
+    if (changed && value !== 0) await this.tellDocument(user, doc.label, value, before);
     return this.get(userId);
+  }
+
+  /** "Your Voter ID was approved", "... was rejected", and "You are verified" when that completes the check */
+  async tellDocument(user, label, value, wasVerified) {
+    try {
+      const { notificationService } = require('./notification.service');
+      if (value === 1) {
+        await notificationService.notify(user.id, { type: 'document_verified', title: 'Document Approved', body: `Your ${label} was approved.`, data: { document: label } });
+        if (!wasVerified && isVerifiedOperator(user)) {
+          await notificationService.notify(user.id, { type: 'operator_verified', title: 'You Are Verified', body: 'All your documents are approved. You can now accept jobs.' });
+        }
+      } else {
+        await notificationService.notify(user.id, { type: 'document_rejected', title: 'Document Rejected', body: `Your ${label} was rejected. Please upload a clear copy again.`, data: { document: label } });
+      }
+    } catch (error) {
+      console.warn(`[Documents] could not notify the operator: ${error.message}`);
+    }
   }
 
   async setStatus(userId, status) {
@@ -309,7 +330,18 @@ class MemberService {
     if (![0, 1].includes(value)) throw new MemberServiceError('status must be 0 (active) or 1 (blocked).');
     const user = await User.findOne({ where: { id: userId, isDeleted: 0 } });
     if (!user || ![1, 2, 3].includes(user.roleId)) throw new MemberServiceError('Member not found.', 404);
+    const was = user.isActive;
     await user.update({ isActive: value });
+    if (was !== value) {
+      try {
+        const { notificationService } = require('./notification.service');
+        await notificationService.notify(user.id, value === 0
+          ? { type: 'account_status', title: 'Account Active', body: 'Your Cranezo account is active again.' }
+          : { type: 'account_status', title: 'Account Deactivated', body: 'Your Cranezo account was deactivated. Please contact support.' });
+      } catch (error) {
+        console.warn(`[Members] could not notify: ${error.message}`);
+      }
+    }
     return this.get(userId);
   }
 }
