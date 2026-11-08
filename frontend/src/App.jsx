@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AuthLayout from './layouts/AuthLayout';
-import { WelcomePage, LoginPage, ForgotPasswordPage } from './pages';
+import { LoginPage, ForgotPasswordPage } from './pages';
+import SiteRouter, { SITE_PATHS } from './site/SiteRouter';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import { AUTH_EXPIRED_EVENT } from './utils/api';
 
@@ -56,14 +57,14 @@ function App() {
     return () => window.removeEventListener(AUTH_EXPIRED_EVENT, onAuthExpired);
   }, []);
 
-  // Route 1: Welcome / Coming Soon Landing Page at "/"
-  if (currentPath === '/' || currentPath === '/welcome') {
-    return (
-      <WelcomePage
-        onNavigateToAdmin={() => navigate('/admin/login')}
-      />
-    );
+  // Route 1: the public website: Home, About, Contact, Privacy and Terms
+  const sitePath = currentPath.length > 1 ? currentPath.replace(/\/+$/, '') : currentPath;
+  if (SITE_PATHS.includes(sitePath)) {
+    return <SiteRouter path={sitePath} onNavigate={navigate} />;
   }
+
+  // everything below is the admin panel
+  document.title = 'Cranezo | Admin Portal';
 
   // Route 2: Admin Dashboard at "/admin/dashboard" or "/admin"
   if (currentPath === '/admin/dashboard' || currentPath === '/admin') {
