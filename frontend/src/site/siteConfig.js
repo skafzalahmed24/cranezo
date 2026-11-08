@@ -4,6 +4,9 @@
 // Set SITE_LIVE to true to open Home, About and Contact (the pages are built and ready).
 // LEGAL_LIVE opens only the Privacy and Terms pages (the Play Store needs a privacy policy link).
 export const SITE_LIVE = false;
+
+// The "coming soon" countdown on the welcome page counts down to this moment (70 days from 8 Nov 2026)
+export const LAUNCH_AT = '2027-01-17T19:00:00+05:30';
 export const LEGAL_LIVE = false;
 
 export const SITE = {

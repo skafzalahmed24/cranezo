@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import SiteLayout from './SiteLayout';
 import HomePage from './HomePage';
 import { AboutPage, ContactPage, LegalPage } from './InfoPages';
-import ComingSoon from './ComingSoon';
+import WelcomePage from '../pages/WelcomePage';
 import { SITE_LIVE, LEGAL_LIVE } from './siteConfig';
 
 export const SITE_PATHS = ['/', '/welcome', '/about', '/contact', '/privacy', '/terms'];
@@ -24,14 +24,15 @@ export const SiteRouter = ({ path, onNavigate }) => {
   const soon = !SITE_LIVE && !(LEGAL_LIVE && isLegal);
 
   useEffect(() => {
-    document.title = soon ? 'Cranezo | Coming soon' : (TITLES[page] || TITLES['/']);
+    document.title = soon ? 'Cranezo | Launching soon' : (TITLES[page] || TITLES['/']);
     // the admin panel is dark; the website is light
     const before = document.body.style.background;
     document.body.style.background = '#ffffff';
     return () => { document.body.style.background = before; };
   }, [page, soon]);
 
-  if (soon) return <ComingSoon onNavigate={onNavigate} />;
+  // the welcome page with the countdown
+  if (soon) return <WelcomePage />;
 
   let content;
   if (page === '/about') content = <AboutPage onNavigate={onNavigate} />;
