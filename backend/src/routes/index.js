@@ -14,6 +14,7 @@ const contentRoutes = require('./content.routes');
 const notificationRoutes = require('./notification.routes');
 const supportRoutes = require('./support.routes');
 const homeRoutes = require('./home.routes');
+const placesRoutes = require('./places.routes');
 
 // Mount routes
 router.use('/auth', authRoutes);
@@ -29,6 +30,7 @@ router.use('/content', contentRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/support', supportRoutes);
 router.use('/home', homeRoutes);
+router.use('/places', placesRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {
