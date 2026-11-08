@@ -3,7 +3,7 @@ const router = express.Router();
 const { successResponse } = require('../utils/apiResponse');
 const craneController = require('../controllers/crane.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
-const { authorize } = require('../middlewares/role.middleware');
+const { authorize, ownerOrNewSignup } = require('../middlewares/role.middleware');
 const { ROLES } = require('../constants/roles');
 
 const ownerOnly = [authenticate, authorize(ROLES.CRANE_OWNER)];
@@ -44,10 +44,10 @@ router.post('/settlements/platform', ownerOnly, finance.ownerPlatformPending);
 
 // Subscription: free trial, monthly and yearly plans paid with Razorpay
 const subscription = require('../controllers/subscription.controller');
-router.post('/subscription', ownerOnly, subscription.status);
-router.post('/subscription/start-trial', ownerOnly, subscription.startTrial);
-router.post('/subscription/order', ownerOnly, subscription.order);
-router.post('/subscription/verify', ownerOnly, subscription.verify);
+router.post('/subscription', [authenticate, ownerOrNewSignup], subscription.status);
+router.post('/subscription/start-trial', [authenticate, ownerOrNewSignup], subscription.startTrial);
+router.post('/subscription/order', [authenticate, ownerOrNewSignup], subscription.order);
+router.post('/subscription/verify', [authenticate, ownerOrNewSignup], subscription.verify);
 router.post('/subscription/sync', ownerOnly, subscription.sync);
 router.post('/settlements', ownerOnly, finance.ownerSettlements);
 router.post('/settlements/get', ownerOnly, finance.ownerSettlementGet);

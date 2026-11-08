@@ -34,6 +34,17 @@ const authorize = (...allowedRoles) => {
   };
 };
 
+/**
+ * Crane owners, and brand-new accounts that have no role yet: during sign-up the plan screen (free month / monthly / yearly)
+ * opens right after "Crane Owner" is chosen, before the profile is saved and the role is stored.
+ */
+const ownerOrNewSignup = (req, res, next) => {
+  if (!req.user) return errorResponse(res, 'Authentication required.', null, 401);
+  if (req.admin) return authorize(ROLES.CRANE_OWNER)(req, res, next);
+  if (!roleCode(req.user) && !req.user.roleId) return next();
+  return authorize(ROLES.CRANE_OWNER)(req, res, next);
+};
+
 /** Only authenticated admin accounts (req.admin is set by authenticate) */
 const requireAdmin = (req, res, next) => {
   if (!req.admin) {
@@ -60,6 +71,7 @@ const appUserOnly = (req, res, next) => {
 };
 
 module.exports = {
+  ownerOrNewSignup,
   authorize,
   requireAdmin,
   requireSuperAdmin,
