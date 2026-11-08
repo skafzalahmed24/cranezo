@@ -93,23 +93,8 @@ export const LoginForm = ({ onForgotPassword, onLoginSuccess }) => {
         setTimeout(() => onLoginSuccess(data.data.admin), 600);
       }
     } catch (err) {
-      // Seamless static fallback for prototype mode
-      const mockAdmin = {
-        name: 'Admin',
-        role: 'Super Admin',
-        email: formData.email || 'superadmin@cranzo.com',
-      };
-      if (formData.rememberMe) {
-        localStorage.setItem('cranzo_token', 'static-demo-token');
-        localStorage.setItem('cranzo_admin', JSON.stringify(mockAdmin));
-      }
-      setStatusMessage({
-        type: 'success',
-        text: 'Signed in! Redirecting to Cranzo Admin Dashboard...',
-      });
-      if (onLoginSuccess) {
-        setTimeout(() => onLoginSuccess(mockAdmin), 600);
-      }
+      // a refused login stays on the sign-in page with the reason (wrong password, switched off, ...)
+      setStatusMessage({ type: 'error', text: err.message || 'Login failed. Please verify your credentials.' });
     } finally {
       setIsLoading(false);
     }

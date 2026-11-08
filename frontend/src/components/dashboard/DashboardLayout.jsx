@@ -25,6 +25,8 @@ import CraneRequests from './CraneRequests';
 import PricingRules from './PricingRules';
 import AppVersions from './AppVersions';
 import Subscriptions from './Subscriptions';
+import AdminAccess from './AdminAccess';
+import { canView, firstAllowedView } from '../../utils/access';
 import AddUserModal from './AddUserModal';
 import AddCraneModal from './AddCraneModal';
 import { apiRequest } from '../../utils/api';
@@ -42,6 +44,33 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isAddCraneModalOpen, setIsAddCraneModalOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // What this account may open. The server is asked every time the panel opens (never trusted from the browser);
+  // until it answers nothing is shown.
+  const [access, setAccess] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await apiRequest('/admin/me', { method: 'POST', body: {} });
+        if (alive) setAccess(res.data);
+      } catch (e) {
+        if (alive) setAccess({ permissions: [], access_role: null });
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const permissions = access ? access.permissions : null;
+  const allowed = permissions ? canView(permissions, activeView) : false;
+  // the page it opened on is not allowed: go to the first page that is
+  useEffect(() => {
+    if (permissions && !canView(permissions, activeView)) {
+      const first = firstAllowedView(permissions);
+      if (first) setActiveView(first);
+    }
+  }, [permissions, activeView]);
 
   // Crane approvals waiting for review, shown as a badge in the sidebar
   const [pendingCranes, setPendingCranes] = useState(0);
@@ -198,13 +227,14 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         badges={{ 'crane-approvals': pendingCranes, support: pendingSupport, notifications: pendingAlerts }}
+        permissions={permissions}
       />
 
       {/* Main Content Area (offset by fixed sidebar) */}
       <div className="cranzo-main-wrapper">
         <Header
           activeView={activeView}
-          userSession={userSession}
+          userSession={access ? { ...userSession, name: access.name || userSession.name, role: access.access_role || userSession.role, access_role: access.access_role } : userSession}
           onLogout={onLogout}
           onNavigate={handleNavigate}
           theme={theme}
@@ -213,6 +243,19 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
         />
 
         <main style={{ flex: 1, width: '100%', boxSizing: 'border-box' }}>
+          {!allowed && (
+            <div className="cranzo-content-view animate-fade-in">
+              <div className="cranzo-card" style={{ padding: '40px', textAlign: 'center' }}>
+                <h3 className="cranzo-card-title" style={{ fontSize: '20px' }}>{permissions ? 'No access' : 'Loading…'}</h3>
+                {permissions && (
+                  <p className="cranzo-card-subtitle" style={{ marginTop: '8px', fontSize: '14px' }}>
+                    Your login does not include this page. Ask the Super Admin to change your role.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+          {allowed && (<>
           {activeView === 'dashboard' && <AdminDashboard onNavigate={handleNavigate} />}
 
           {activeView === 'users' && (
@@ -313,6 +356,8 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
 
           {activeView === 'subscriptions' && <Subscriptions />}
 
+          {activeView === 'admin-access' && <AdminAccess />}
+
           {/* Placeholders for other subpages while keeping navigation active */}
           {![
             'dashboard',
@@ -340,6 +385,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
             'pricing-rules',
             'app-versions',
             'subscriptions',
+            'admin-access',
             'reviews',
             'reports',
             'notifications',
@@ -364,6 +410,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
               </div>
             </div>
           )}
+          </>)}
         </main>
       </div>
 

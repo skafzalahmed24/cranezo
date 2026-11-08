@@ -164,7 +164,7 @@ export const Header = ({
                   {userSession?.email || 'superadmin@cranzo.com'}
                 </div>
                 <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 700, marginTop: '2px' }}>
-                  HQ CONTROL
+                  {userSession?.access_role ? userSession.access_role.toUpperCase() : 'HQ CONTROL'}
                 </div>
               </div>
               <button

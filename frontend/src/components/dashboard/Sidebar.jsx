@@ -11,6 +11,7 @@ import {
   Images,
   Megaphone,
   Smartphone,
+  UserCog,
   CalendarCheck2,
   CreditCard,
   Star,
@@ -25,12 +26,13 @@ import {
   Search,
   SlidersHorizontal,
 } from 'lucide-react';
+import { canView } from '../../utils/access';
 import logoImg from '../../assets/logo.png';
 
 const badgeCount = (badge) => (badge && typeof badge === 'object' ? badge.count : badge) || 0;
 
-export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseMobile, badges = {} }) => {
-  const navSections = [
+export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseMobile, badges = {}, permissions = null }) => {
+  const allSections = [
     {
       title: null,
       items: [
@@ -79,7 +81,17 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
         { id: 'settings', label: 'Settings', icon: Settings },
       ],
     },
+    {
+      title: 'ACCESS',
+      items: [
+        { id: 'admin-access', label: 'Admins & Roles', icon: UserCog },
+      ],
+    },
   ];
+  // each account sees only the pages of its role (the Super Admin sees all)
+  const navSections = allSections
+    .map((section) => ({ ...section, items: section.items.filter((item) => canView(permissions, item.id)) }))
+    .filter((section) => section.items.length > 0);
 
   const handleItemClick = (id) => {
     onNavigate(id);

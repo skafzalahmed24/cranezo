@@ -10,6 +10,7 @@
     "db:migrate:undo": "npx sequelize-cli db:migrate:undo",
     "db:migrate:undo:all": "npx sequelize-cli db:migrate:undo:all",
     "db:seed": "npx sequelize-cli db:seed:all",
+    "db:seed:admin-roles": "npx sequelize-cli db:seed --seed 20261119000001-admin-access-roles-seeder.js",
     "db:seed:subscriptions": "npx sequelize-cli db:seed --seed 20261118000001-subscription-plans-seeder.js",
     "db:seed:undo": "npx sequelize-cli db:seed:undo:all",
     "db:setup": "npm run db:migrate && npm run db:seed",
