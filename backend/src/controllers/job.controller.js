@@ -62,5 +62,10 @@ module.exports = {
   customerConfirmArrival: handler('Arrival confirmed.', (req) => jobService.customerConfirmArrival(req.user.id, job(req))),
 
   // owner: assign (or change) the operator of a confirmed booking
-  ownerAssignOperator: handler('Operator assigned for this job.', (req) => jobService.ownerAssignOperator(req.user.id, job(req), body(req).operator_id, { operatorCode: body(req).operator_code }))
+  ownerAssignOperator: handler('Operator assigned for this job.', (req) => jobService.ownerAssignOperator(req.user.id, job(req), body(req).operator_id, {
+    operatorCode: body(req).operator_code,
+    // the commission can be set in the same step (one screen: operator + what they earn)
+    commissionType: body(req).commission_type,
+    commissionValue: body(req).commission_value
+  }))
 };

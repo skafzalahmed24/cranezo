@@ -875,7 +875,7 @@ class JobService {
    * Either one of the owner's operators (operator_id), or any operator by their ID code (operator_code, e.g. OP497309),
    * so an outside operator can do one job and then go back to other work.
    */
-  async ownerAssignOperator(ownerId, bookingId, operatorId, { silent = false, operatorCode = null } = {}) {
+  async ownerAssignOperator(ownerId, bookingId, operatorId, { silent = false, operatorCode = null, commissionType = null, commissionValue = null } = {}) {
     if (!H.UUID_RE.test(String(bookingId || ''))) throw new ServiceError('A valid booking_id is required.');
     const b = await Booking.findOne({ where: { id: bookingId, ownerId } });
     if (!b) throw new ServiceError('Booking not found.', 404);
@@ -919,13 +919,20 @@ class JobService {
     if (clash) throw new ServiceError(`${operator.fullName || 'This operator'} is already booked at that time (${clash.bookingCode}).`, 409);
 
     const defaults = await billing.ownerSettings(ownerId);
+    // what the operator earns, when the owner set it together with the choice of operator
+    const hasType = commissionType !== null && commissionType !== undefined && commissionType !== '';
+    if (hasType && (commissionValue === null || commissionValue === undefined || String(commissionValue).trim() === '')) {
+      throw new ServiceError('Enter what the operator will earn for this job.');
+    }
+    const chosen = hasType ? billing.cleanCommission(commissionType, commissionValue) : null;
+    if (chosen && chosen.type === 'per_km' && !(Number(b.distanceKm) > 0)) throw new ServiceError('This job has no distance, so per km cannot be used.');
     await b.update({
       operatorId,
       operatorStatus: 0,
       operatorRespondedAt: null,
       operatorDeclineReason: null,
-      operatorCommissionType: b.operatorCommissionType || defaults.default_commission_type,
-      operatorCommissionValue: b.operatorCommissionType ? b.operatorCommissionValue : defaults.default_commission_value
+      operatorCommissionType: chosen ? chosen.type : (b.operatorCommissionType || defaults.default_commission_type),
+      operatorCommissionValue: chosen ? chosen.value : (b.operatorCommissionType ? b.operatorCommissionValue : defaults.default_commission_value)
     });
     if (silent) return null;
 
@@ -938,10 +945,13 @@ class JobService {
       );
       await JobRequest.update({ status: 1, respondedAt: new Date() }, { where: { bookingId: b.id, status: 0, operatorId } });
     }
+    const earns = billing.billOf(b.get({ plain: true })).operator_commission.amount;
     await notificationService.notify(operatorId, {
       type: NOTIFICATION_TYPES.JOB_ASSIGNED,
       title: 'New Job Request',
-      body: `${b.bookingCode}: you have a new job. Please accept or decline.`,
+      body: earns > 0
+        ? `${b.bookingCode}: you have a new job. You will earn ₹${earns}. Please accept or decline.`
+        : `${b.bookingCode}: you have a new job. Please accept or decline.`,
       data: { booking_id: b.id, booking_code: b.bookingCode }
     });
     return H.ownerView(await H.loadBooking(b.id));

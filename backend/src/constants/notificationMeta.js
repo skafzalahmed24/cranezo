@@ -19,7 +19,7 @@ const META = {
   // 2 minutes left to pay: opens the pay-advance screen (with '+5 minutes'); owner is told when the customer takes it
   payment_reminder: { category: 'payment', icon: 'payment', screen: 'crane_request' },
   payment_extended: { category: 'booking', icon: 'booking', screen: 'owner_job' },
-  assign_operator: { category: 'job', icon: 'job', screen: 'owner_job' },
+  assign_operator: { category: 'job', icon: 'job', screen: 'owner_assign' },
   booking_confirmed: { category: 'booking', icon: 'booking', screen: 'booking' },
   booking_declined: { category: 'booking', icon: 'booking', screen: 'booking' },
   booking_expired: { category: 'booking', icon: 'booking', screen: 'booking' },
