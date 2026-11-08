@@ -433,7 +433,16 @@ class OwnerJobService {
     });
     const { craneRequestService } = require('./craneRequest.service');
     const requests = await craneRequestService.ownerList(ownerId).catch(() => ({ items: [] }));
+    // commission still to be paid to operators, shown on the dashboard so it is not forgotten
+    const { settlementService } = require('./settlement.service');
+    const dues = await settlementService.operatorDues(ownerId).catch(() => ({ total_due: 0, items: [] }));
     return {
+      operator_dues: {
+        amount: dues.total_due,
+        operators: dues.items.length,
+        jobs: dues.items.reduce((n, i) => n + i.jobs, 0),
+        jobs_without_commission: dues.items.reduce((n, i) => n + i.jobs_without_commission, 0)
+      },
       fleet: {
         total_cranes: cranes.length,
         available_cranes: verified.filter((c) => c.availabilityStatus === 0 && !busy.has(c.id)).length,
