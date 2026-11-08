@@ -52,6 +52,11 @@ router.post('/crane-requests', adminOnly, craneRequests.adminList);
 router.post('/crane-requests/summary', adminOnly, craneRequests.adminSummary);
 router.put('/crane-requests/update', adminOnly, craneRequests.adminUpdate);
 router.post('/pricing', adminOnly, finance.adminPricing);
+
+// App versions and force update (Super Admin only)
+const appVersionController = require('../controllers/appVersion.controller');
+router.post('/app-version/get', [authenticate, requireSuperAdmin], appVersionController.list);
+router.put('/app-version', [authenticate, requireSuperAdmin], appVersionController.save);
 router.put('/pricing/rules', [authenticate, requireSuperAdmin], finance.adminSaveRules);
 router.put('/pricing/minimum', [authenticate, requireSuperAdmin], finance.adminSaveMinimum);
 router.post('/complaints', adminOnly, finance.adminComplaints);
