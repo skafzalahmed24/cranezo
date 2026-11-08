@@ -230,6 +230,9 @@ async function assertMinimumRate(craneType, capacity, rate) {
 /** "50 Ton Mobile Crane" (or the crane code when the details are missing) */
 const craneName = (v) => [v.capacity_name, v.crane_type_name].filter(Boolean).join(' ') || v.crane_code || 'Your crane';
 
+/** Optional crane documents (lower case names): the owner may add them, but a crane can be submitted without them */
+const OPTIONAL_DOCUMENTS = ['fitness certificate', 'form 38', 'pollution certificate'];
+
 class CraneService {
   /**
    * Dropdowns + operators the Add Crane form needs.
@@ -254,9 +257,15 @@ class CraneService {
       },
       order: [['id', 'ASC']]
     });
+    // crane documents the owner does not have to upload to submit a crane (they can add them any time)
     const pick = (t) => rows
       .filter((r) => r.dropdownType === t)
-      .map((r) => ({ id: r.id, name: r.dropdownName, description: r.dropdownDescription }));
+      .map((r) => ({
+        id: r.id,
+        name: r.dropdownName,
+        description: r.dropdownDescription,
+        ...(t === DROPDOWN_TYPES.CRANE_DOCUMENT_TYPE ? { required: !OPTIONAL_DOCUMENTS.includes(String(r.dropdownName).toLowerCase()) } : {})
+      }));
 
     if (wanted !== null) return pick(wanted);
 

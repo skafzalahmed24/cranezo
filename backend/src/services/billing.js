@@ -85,10 +85,10 @@ const RULE_LIMITS = {
 };
 
 /**
- * ARRIVAL_CHECK_REQUIRED in .env (default true). true: the operator must reach the site before "arrived" works,
- * and the operator app shows the map and the Google Maps button. false: no location check, no map for the operator.
+ * ARRIVAL_CHECK_REQUIRED in .env (default false: no restriction, the operator can continue with "I have reached the site" at any time).
+ * true: "arrived" works only when the operator's phone is within the arrival distance of the site.
  */
-const arrivalCheckRequired = () => !['false', '0', 'no', 'off'].includes(String(process.env.ARRIVAL_CHECK_REQUIRED || 'true').trim().toLowerCase());
+const arrivalCheckRequired = () => ['true', '1', 'yes', 'on'].includes(String(process.env.ARRIVAL_CHECK_REQUIRED || 'false').trim().toLowerCase());
 
 let rulesCache = null;
 async function bookingRules() {
