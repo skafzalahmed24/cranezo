@@ -11,7 +11,26 @@ const { authenticate } = require('../middlewares/auth.middleware');
 const { requireAdmin, requireSuperAdmin } = require('../middlewares/role.middleware');
 const finance = require('../controllers/finance.controller');
 
+const { adminAccessGuard } = require('../middlewares/adminAccess.middleware');
+const accessController = require('../controllers/adminAccess.controller');
+
 const adminOnly = [authenticate, requireAdmin];
+
+// Staff only reach the modules of their access role: one guard for every admin call (a call that is not in the
+// permission table is closed to staff). The Super Admin passes everywhere.
+router.use(authenticate, requireAdmin, adminAccessGuard);
+
+// Who am I and what may I see (every admin), and the Super Admin's roles and staff logins
+const superAdminOnly = [authenticate, requireSuperAdmin];
+router.post('/me', adminOnly, accessController.me);
+router.post('/permissions/catalog', superAdminOnly, accessController.catalog);
+router.post('/access-roles/list', superAdminOnly, accessController.listRoles);
+router.post('/access-roles', superAdminOnly, accessController.createRole);
+router.put('/access-roles/:id', superAdminOnly, accessController.updateRole);
+router.delete('/access-roles/:id', superAdminOnly, accessController.deleteRole);
+router.post('/staff/list', superAdminOnly, accessController.listStaff);
+router.post('/staff', superAdminOnly, accessController.createStaff);
+router.put('/staff/:id', superAdminOnly, accessController.updateStaff);
 
 // Protected admin dashboard routes
 router.get('/dashboard-stats', adminOnly, adminController.getDashboardStats);

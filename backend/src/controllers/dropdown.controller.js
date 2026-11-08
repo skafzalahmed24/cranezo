@@ -36,7 +36,8 @@ class DropdownController {
       // Exclude Super Admin (id: 4) from roles listing
       if (includeAdmin !== 'true') {
         whereClause.id = { [Op.ne]: 4 };
-        whereClause.code = { [Op.ne]: 'SUPER_ADMIN' };
+        // the admin panel's own roles are not roles an app user can choose
+        whereClause.code = { [Op.notIn]: ['SUPER_ADMIN', 'ADMIN'] };
       }
 
       const roles = await Role.findAll({

@@ -1,4 +1,4 @@
-const { Admin, User, Role, StaticDropdown } = require('../models');
+const { Admin, User, Role, StaticDropdown, AdminAccessRole } = require('../models');
 const { comparePassword } = require('../utils/password');
 const { generateAuthTokens, verifyRefreshToken } = require('../utils/jwt');
 const { generateUniqueMemberId, getRolePrefix } = require('../utils/memberIdGenerator');
@@ -407,7 +407,7 @@ class AuthService {
   async login(email, password) {
     const admin = await Admin.findOne({
       where: { email: email.toLowerCase().trim() },
-      include: [{ model: Role, as: 'role' }]
+      include: [{ model: Role, as: 'role' }, { model: AdminAccessRole, as: 'accessRole' }]
     });
 
     if (!admin) {
@@ -443,7 +443,10 @@ class AuthService {
         name: admin.name,
         email: admin.email,
         roleId: admin.roleId,
-        role: roleCode
+        role: roleCode,
+        // what the side menu shows: ["*"] for the Super Admin, else the modules of the access role
+        access_role: admin.accessRole ? admin.accessRole.name : (roleCode === 'SUPER_ADMIN' ? 'Super Admin' : null),
+        permissions: require('../middlewares/adminAccess.middleware').permissionsOf(admin)
       },
       access_token: tokens.access_token,
       refresh_token: tokens.refresh_token,

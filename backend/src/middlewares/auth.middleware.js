@@ -1,6 +1,6 @@
 const { verifyToken } = require('../utils/jwt');
 const { errorResponse } = require('../utils/apiResponse');
-const { Admin, User, Role } = require('../models');
+const { Admin, User, Role, AdminAccessRole } = require('../models');
 
 const authenticate = async (req, res, next) => {
   try {
@@ -25,7 +25,7 @@ const authenticate = async (req, res, next) => {
     // Check if token belongs to an Admin
     let account = await Admin.findByPk(decoded.id, {
       attributes: { exclude: ['password'] },
-      include: [{ model: Role, as: 'role' }]
+      include: [{ model: Role, as: 'role' }, { model: AdminAccessRole, as: 'accessRole' }]
     });
 
     if (account) {

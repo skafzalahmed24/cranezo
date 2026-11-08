@@ -29,6 +29,17 @@ module.exports = (sequelize) => {
       allowNull: false,
       field: 'role_id'
     },
+    // the access role (set of side-menu modules) of a staff login; empty for the Super Admin
+    accessRoleId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: 'access_role_id'
+    },
+    createdBy: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: 'created_by'
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
