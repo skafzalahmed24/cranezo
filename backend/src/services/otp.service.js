@@ -4,6 +4,7 @@
  *
  * .env: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_VERIFY_SERVICE_SID (starts with VA).
  * Without them the app uses the fixed test code (DEFAULT_OTP, 123456), but never when NODE_ENV=production.
+ * OTP_STATIC=true forces the fixed code everywhere (also production) and skips Twilio: only until Twilio is approved.
  */
 const VERIFY_URL = 'https://verify.twilio.com/v2/Services';
 
@@ -20,7 +21,11 @@ const config = () => ({
   service: process.env.TWILIO_VERIFY_SERVICE_SID
 });
 
+/** OTP_STATIC=true: the fixed code (DEFAULT_OTP, 123456) is used even in production, and Twilio is not called. Until Twilio is approved. */
+const staticMode = () => String(process.env.OTP_STATIC || '').toLowerCase() === 'true';
+
 const twilioConfigured = () => {
+  if (staticMode()) return false;
   const c = config();
   return !!(c.sid && c.token && c.service);
 };
@@ -51,13 +56,14 @@ class OtpService {
 
   /** The fixed test code, or null when it must not be used (production, or real SMS is on) */
   testCode() {
+    if (staticMode()) return process.env.DEFAULT_OTP || '123456';
     if (twilioConfigured() || process.env.NODE_ENV === 'production') return null;
     return process.env.DEFAULT_OTP || '123456';
   }
 
   async send(countryCode, phone) {
     if (!twilioConfigured()) {
-      if (process.env.NODE_ENV === 'production') {
+      if (process.env.NODE_ENV === 'production' && !staticMode()) {
         throw new OtpError('The OTP service is not set up. Please contact support.', 503);
       }
       return { sent: false, test: true };
