@@ -62,12 +62,42 @@ export const apiRequest = async (path, { method = 'GET', body } = {}) => {
   return payload;
 };
 
-const MAX_UPLOAD_MB = 5;
+const MAX_UPLOAD_MB = 2;
+const MAX_SIDE = 1920;
 
 /** Upload an image the same way the apps do (POST /upload, multipart). Returns the stored path. */
-export const uploadFile = async (file) => {
-  if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) throw new Error('Please choose a PNG, JPG or WebP image.');
-  if (file.size > MAX_UPLOAD_MB * 1024 * 1024) throw new Error(`The image is too large (maximum ${MAX_UPLOAD_MB} MB).`);
+/**
+ * Shrinks a picture to at most 2 MB (Full HD, JPEG) in the browser before it is uploaded. A picture that is
+ * already small enough is sent as it is.
+ */
+export const compressImage = async (file) => {
+  const limit = MAX_UPLOAD_MB * 1024 * 1024;
+  const bitmap = await createImageBitmap(file).catch(() => null);
+  if (!bitmap) throw new Error('This picture could not be read.');
+  const longest = Math.max(bitmap.width, bitmap.height);
+  if (file.size <= limit && longest <= MAX_SIDE) return file;
+  let scale = Math.min(1, MAX_SIDE / longest);
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff'; // transparent parts become white in a JPEG
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    for (const quality of [0.9, 0.8, 0.7, 0.6, 0.5]) {
+      // eslint-disable-next-line no-await-in-loop
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+      if (blob && blob.size <= limit) return new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
+    }
+    scale *= 0.8; // still too big: make the picture smaller and try again
+  }
+  throw new Error(`The picture could not be made smaller than ${MAX_UPLOAD_MB} MB.`);
+};
+
+export const uploadFile = async (original) => {
+  if (!/^image\/(png|jpe?g|webp)$/.test(original.type)) throw new Error('Please choose a PNG, JPG or WebP picture. Videos are not allowed.');
+  const file = await compressImage(original);
 
   const form = new FormData();
   form.append('file', file);
