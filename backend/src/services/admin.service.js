@@ -85,7 +85,27 @@ class AdminService {
 
     const fee = await billing.platformFeePercent();
     const latest = await Booking.findAll({ include: bookingInclude, order: [['createdAt', 'DESC']], limit: 8 });
+
+    // operators whose uploaded documents wait for a decision
+    const docPending = (file, status) => ({ [file]: { [Op.ne]: null }, [status]: 0 });
+    const operatorsToReview = await User.count({
+      where: {
+        roleId: 2, isDeleted: 0,
+        [Op.or]: [
+          docPending('operatorLicenseFront', 'operatorLicenseStatus'), docPending('voterIdFile', 'voterIdStatus'),
+          docPending('aadharCardFile', 'aadharStatus'), docPending('panCardFile', 'panStatus'), docPending('otherDocumentFile', 'otherDocumentStatus')
+        ]
+      }
+    });
+    // how the verified cranes split by type (for the donut)
+    const verified = await Crane.findAll({ where: { approvalStatus: 1 }, attributes: ['id'], include: [{ model: StaticDropdown, as: 'craneTypeInfo', attributes: ['dropdownName'] }] });
+    const typeCount = {};
+    verified.forEach((c) => { const n = (c.craneTypeInfo && c.craneTypeInfo.dropdownName) || 'Other'; typeCount[n] = (typeCount[n] || 0) + 1; });
+    const crane_types = Object.entries(typeCount).sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }));
+
     return {
+      pending_approvals: { cranes: craneBy[0] || 0, operators: operatorsToReview, crane_requests: await CraneRequest.count({ where: { status: 'not_found', adminStatus: 'new' } }) },
+      crane_types,
       users: { customers: byRole[3] || 0, owners: byRole[1] || 0, operators: byRole[2] || 0, total: (byRole[1] || 0) + (byRole[2] || 0) + (byRole[3] || 0) },
       cranes: { total: Object.values(craneBy).reduce((a, b) => a + b, 0), verified: craneBy[1] || 0, under_review: craneBy[0] || 0, rejected: craneBy[2] || 0 },
       bookings: {
@@ -107,6 +127,31 @@ class AdminService {
       recent_bookings: latest.map((b) => bookingRow(b, fee)),
       alerts: (await this.alerts()).total
     };
+  }
+
+  /**
+   * Admin > Users / Owners / Operators > details: numbers and the latest jobs of one member.
+   * roleId 1 owner, 2 operator, 3 customer.
+   */
+  async memberActivity(userId, roleId) {
+    const key = { 1: 'ownerId', 2: 'operatorId', 3: 'customerId' }[roleId];
+    if (!key) return { stats: {}, recent_bookings: [] };
+    const where = { [key]: userId };
+    const fee = await billing.platformFeePercent();
+    const recent = await Booking.findAll({ where, include: bookingInclude, order: [['createdAt', 'DESC']], limit: 10 });
+    const count = (extra = {}) => Booking.count({ where: { ...where, ...extra } });
+    const total = await count();
+    const completedRows = await Booking.findAll({ where: { ...where, status: BOOKING_STATUS.COMPLETED }, attributes: { exclude: [] }, limit: 1000 });
+    const stats = {
+      total_bookings: total,
+      completed: completedRows.length,
+      cancelled: await count({ status: { [Op.in]: [BOOKING_STATUS.CANCELLED, BOOKING_STATUS.DECLINED, BOOKING_STATUS.EXPIRED] } }),
+      active: await count({ status: { [Op.in]: ACTIVE } })
+    };
+    if (roleId === 3) stats.total_spent = r2(await Booking.sum('paidAmount', { where }));
+    if (roleId === 1) stats.total_earnings = r2(completedRows.reduce((sum, b) => sum + (Number(b.ownerShareAmount) || billing.billOf(b, fee).owner_share || 0), 0));
+    if (roleId === 2) stats.total_earned = r2(completedRows.reduce((sum, b) => sum + (Number(b.operatorCommissionAmount) || 0), 0));
+    return { stats, recent_bookings: recent.map((b) => bookingRow(b, fee)) };
   }
 
   // ---------------------------------------------------------------- bookings

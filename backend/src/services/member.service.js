@@ -218,7 +218,9 @@ class MemberService {
       last_device_platform: user.platformType,
       years_of_experience: dropdownName(user.experienceInfo),
       company_date_establishment: user.companyDateEstablishment,
-      business_category: user.businessCategory
+      business_category: user.businessCategory,
+      gst_number: user.gstNumber,
+      is_online: user.isOnline === true
     };
 
     if (user.roleId === 1) {
@@ -287,6 +289,15 @@ class MemberService {
         bookings: 0,
         total_spent: 0
       });
+    }
+
+    // real numbers and the latest jobs for the detail page
+    const activity = await require('./admin.service').memberActivity(user.id, user.roleId);
+    profile.stats = activity.stats;
+    profile.recent_bookings = activity.recent_bookings;
+    if (user.roleId === 3) {
+      profile.bookings = activity.stats.total_bookings;
+      profile.total_spent = activity.stats.total_spent || 0;
     }
 
     return profile;
