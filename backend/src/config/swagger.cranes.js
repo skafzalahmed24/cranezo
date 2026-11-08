@@ -58,7 +58,7 @@ const craneBody = {
 module.exports = {
   tags: [
     { name: 'Owner Cranes', description: 'Crane Owner: add, view, edit cranes, manage operators, re-upload documents' },
-    { name: 'Admin Crane Approvals', description: 'Admin review of submitted cranes (24-48 hrs): approve or reject with reason' },
+    { name: 'Admin Crane Approvals', description: 'Admin review of submitted cranes (12-24 hrs): approve or reject with reason' },
     { name: 'Admin Settings', description: 'Manage dropdown values (add and edit only, no delete)' },
     { name: 'Admin Members', description: 'Users (customers), Owners and Operators: list, details, block / unblock' }
   ],
@@ -120,12 +120,12 @@ module.exports = {
       post: {
         tags: ['Owner Cranes'],
         summary: 'Submit a crane for review',
-        description: 'Creates the crane as **Under Review** (approval_status 0). Admin approves within 24-48 hours. Upload photos and documents first via POST /api/upload and pass the returned urls.',
+        description: 'Creates the crane as **Under Review** (approval_status 0). Admin approves within 12-24 hours. Upload photos and documents first via POST /api/upload and pass the returned urls.',
         security: secured,
         requestBody: { required: true, ...json(craneBody, ['crane_type', 'capacity', 'registration_number', 'location', 'latitude', 'longitude', 'hourly_rate', 'photos', 'documents']) },
         responses: {
           ...ok('Crane submitted'),
-          201: { description: 'Crane submitted (status_message explains the 24-48 hr review)' },
+          201: { description: 'Crane submitted (status_message explains the 12-24 hr review)' },
           409: { description: 'Registration number already exists' }
         }
       }

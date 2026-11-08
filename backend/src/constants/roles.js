@@ -60,8 +60,8 @@ const CRANE_AVAILABILITY = {
 };
 
 // Admin reviews a submitted crane within this window
-const CRANE_REVIEW_HOURS_MIN = 24;
-const CRANE_REVIEW_HOURS_MAX = 48;
+const CRANE_REVIEW_HOURS_MIN = 12;
+const CRANE_REVIEW_HOURS_MAX = 24;
 
 Object.assign(module.exports, {
   CRANE_APPROVAL_STATUS,
