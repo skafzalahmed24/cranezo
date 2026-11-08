@@ -221,3 +221,14 @@
   .cz-footer-grid { grid-template-columns: 1fr; }
   .cz-footer-bottom { flex-direction: column; align-items: flex-start; }
 }
+
+/* ----------------------------------------------------------------- coming soon */
+.cz-soon { background: radial-gradient(1000px 420px at 50% -10%, #e8f1fd 0%, transparent 65%), #fff; }
+.cz-soon-main { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; padding: 56px 24px 30px; max-width: 760px; margin: 0 auto; width: 100%; }
+.cz-soon-logo { height: 54px; width: auto; margin-bottom: 8px; }
+.cz-soon h1 { font-size: clamp(34px, 6vw, 56px); font-weight: 800; }
+.cz-soon .cz-lead { margin: 0 auto; }
+.cz-soon-art { width: 100%; max-width: 460px; margin: 10px 0; }
+.cz-soon-foot { display: flex; justify-content: space-between; align-items: center; padding: 18px 28px; font-size: 13px; color: var(--cz-muted); border-top: 1px solid var(--cz-border); }
+.cz-soon-foot a { color: var(--cz-muted); }
+.cz-soon-foot a:hover { color: var(--cz-blue); }

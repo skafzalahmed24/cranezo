@@ -1,5 +1,11 @@
 // What the public website says about Cranezo. Change the contact details and the store link here.
 
+// The website is not live yet: every public address shows the simple "coming soon" page.
+// Set SITE_LIVE to true to open Home, About and Contact (the pages are built and ready).
+// LEGAL_LIVE opens only the Privacy and Terms pages (the Play Store needs a privacy policy link).
+export const SITE_LIVE = false;
+export const LEGAL_LIVE = false;
+
 export const SITE = {
   name: 'Cranezo',
   // the Play Store page of the app
