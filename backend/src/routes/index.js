@@ -15,8 +15,14 @@ const notificationRoutes = require('./notification.routes');
 const supportRoutes = require('./support.routes');
 const homeRoutes = require('./home.routes');
 const placesRoutes = require('./places.routes');
+const appRoutes = require('./app.routes');
+const { blockOldApps } = require('../services/appVersion.service');
+
+// Apps below the minimum version get 426 on every call except the version check itself
+router.use(blockOldApps);
 
 // Mount routes
+router.use('/app', appRoutes);
 router.use('/auth', authRoutes);
 router.use('/admin', adminRoutes);
 router.use('/operator', operatorRoutes);
