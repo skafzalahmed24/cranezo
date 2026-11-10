@@ -12,6 +12,8 @@ const META = {
   subscription_paid: { category: 'payment', icon: 'payment', screen: 'subscription' },
   booking_request: { category: 'booking', icon: 'booking', screen: 'owner_request' },
   crane_request: { category: 'booking', icon: 'booking', screen: 'owner_crane_requests' },
+  // the customer raised the price of a request the owner already got (no buzzer, it is not a new request)
+  crane_request_raised: { category: 'booking', icon: 'booking', screen: 'owner_crane_requests' },
   request_accepted: { category: 'booking', icon: 'booking', screen: 'crane_request' },
   request_expired: { category: 'booking', icon: 'booking', screen: 'crane_request' },
   advance_paid: { category: 'payment', icon: 'payment', screen: 'owner_job' },

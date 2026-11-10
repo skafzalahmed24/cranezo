@@ -90,7 +90,100 @@ class PlacesService {
 
 
 
-/** A driving route along the roads between two points (for the yellow line on the map) */
+// ---------------------------------------------------------------- crane routes (heavy vehicle)
+
+/**
+ * Cranes are big, slow vehicles: they should stay on wide main roads, not cut through lanes.
+ *  - With ORS_API_KEY (openrouteservice.org, free key) the heavy-goods-vehicle profile is used, with a crane's
+ *    size and weight, so roads too narrow, too low or too weak for it are avoided.
+ *  - Without it the free OSRM car router is asked for alternatives and the one that runs most on numbered /
+ *    main roads (NH, SH, highways, bypasses, ring roads) is picked, unless it is much longer.
+ * The time is always worked out at the crane's own speed (CRANE_SPEED_KMPH), never at car speed.
+ */
+const ORS_KEY = process.env.ORS_API_KEY || '';
+const ORS = process.env.ORS_URL || 'https://api.openrouteservice.org';
+const CRANE = {
+  height: Number(process.env.CRANE_HEIGHT_M) || 4,
+  width: Number(process.env.CRANE_WIDTH_M) || 2.6,
+  length: Number(process.env.CRANE_LENGTH_M) || 12,
+  weight: Number(process.env.CRANE_WEIGHT_T) || 30
+};
+const craneSpeedKmph = () => Math.max(5, Number(process.env.CRANE_SPEED_KMPH) || 25);
+const MAJOR_ROAD = /\b(NH|SH|MDR|AH)\s?-?\d|highway|expressway|bypass|ring road|main road|trunk|national|state highway/i;
+
+/** Drops points closer than ~20 m to the previous one, so the line is light but still follows the road */
+const thin = (coords) => {
+  const out = [];
+  let last = null;
+  for (const [lng, lat] of coords) {
+    if (!last || Math.abs(lat - last[1]) + Math.abs(lng - last[0]) > 0.0002) {
+      out.push([lng, lat]);
+      last = [lng, lat];
+    }
+  }
+  const end = coords[coords.length - 1];
+  if (end && (out.length === 0 || out[out.length - 1] !== end)) out.push(end);
+  return out.map(([lng, lat]) => ({ latitude: lat, longitude: lng }));
+};
+
+/** Share of the route's length on main roads (from OSRM's step names and road numbers) */
+const majorShare = (route) => {
+  let major = 0;
+  let total = 0;
+  for (const leg of route.legs || []) {
+    for (const s of leg.steps || []) {
+      total += s.distance;
+      if ((s.ref && String(s.ref).trim()) || MAJOR_ROAD.test(s.name || '')) major += s.distance;
+    }
+  }
+  return total ? major / total : 0;
+};
+
+const postJson = async (url, body, headers) => {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json, application/geo+json', ...headers },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(8000)
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (error) {
+    console.warn(`[Route] ${error.message}`);
+    return null;
+  }
+};
+
+const orsHeavyRoute = async (a, b, c, d) => {
+  if (!ORS_KEY) return null;
+  const json = await postJson(`${ORS}/v2/directions/driving-hgv/geojson`, {
+    coordinates: [[b, a], [d, c]],
+    preference: 'recommended',
+    options: {
+      vehicle_type: 'hgv',
+      profile_params: { restrictions: { height: CRANE.height, width: CRANE.width, length: CRANE.length, weight: CRANE.weight } }
+    }
+  }, { Authorization: ORS_KEY });
+  const f = json && json.features && json.features[0];
+  if (!f || !f.geometry || !f.geometry.coordinates || f.geometry.coordinates.length < 2) return null;
+  return { coords: f.geometry.coordinates, meters: f.properties.summary.distance, source: 'ors_hgv' };
+};
+
+const osrmMainRoadRoute = async (a, b, c, d) => {
+  const json = await fetchJson(`${OSRM}/route/v1/driving/${b},${a};${d},${c}?overview=full&geometries=geojson&alternatives=3&steps=true`);
+  const routes = (json.routes || []).filter((r) => r.geometry && r.geometry.coordinates && r.geometry.coordinates.length > 1);
+  if (!routes.length) return null;
+  const shortest = Math.min(...routes.map((r) => r.distance));
+  // a main-road route may be up to 30 % longer than the shortest one; the share of main road decides
+  const scored = routes.filter((r) => r.distance <= shortest * 1.3).map((r) => ({ r, share: majorShare(r) }));
+  const best = Math.max(...scored.map((s) => s.share));
+  // among the routes with (nearly) the most main road, the shortest
+  const pick = scored.filter((s) => s.share >= best - 0.1).sort((x, y) => x.r.distance - y.r.distance)[0].r;
+  return { coords: pick.geometry.coordinates, meters: pick.distance, source: 'osrm_main_roads' };
+};
+
+/** A crane route along the roads between two points: points for the map, road km and the time at crane speed */
 PlacesService.prototype.route = async function route({ from_latitude: fLat, from_longitude: fLng, to_latitude: tLat, to_longitude: tLng }) {
   const nums = [fLat, fLng, tLat, tLng].map(Number);
   if (nums.some((n) => !Number.isFinite(n)) || [fLat, fLng, tLat, tLng].some((v) => v === null || v === undefined || v === '')) {
@@ -102,16 +195,19 @@ PlacesService.prototype.route = async function route({ from_latitude: fLat, from
   const key = `route:${a.toFixed(3)},${b.toFixed(3)};${c.toFixed(3)},${d.toFixed(3)}`;
   const cached = recall(key);
   if (cached) return cached;
-  const json = await fetchJson(`${OSRM}/route/v1/driving/${b},${a};${d},${c}?overview=simplified&geometries=geojson`);
-  const r = json.routes && json.routes[0];
-  if (!r) return { points: [], distance_km: null, duration_minutes: null };
+  const found = (await orsHeavyRoute(a, b, c, d)) || (await osrmMainRoadRoute(a, b, c, d));
+  if (!found) return { points: [], distance_km: null, duration_minutes: null };
+  const km = found.meters / 1000;
   const out = {
-    points: r.geometry.coordinates.map(([lng, lat]) => ({ latitude: lat, longitude: lng })),
-    distance_km: Math.round(r.distance / 100) / 10,
-    duration_minutes: Math.max(1, Math.round(r.duration / 60))
+    points: thin(found.coords),
+    distance_km: Math.round(km * 10) / 10,
+    // a crane's own pace, not a car's
+    duration_minutes: Math.max(1, Math.round((km / craneSpeedKmph()) * 60)),
+    speed_kmph: craneSpeedKmph(),
+    source: found.source
   };
   remember(key, out);
   return out;
 };
 
-module.exports = { placesService: new PlacesService(), PlacesError };
+module.exports = { placesService: new PlacesService(), PlacesError, craneSpeedKmph };

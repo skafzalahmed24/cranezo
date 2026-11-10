@@ -49,7 +49,8 @@ Tapping a push opens the screen named in `screen` (see `src/constants/notificati
 | Type | Title | When | Kind |
 |---|---|---|---|
 | `booking_request` | New Crane Request | A customer requested the owner's crane | **Rings** |
-| `crane_request` | New Crane Request Near You / Price Raised | A customer request near the owner's cranes (also when the offer is raised) | **Rings** |
+| `crane_request` | New Crane Request Near You | A new customer request near the owner's cranes (one per request) | **Rings** |
+| `crane_request_raised` | Price Raised for a Crane Request | The customer raised the offer of a request the owner already got | Normal sound, does not ring |
 | `booking_cancelled` | Booking Cancelled | The customer cancelled | Normal |
 | `advance_paid` | Advance Paid - Booking Confirmed | The customer paid the advance | Normal |
 | `assign_operator` | Assign an Operator | A paid booking needs an operator | Normal |

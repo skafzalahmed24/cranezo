@@ -16,6 +16,13 @@ const minutesLabel = (minutes) => {
   return `${minutes} min`;
 };
 
+/** The hourly rate agreed for this booking (offer / booked hours); extra time is always charged at it */
+const ratePerHour = (b) => {
+  const rate = Number(b.hourlyRate);
+  if (rate > 0) return rate;
+  return r2(Number(b.totalAmount || 0) / Math.max(1, Number(b.durationHours) || 1));
+};
+
 const view = (e, booking = null, now = new Date()) => ({
   id: e.id,
   code: e.extensionCode,
@@ -113,28 +120,31 @@ class ExtensionService {
       throw new ServiceError('This crane is booked for another job right after yours, so extra time is not available.', 409);
     }
 
-    const amount = r2((Number(b.hourlyRate) * minutes) / 60);
+    const rate = ratePerHour(b);
+    const amount = r2((rate * minutes) / 60);
     const digits = b.bookingCode.replace(/\D/g, '').slice(-5);
     const ext = await BookingExtension.create({
       extensionCode: `EXT-${digits}-${minutes % 60 === 0 ? `${minutes / 60}HR` : `${minutes}MIN`}`,
       bookingId: b.id,
       requestedBy: customerId,
       minutes,
-      hourlyRate: b.hourlyRate,
+      hourlyRate: rate,
       amount,
       message: input.message ? String(input.message).trim().slice(0, 500) : null,
       status: EXTENSION_STATUS.PENDING,
       expiresAt: H.addMs(new Date(), C.EXTRA_TIME_RESPONSE_MINUTES * 60000)
     });
 
-    const body = `${b.bookingCode}: customer asks for ${minutesLabel(minutes)} more (₹${amount}). Please answer within ${C.EXTRA_TIME_RESPONSE_MINUTES} minutes.`;
+    // the operator is not shown the customer's price, only the time
+    const ask = `${b.bookingCode}: customer asks for ${minutesLabel(minutes)} more`;
+    const wait = `Please answer within ${C.EXTRA_TIME_RESPONSE_MINUTES} minutes.`;
     for (const userId of [b.operatorId, b.ownerId]) {
       if (!userId) continue;
       // eslint-disable-next-line no-await-in-loop
       await notificationService.notify(userId, {
         type: NOTIFICATION_TYPES.EXTENSION_REQUESTED,
         title: 'Extra Time Request',
-        body,
+        body: userId === b.ownerId ? `${ask} (₹${amount}). ${wait}` : `${ask}. ${wait}`,
         data: { booking_id: b.id, booking_code: b.bookingCode, extension_id: ext.id }
       });
     }
@@ -207,4 +217,4 @@ class ExtensionService {
   }
 }
 
-module.exports = { extensionService: new ExtensionService(), minutesLabel };
+module.exports = { ratePerHour, extensionService: new ExtensionService(), minutesLabel };

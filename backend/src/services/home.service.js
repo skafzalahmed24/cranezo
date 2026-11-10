@@ -142,7 +142,83 @@ class HomeService {
         { key: 'my_jobs', title: 'My Jobs', subtitle: 'View all bookings', icon: 'jobs', screen: 'my_jobs', badge: upcoming + activeCranes },
         { key: 'help', title: 'Need Help?', subtitle: 'Get support', icon: 'help', screen: 'support', badge: unreadReplies }
       ],
-      recent_bookings: recent.map((b) => customerJobService.item(b))
+      recent_bookings: recent.map((b) => customerJobService.item(b)),
+      current_order: await this.currentOrder(user.id)
+    };
+  }
+
+  /**
+   * The order that is happening now, for the special card at the top of Customer Home: a request still looking
+   * for a crane, or a booking from payment to completion (and payment). Null when nothing is open.
+   * step: 1 request sent, 2 owner accepted / pay advance, 3 confirmed (operator being assigned), 4 on the way, 5 working, 6 done.
+   */
+  async currentOrder(customerId) {
+    const { CraneRequest } = require('../models');
+    const { jobStage } = require('../constants/job');
+    const open = [BOOKING_STATUS.AWAITING_PAYMENT, BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS];
+    const b = await Booking.findOne({
+      where: {
+        customerId,
+        [Op.or]: [
+          { status: { [Op.in]: open } },
+          // finished, still to pay
+          { status: BOOKING_STATUS.COMPLETED, paymentStatus: { [Op.ne]: 'paid' } }
+        ]
+      },
+      include: H.bookingInclude,
+      // what is moving first, then the soonest
+      order: [[Booking.sequelize.literal('CASE "Booking"."status" WHEN 6 THEN 0 WHEN 5 THEN 1 WHEN 8 THEN 2 WHEN 1 THEN 3 ELSE 4 END'), 'ASC'], ['startAt', 'ASC']]
+    });
+    if (b) {
+      const stage = jobStage(b);
+      const operatorOk = H.operatorVisible(b);
+      const pick = {
+        awaiting_payment: [2, 'Owner accepted - pay the advance to confirm'],
+        awaiting_operator: [3, 'Your order has been confirmed. Awaiting assignment of the crane to an operator.'],
+        accepted: [3, operatorOk ? 'Operator assigned. The crane will start towards your site soon.' : 'Your order has been confirmed. Awaiting assignment of the crane to an operator.'],
+        en_route: [4, 'The crane is on the way to your site'],
+        arrived: [4, 'The crane has reached your site - please confirm the arrival'],
+        working: [5, 'Work in progress'],
+        summary: [5, 'Work finished - the operator will ask for your code'],
+        awaiting_confirmation: [5, 'Share your completion code with the operator'],
+        completed: [6, 'Job completed - please pay the balance']
+      }[stage] || [3, b.status === BOOKING_STATUS.CONFIRMED ? 'Your order has been confirmed. Awaiting assignment of the crane to an operator.' : ''];
+      return {
+        kind: 'booking',
+        booking_id: b.id,
+        request_id: b.craneRequestId || null,
+        code: b.bookingCode,
+        crane_title: H.craneTitle(b.crane),
+        primary_photo: H.primaryPhoto(b.crane),
+        site: b.siteName || b.siteAddress,
+        start_at: iso(b.startAt),
+        stage,
+        step: pick[0],
+        steps_total: 6,
+        message: pick[1],
+        operator_name: operatorOk && b.operator ? b.operator.fullName : null,
+        can_track: b.status === BOOKING_STATUS.EN_ROUTE && !b.arrivedAt,
+        action: b.status === BOOKING_STATUS.AWAITING_PAYMENT ? 'pay_advance' : (b.status === BOOKING_STATUS.COMPLETED ? 'pay_balance' : 'view')
+      };
+    }
+    const r = await CraneRequest.findOne({ where: { customerId, status: 'searching' }, order: [['createdAt', 'DESC']] });
+    if (!r) return null;
+    return {
+      kind: 'request',
+      booking_id: null,
+      request_id: r.id,
+      code: r.requestCode,
+      crane_title: null,
+      primary_photo: null,
+      site: r.siteName || r.siteAddress,
+      start_at: iso(r.startAt),
+      stage: 'searching',
+      step: 1,
+      steps_total: 6,
+      message: `Finding a crane near you - ${r.matchedCranes || 0} owners asked`,
+      operator_name: null,
+      can_track: false,
+      action: 'view_request'
     };
   }
 

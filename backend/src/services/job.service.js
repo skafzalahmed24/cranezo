@@ -14,7 +14,8 @@ const { parseRange } = require('../utils/range');
 const { notificationService } = require('./notification.service');
 const { ServiceError } = require('./crane.service');
 const { bookingHelpers: H } = require('./booking.service');
-const { extensionService } = require('./extension.service');
+const { extensionService, ratePerHour } = require('./extension.service');
+const { trackingService } = require('./tracking.service');
 const { supportService } = require('./support.service');
 const billing = require('./billing');
 
@@ -53,6 +54,12 @@ const commissionAmount = (b) => {
   const c = billing.billOf(b).operator_commission;
   return c.set ? c.amount : null;
 };
+/** Extra time for the operator: the minutes, without the customer's price */
+const operatorExtension = (block) => {
+  const strip = (e) => (e ? { ...e, amount: null, hourly_rate: null } : e);
+  return { ...block, approved_amount: null, pending: strip(block.pending), history: (block.history || []).map(strip) };
+};
+
 const statusTab = (b) => (b.status === BOOKING_STATUS.CONFIRMED ? 'Assigned'
   : [BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS].includes(b.status) ? 'In Progress'
     : b.status === BOOKING_STATUS.COMPLETED ? 'Completed' : BOOKING_STATUS_LABELS[b.status]);
@@ -147,10 +154,13 @@ class JobService {
     return { items, completed_count: done, total: items.length, completed: !!b.checklistCompletedAt };
   }
 
+  /**
+   * Job Summary for the operator: the times, and only what the operator earns. The customer's bill and the
+   * owner's prices (booking amount, extra time amount, final amount) are never sent to the operator app.
+   */
   summaryView(b) {
     const start = b.workStartedAt ? new Date(b.workStartedAt) : null;
     const end = b.workEndedAt ? new Date(b.workEndedAt) : null;
-    const base = H.num(b.totalAmount);
     return {
       start_time: H.iso(start),
       end_time: H.iso(end),
@@ -159,10 +169,11 @@ class JobService {
       waiting_seconds: waitingSecondsNow(b),
       extra_seconds: b.extraMinutes * 60,
       base_hours: b.durationHours,
-      base_amount: base,
-      waiting_charge: 0,
-      extra_amount: Number(b.extraAmount),
-      final_amount: b.finalAmount !== null && b.finalAmount !== undefined ? Number(b.finalAmount) : billing.billOf(b).total
+      base_amount: null,
+      waiting_charge: null,
+      extra_amount: null,
+      final_amount: null,
+      earnings_amount: commissionAmount(b)
     };
   }
 
@@ -188,7 +199,7 @@ class JobService {
       : H.num(b.distanceKm);
 
     const checks = await this.startChecks(b, operator);
-    const extension = await extensionService.blockFor(b);
+    const extension = operatorExtension(await extensionService.blockFor(b));
     const typeName = b.craneTypeInfo ? b.craneTypeInfo.dropdownName : null;
     const capName = b.capacityInfo ? b.capacityInfo.dropdownName : null;
 
@@ -247,7 +258,8 @@ class JobService {
       earnings: operatorEarnings(b),
       special_requirements: b.specialRequirements,
       extension,
-      payment: H.paymentView(b),
+      // only whether the customer has paid, never the amounts (those are the owner's prices)
+      payment: { method: b.paymentMethod, status: b.paymentStatus },
       progress: progressSteps(b),
       timers: timers(b),
       arrival: {
@@ -511,7 +523,7 @@ class JobService {
   }
 
   /** Navigate to Job Site: Start Journey */
-  async startJourney(operatorId, bookingId) {
+  async startJourney(operatorId, bookingId, input = {}) {
     const b = await this.mine(operatorId, bookingId);
     if (b.status !== BOOKING_STATUS.CONFIRMED) throw new ServiceError('This job cannot be started now.', 409);
     if (b.operatorStatus !== 1) throw new ServiceError('Accept the job first.', 409);
@@ -520,6 +532,12 @@ class JobService {
       throw new ServiceError(`You can start the journey ${JOB_CONFIG.START_JOURNEY_LEAD_HOURS} hours before the job time.`, 409);
     }
     await b.update({ status: BOOKING_STATUS.EN_ROUTE, enRouteAt: new Date() });
+    trackingService.forget(b.id);
+    // the operator's phone is the crane's position from now on (sent with the call when the app has it)
+    const fix = assertCoords(input || {});
+    if (fix.latitude !== null) {
+      await Crane.update({ currentLatitude: fix.latitude, currentLongitude: fix.longitude, locationUpdatedAt: new Date() }, { where: { id: b.craneId } });
+    }
     await notificationService.notify(b.customerId, {
       type: NOTIFICATION_TYPES.OPERATOR_EN_ROUTE,
       title: 'Operator is On the Way',
@@ -532,17 +550,27 @@ class JobService {
   /** Live position while driving. Updates the crane the customer tracks. */
   async updateLocation(operatorId, input) {
     const { latitude, longitude } = assertCoords(input, true);
-    await Crane.update(
-      { currentLatitude: latitude, currentLongitude: longitude, locationUpdatedAt: new Date() },
-      { where: { operatorId } }
-    );
+    const at = { currentLatitude: latitude, currentLongitude: longitude, locationUpdatedAt: new Date() };
     await User.update({ onlineUpdatedAt: new Date() }, { where: { id: operatorId, isOnline: true } });
     const out = { updated: true };
-    if (input.booking_id) {
+    if (!input.booking_id) {
+      // no job given: the cranes this operator usually drives
+      await Crane.update(at, { where: { operatorId } });
+      return out;
+    }
+    {
       const b = await this.mine(operatorId, input.booking_id);
-      const km = H.round1(H.haversineKm(latitude, longitude, Number(b.latitude), Number(b.longitude)));
+      // operators are given per job, so the crane of THIS job moves (the crane's own operator may be someone else)
+      await Crane.update(at, { where: { id: b.craneId } });
+      const r = b.status === BOOKING_STATUS.EN_ROUTE && !b.arrivedAt
+        ? await trackingService.liveRoute(b.id, { latitude, longitude }, { latitude: Number(b.latitude), longitude: Number(b.longitude) })
+        : null;
+      const km = r ? r.distance_km : H.round1(H.haversineKm(latitude, longitude, Number(b.latitude), Number(b.longitude)));
       out.distance_km = km;
-      out.eta_minutes = H.etaMinutes(km);
+      out.eta_minutes = r ? r.eta_minutes : H.etaMinutes(km);
+      // the yellow line from the operator to the site, along roads a crane can use
+      out.route = r ? r.route : [];
+      out.speed_kmph = r ? r.speed_kmph : null;
       // "Crane Arriving Soon", once per job, when about 15 minutes away
       if (b.status === BOOKING_STATUS.EN_ROUTE && !b.arrivedAt && !b.arrivingNotifiedAt && out.eta_minutes <= 15) {
         await b.update({ arrivingNotifiedAt: new Date() });
@@ -779,13 +807,27 @@ class JobService {
       await JobPhoto.destroy({ where: { bookingId: b.id, kind: 'final' } });
       if (photos.length) await JobPhoto.bulkCreate(photos.map((p) => ({ ...p, bookingId: b.id, uploadedBy: operatorId, kind: 'final' })));
     }
+    // Worked longer than booked (booked hours + approved extra time) without asking: the extra time is charged
+    // at this booking's hourly rate, in steps of EXTRA_TIME_STEP_MINUTES, after a short grace period.
+    const bookedSeconds = (b.durationHours * 3600) + (b.extraMinutes * 60);
+    const graceSeconds = (Number(process.env.OVERTIME_GRACE_MINUTES) || 10) * 60;
+    const overSeconds = working - bookedSeconds;
+    if (overSeconds > graceSeconds) {
+      const step = BOOKING_CONFIG.EXTRA_TIME_STEP_MINUTES;
+      const overMinutes = Math.ceil(overSeconds / 60 / step) * step;
+      const amount = Math.round(((ratePerHour(b) * overMinutes) / 60) * 100) / 100;
+      b.extraMinutes += overMinutes;
+      b.extraAmount = Math.round((Number(b.extraAmount) + amount) * 100) / 100;
+    }
     await b.update({
       workEndedAt: now,
       waitingSince: null,
       waitingSeconds: waiting,
       workingSeconds: working,
+      extraMinutes: b.extraMinutes,
+      extraAmount: b.extraAmount,
       jobNotes: input.notes ? String(input.notes).trim().slice(0, 1000) : null,
-      // booked amount + approved extra time + owner charges + GST. Waiting time is not charged.
+      // booked amount + extra time (approved, or worked over) + owner charges + GST. Waiting time is not charged.
       finalAmount: billing.billOf(b).total
     });
     await extensionService.closePending(b.id);
@@ -902,15 +944,15 @@ class JobService {
       if (!operator) throw new ServiceError('That operator is not available.', 400);
     }
 
-    // an operator who switched the Online button off is not taking jobs (a job they asked for themselves is fine)
-    if (!silent && operator.isOnline !== true) {
-      throw new ServiceError(`${operator.fullName || 'This operator'} is offline right now. Choose an operator who is online, or ask them to go online.`, 409);
-    }
-
-    // only operators the admin has verified can be given a job
+    // only operators the admin has verified can be given a job (checked first: going online does not fix this)
     const { operatorVerified } = require('../middlewares/verifiedOperator.middleware');
     if (!(await operatorVerified(operatorId))) {
       throw new ServiceError(`${operator.fullName || 'This operator'} is not verified yet. Cranezo checks the operator's documents first.`, 409);
+    }
+
+    // an operator who switched the Online button off is not taking jobs (a job they asked for themselves is fine)
+    if (!silent && operator.isOnline !== true) {
+      throw new ServiceError(`${operator.fullName || 'This operator'} is offline right now. Choose an operator who is online, or ask them to go online.`, 409);
     }
 
     // one operator, one job at a time

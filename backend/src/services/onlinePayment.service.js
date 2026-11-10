@@ -65,8 +65,11 @@ class OnlinePaymentService {
       amount,
       currency: order.currency,
       kind,
-      name: 'Cranezo',
-      description: kind === 'advance' ? `Advance for ${b.bookingCode}` : `Final payment for ${b.bookingCode}`,
+      name: 'Cranezo - Crane Booking',
+      // what the customer reads on the Razorpay page
+      description: kind === 'advance'
+        ? `Advance to confirm your crane booking ${b.bookingCode}`
+        : `Balance payment for your completed crane job ${b.bookingCode}`,
       prefill: { name: customer ? customer.fullName : null, contact: customer ? `${customer.countryCode || ''}${customer.mobileNumber || ''}` : null }
     };
   }

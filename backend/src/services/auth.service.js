@@ -289,12 +289,12 @@ class AuthService {
    */
   async refreshToken(refresh_token) {
     if (!refresh_token) {
-      throw new Error('refresh_token is required.');
+      throw Object.assign(new Error('refresh_token is required.'), { statusCode: 401 });
     }
 
     const decoded = verifyRefreshToken(refresh_token);
     if (!decoded || !decoded.id) {
-      throw new Error('Invalid or expired refresh token.');
+      throw Object.assign(new Error('Invalid or expired refresh token.'), { statusCode: 401 });
     }
 
     const user = await User.findByPk(decoded.id, {
@@ -303,7 +303,7 @@ class AuthService {
 
     if (user) {
       if (user.isActive === 1 || user.isDeleted === 1) {
-        throw new Error('User account is deactivated.');
+        throw Object.assign(new Error('User account is deactivated.'), { statusCode: 401 });
       }
       const tokens = generateAuthTokens({
         id: user.id,
@@ -326,7 +326,7 @@ class AuthService {
 
     if (admin) {
       if (!admin.isActive) {
-        throw new Error('Admin account is deactivated.');
+        throw Object.assign(new Error('Admin account is deactivated.'), { statusCode: 401 });
       }
       const roleCode = admin.role ? admin.role.code : 'SUPER_ADMIN';
       const tokens = generateAuthTokens({
@@ -344,7 +344,7 @@ class AuthService {
       };
     }
 
-    throw new Error('Account associated with refresh token not found.');
+    throw Object.assign(new Error('Account associated with refresh token not found.'), { statusCode: 401 });
   }
 
   /**

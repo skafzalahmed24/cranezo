@@ -217,6 +217,12 @@ class CraneRequestService {
     }
 
     let row;
+    // One request at a time per customer, also when the button is tapped twice or two phones send at once:
+    // the lock makes the second call wait, then it sees the first request and stops (owners get one request).
+    await sequelize.transaction(async (transaction) => {
+      await sequelize.query('SELECT pg_advisory_xact_lock(hashtext(:k))', { replacements: { k: `crane_request:${customerId}` }, transaction });
+      const already = await CraneRequest.count({ where: { customerId, status: { [Op.in]: OPEN } }, transaction });
+      if (already) throw new ServiceError('You already have a request in progress. Finish or cancel it first.', 409);
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
         // eslint-disable-next-line no-await-in-loop
@@ -248,12 +254,13 @@ class CraneRequestService {
           status: STATUS.SEARCHING,
           expiresAt: new Date(Date.now() + num(rules.request_minutes) * MIN),
           matchedCranes: matches.length
-        });
+        }, { transaction });
         break;
       } catch (error) {
         if (error.name !== 'SequelizeUniqueConstraintError' || attempt === 2) throw error;
       }
     }
+    });
     await this.notifyOwners(row, matches, 'new');
     return this.customerView(await this.load(row.id));
   }
@@ -265,7 +272,7 @@ class CraneRequestService {
     for (const ownerId of owners) {
       // eslint-disable-next-line no-await-in-loop
       await notificationService.notify(ownerId, {
-        type: NOTIFICATION_TYPES.CRANE_REQUEST,
+        type: why === 'raise' ? 'crane_request_raised' : NOTIFICATION_TYPES.CRANE_REQUEST,
         title,
         body: `${crane} • ${row.durationHours} hrs • offer ₹${num(row.offerAmount)} • ${row.siteName || row.siteAddress}`,
         data: { request_id: row.id, request_code: row.requestCode }

@@ -39,7 +39,7 @@ module.exports = {
 
   accept: handler('Job accepted.', (req) => jobService.accept(op(req), job(req))),
   decline: handler('Job declined.', (req) => jobService.decline(op(req), job(req), body(req).reason)),
-  startJourney: handler('Journey started.', (req) => jobService.startJourney(op(req), job(req))),
+  startJourney: handler('Journey started.', (req) => jobService.startJourney(op(req), job(req), body(req))),
   arrived: handler('Arrival marked. Waiting for the customer to confirm.', (req) => jobService.arrived(op(req), job(req), body(req))),
   confirmArrival: handler('Arrival confirmed.', (req) => jobService.confirmArrivalManually(op(req), job(req))),
   sitePhotos: handler('Site photos saved.', (req) => jobService.saveSitePhotos(op(req), job(req), body(req).photos)),

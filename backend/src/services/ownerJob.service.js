@@ -383,7 +383,7 @@ class OwnerJobService {
   /** View Live Location: same payload the customer polls */
   async track(ownerId, bookingId) {
     await bookingService.expireStaleRequests();
-    return bookingService.buildTrack(await bookingService.mine(bookingId, { ownerId }));
+    return bookingService.buildLiveTrack(await bookingService.mine(bookingId, { ownerId }));
   }
 
   /** View Job Evidence: photos, notes and anything the operator reported */

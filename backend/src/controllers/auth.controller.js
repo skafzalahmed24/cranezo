@@ -93,7 +93,8 @@ class AuthController {
       const result = await authService.refreshToken(refresh_token);
       return successResponse(res, 'Token refreshed successfully.', result, 200);
     } catch (error) {
-      return errorResponse(res, error.message, null, 401);
+      // 401 only when the refresh token itself is bad (the app then signs out); a server problem is a 500 and the app keeps the session
+      return errorResponse(res, error.statusCode ? error.message : 'Could not refresh the session right now. Please try again.', null, error.statusCode || 500);
     }
   }
 

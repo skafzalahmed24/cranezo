@@ -38,7 +38,8 @@ const haversineKm = (lat1, lng1, lat2, lng2) => {
   return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 const round1 = (n) => Math.round(n * 10) / 10;
-const etaMinutes = (km) => Math.max(1, Math.round((km / C.AVG_SPEED_KMPH) * 60));
+// straight-line km -> minutes at crane speed, allowing for the road being longer (see tracking.service.js)
+const etaMinutes = (km) => require('./tracking.service').etaFromStraightKm(km);
 
 const parseCoords = (input) => {
   const latitude = Number(input.latitude);
@@ -218,10 +219,16 @@ const providerView = (owner) => ({
   reviews_count: owner ? owner.ratingCount || 0 : 0
 });
 
+/** The customer sees the operator only after the owner assigned one and that operator accepted the job */
+const operatorVisible = (b) => !!b.operatorId && b.operatorStatus === 1
+  && [BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS, BOOKING_STATUS.COMPLETED].includes(b.status);
+
 const statusMessage = (b) => {
   switch (b.status) {
     case BOOKING_STATUS.AWAITING_OWNER: return 'Waiting for the crane owner to accept your request.';
-    case BOOKING_STATUS.CONFIRMED: return 'Your crane has been successfully booked.';
+    case BOOKING_STATUS.CONFIRMED: return operatorVisible(b)
+      ? 'Your operator has accepted the job and will start towards your site soon.'
+      : 'Your order has been confirmed. Awaiting assignment of the crane to an operator.';
     case BOOKING_STATUS.DECLINED: return 'The owner could not take this booking. Please choose another crane.';
     case BOOKING_STATUS.EXPIRED: return 'The owner did not respond in time. Please choose another crane.';
     case BOOKING_STATUS.CANCELLED: return 'This booking was cancelled.';
@@ -294,7 +301,7 @@ const customerView = (b) => ({
   ...commonView(b),
   can_cancel: customerCanCancel(b),
   provider: providerView(b.owner),
-  operator: b.status >= BOOKING_STATUS.CONFIRMED && b.status !== BOOKING_STATUS.CANCELLED ? operatorView(b.operator) : null,
+  operator: operatorVisible(b) ? operatorView(b.operator) : null,
   eta_minutes: b.status === BOOKING_STATUS.CONFIRMED && b.distanceKm !== null ? etaMinutes(Number(b.distanceKm)) : null,
   price: priceView(b),
   payment: paymentView(b),
@@ -688,19 +695,40 @@ class BookingService {
   /** Track My Crane: light payload meant to be polled every few seconds */
   async track(customerId, bookingId) {
     await this.expireStaleRequests();
-    return this.buildTrack(await this.mine(bookingId, { customerId }));
+    return this.buildLiveTrack(await this.mine(bookingId, { customerId }));
+  }
+
+  /** buildTrack plus the road route from the crane to the site, with km and minutes along that road at crane speed */
+  async buildLiveTrack(b) {
+    const t = this.buildTrack(b);
+    if (!t.crane_location || b.status !== BOOKING_STATUS.EN_ROUTE || b.arrivedAt) return t;
+    const r = await require('./tracking.service').trackingService.liveRoute(
+      b.id, t.crane_location, { latitude: Number(b.latitude), longitude: Number(b.longitude) }
+    );
+    return {
+      ...t,
+      route: r.route,
+      distance_km: r.distance_km,
+      eta_minutes: r.eta_minutes,
+      speed_kmph: r.speed_kmph,
+      expected_arrival_at: iso(addMs(new Date(), r.eta_minutes * 60000))
+    };
   }
 
   /** Tracking payload for a loaded booking (customer and owner share it) */
   buildTrack(b) {
     const crane = b.crane;
-    const live = crane.currentLatitude !== null && crane.currentLongitude !== null;
-    const craneLat = live ? Number(crane.currentLatitude) : num(crane.latitude);
-    const craneLng = live ? Number(crane.currentLongitude) : num(crane.longitude);
-    const distanceKm = craneLat !== null && craneLng !== null
+    // the crane is shown only once the operator started the journey, at the position the operator's phone shares
+    // (sent after the journey started). Before that there is no crane on the map, never the owner's yard.
+    const started = [BOOKING_STATUS.EN_ROUTE, BOOKING_STATUS.IN_PROGRESS].includes(b.status) && !!b.enRouteAt;
+    const fresh = crane.locationUpdatedAt && b.enRouteAt && new Date(crane.locationUpdatedAt) >= addMs(new Date(b.enRouteAt), -2 * 60000);
+    const live = started && !!fresh && crane.currentLatitude !== null && crane.currentLongitude !== null;
+    const craneLat = live ? Number(crane.currentLatitude) : null;
+    const craneLng = live ? Number(crane.currentLongitude) : null;
+    const distanceKm = live
       ? round1(haversineKm(craneLat, craneLng, Number(b.latitude), Number(b.longitude)))
       : null;
-    const moving = [BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.EN_ROUTE].includes(b.status);
+    const moving = b.status === BOOKING_STATUS.EN_ROUTE && !b.arrivedAt;
 
     return {
       booking_id: b.id,
@@ -710,14 +738,17 @@ class BookingService {
       status_message: statusMessage(b),
       stage: jobStage(b),
       crane: { id: crane.id, title: craneTitle(crane), primary_photo: primaryPhoto(crane) },
-      operator: b.status >= BOOKING_STATUS.CONFIRMED && b.status !== BOOKING_STATUS.CANCELLED ? operatorView(b.operator) : null,
+      operator: operatorVisible(b) ? operatorView(b.operator) : null,
+      // the customer can follow the crane once the operator has started the journey
+      can_track: started,
       site: { name: b.siteName, address: b.siteAddress, latitude: num(b.latitude), longitude: num(b.longitude) },
-      crane_location: {
+      crane_location: live ? {
         latitude: craneLat,
         longitude: craneLng,
-        is_live: live,
+        is_live: true,
         updated_at: iso(crane.locationUpdatedAt)
-      },
+      } : null,
+      route: [],
       distance_km: distanceKm,
       eta_minutes: moving && distanceKm !== null ? etaMinutes(distanceKm) : null,
       expected_arrival_at: b.startType === 'scheduled' ? iso(b.startAt) : (moving && distanceKm !== null ? iso(addMs(new Date(), etaMinutes(distanceKm) * 60000)) : null),
@@ -951,6 +982,6 @@ module.exports = {
   // shared with the operator job service
   bookingHelpers: {
     loadBooking, bookingInclude, craneSummary, craneTitle, primaryPhoto, operatorView, customerView, ownerView,
-    priceView, paymentView, customerBill, durationLabel, bookingCode, ratingOf, haversineKm, etaMinutes, round1, num, iso, addMs, SERVICE_TYPE, UUID_RE
+    priceView, paymentView, customerBill, durationLabel, bookingCode, ratingOf, haversineKm, etaMinutes, operatorVisible, round1, num, iso, addMs, SERVICE_TYPE, UUID_RE
   }
 };
