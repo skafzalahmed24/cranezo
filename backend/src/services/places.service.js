@@ -101,7 +101,8 @@ class PlacesService {
  * The time is always worked out at the crane's own speed (CRANE_SPEED_KMPH), never at car speed.
  */
 const ORS_KEY = process.env.ORS_API_KEY || '';
-const ORS = process.env.ORS_URL || 'https://api.openrouteservice.org';
+// api.openrouteservice.org is being retired; the same service now lives at api.heigit.org/openrouteservice
+const ORS = process.env.ORS_URL || 'https://api.heigit.org/openrouteservice';
 const CRANE = {
   height: Number(process.env.CRANE_HEIGHT_M) || 4,
   width: Number(process.env.CRANE_WIDTH_M) || 2.6,
