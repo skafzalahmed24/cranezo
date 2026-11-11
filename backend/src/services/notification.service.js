@@ -2,6 +2,7 @@ const { Op } = require('sequelize');
 const { Notification, User } = require('../models');
 const { metaFor } = require('../constants/notificationMeta');
 const { parseRange } = require('../utils/range');
+const { whatsappService } = require('./whatsapp.service');
 
 class NotificationError extends Error {
   constructor(message, statusCode = 400) {
@@ -115,7 +116,7 @@ class NotificationService {
    * picks the text; English is the fallback.
    */
   async notify(userId, { type, title, body, data, i18n }) {
-    const user = await User.findByPk(userId, { attributes: ['id', 'pushToken', 'languageType'] }).catch(() => null);
+    const user = await User.findByPk(userId, { attributes: ['id', 'pushToken', 'languageType', 'countryCode', 'mobileNumber'] }).catch(() => null);
     const local = i18n && (user?.languageType === 3 ? i18n.hi : user?.languageType === 2 ? i18n.te : null);
     if (local) { title = local.title || title; body = local.body || body; } // eslint-disable-line no-param-reassign
     const notification = await Notification.create({ userId, type, title, body: body || null, data: data || null });
@@ -125,6 +126,8 @@ class NotificationService {
     } catch (error) {
       console.warn(`[Push] ${error.message}`);
     }
+    // the same message on WhatsApp (off until WHATSAPP_* is set); not awaited, so a slow Twilio never delays the app
+    if (user) whatsappService.send(user, { type, title, body }).catch(() => {});
     return notification;
   }
 
