@@ -118,6 +118,7 @@ class JobRequestService {
     if (!H.UUID_RE.test(String(input.booking_id || ''))) throw new ServiceError('A valid booking_id is required.');
     const b = await Booking.findOne({ where: { id: input.booking_id, ...this.openJobsWhere(op) } });
     if (!b) throw new ServiceError('This job is no longer open.', 409);
+    if (await require('../utils/person').samePerson(operatorId, b.customerId)) throw new ServiceError('You booked this crane yourself, so you cannot work on it as the operator.', 409);
 
     const message = input.message ? String(input.message).trim().slice(0, 300) : null;
     const existing = await JobRequest.findOne({ where: { bookingId: b.id, operatorId } });

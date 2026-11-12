@@ -50,6 +50,11 @@ const authenticate = async (req, res, next) => {
       return errorResponse(res, 'User account is deactivated.', null, 403);
     }
 
+    // one signed-in device per phone number: a sign-in on another phone made a new session id, so this token is old
+    if (account.sessionId && decoded.sid !== account.sessionId) {
+      return errorResponse(res, 'You were signed out because this account was opened on another device.', { code: 'SESSION_REPLACED' }, 401);
+    }
+
     req.user = account;
     req.admin = null;
     next();

@@ -21,6 +21,8 @@ const TABS = {
   closed: { statuses: [BOOKING_STATUS.DECLINED, BOOKING_STATUS.EXPIRED, BOOKING_STATUS.CANCELLED], label: 'Closed', order: [['createdAt', 'DESC']], oldest: [['createdAt', 'ASC']] }
 };
 const tabOf = (status) => Object.keys(TABS).find((k) => TABS[k].statuses.includes(status));
+// the "All" tab: every job in one list, newest first (each row still carries its own tab)
+const ALL_TAB = { statuses: Object.values(TABS).flatMap((t) => t.statuses), order: [['createdAt', 'DESC']], oldest: [['createdAt', 'ASC']] };
 
 const fullInclude = [
   ...H.bookingInclude,
@@ -132,10 +134,10 @@ class OwnerJobService {
       group: ['status'],
       raw: true
     });
-    const out = { new_requests: 0, upcoming: 0, active: 0, completed: 0, closed: 0 };
+    const out = { all: 0, new_requests: 0, upcoming: 0, active: 0, completed: 0, closed: 0 };
     rows.forEach((r) => {
       const tab = tabOf(r.status);
-      if (tab) out[tab] += Number(r.n);
+      if (tab) { out[tab] += Number(r.n); out.all += Number(r.n); }
     });
     return out;
   }
@@ -203,16 +205,17 @@ class OwnerJobService {
     const range = parseRange(input);
     if (range.error) throw new ServiceError(range.error);
     const tab = String(input.tab || 'new_requests').toLowerCase();
-    if (!TABS[tab]) throw new ServiceError('tab must be new_requests, upcoming, active, completed or closed.');
+    if (tab !== 'all' && !TABS[tab]) throw new ServiceError('tab must be all, new_requests, upcoming, active, completed or closed.');
+    const def = tab === 'all' ? ALL_TAB : TABS[tab];
     const oldestFirst = String(input.sort || 'newest').toLowerCase() === 'oldest';
 
     const { rows, count } = await Booking.findAndCountAll({
-      where: { ownerId, status: { [Op.in]: TABS[tab].statuses } },
+      where: { ownerId, status: { [Op.in]: def.statuses } },
       include: H.bookingInclude,
       distinct: true,
       limit: range.limit,
       offset: range.offset,
-      order: [...(oldestFirst ? TABS[tab].oldest : TABS[tab].order), ['id', 'ASC']]
+      order: [...(oldestFirst ? def.oldest : def.order), ['id', 'ASC']]
     });
     const now = new Date();
     return { range, items: rows.map((b) => this.item(b, now)), total: count };

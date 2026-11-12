@@ -944,6 +944,11 @@ class JobService {
       if (!operator) throw new ServiceError('That operator is not available.', 400);
     }
 
+    // the person who booked the crane (any of their accounts on the same phone number) cannot also be its operator
+    if (await require('../utils/person').samePerson(operatorId, b.customerId)) {
+      throw new ServiceError('This operator is the customer of this job (the same phone number). Choose a different operator.', 409);
+    }
+
     // only operators the admin has verified can be given a job (checked first: going online does not fix this)
     const { operatorVerified } = require('../middlewares/verifiedOperator.middleware');
     if (!(await operatorVerified(operatorId))) {

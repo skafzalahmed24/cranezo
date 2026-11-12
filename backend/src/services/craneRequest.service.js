@@ -95,7 +95,7 @@ class CraneRequestService {
       longitude: { [Op.between]: [longitude - lngDelta, longitude + lngDelta] }
     };
     if (ownerId) where.ownerId = ownerId;
-    if (customerId) where.ownerId = { ...(where.ownerId ? { [Op.eq]: where.ownerId } : {}), [Op.ne]: customerId };
+    if (customerId) where.ownerId = { ...(where.ownerId ? { [Op.eq]: where.ownerId } : {}), [Op.notIn]: await require('../utils/person').siblingIds(customerId) };
     const cranes = await Crane.findAll({ where, include: craneIncludes });
     // owners whose subscription has run out do not get requests
     const blocked = await require('./subscription.service').subscriptionService.blockedOwnerIds([...new Set(cranes.map((c) => c.ownerId))]);
@@ -604,7 +604,7 @@ class CraneRequestService {
     const rows = await CraneRequest.findAll({
       where: {
         status: STATUS.SEARCHING,
-        customerId: { [Op.ne]: ownerId },
+        customerId: { [Op.notIn]: await require('../utils/person').siblingIds(ownerId) },
         [Op.or]: combos.map((k) => { const [t, c] = k.split(':'); return { craneType: Number(t), capacity: Number(c) }; })
       },
       include: [{ model: StaticDropdown, as: 'craneTypeInfo', attributes: dd }, { model: StaticDropdown, as: 'capacityInfo', attributes: dd }],
@@ -667,6 +667,7 @@ class CraneRequestService {
     const bookingId = await sequelize.transaction(async (transaction) => {
       const row = await CraneRequest.findByPk(input.request_id, { lock: transaction.LOCK.UPDATE, transaction });
       if (!row || row.status !== STATUS.SEARCHING) throw new ServiceError('Too late - this request was already taken or closed.', 409);
+      if (await require('../utils/person').samePerson(row.customerId, ownerId)) throw new ServiceError('You cannot accept your own request.', 409);
       if (row.expiresAt && new Date() > new Date(row.expiresAt)) throw new ServiceError('This request has expired.', 410);
 
       const crane = await Crane.findOne({ where: { id: input.crane_id, ownerId }, include: craneIncludes, transaction });

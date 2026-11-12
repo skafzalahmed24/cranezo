@@ -110,6 +110,32 @@ class AuthController {
       return errorResponse(res, error.message, null, 500);
     }
   }
+  /**
+   * The roles this phone number has / can add (Switch role screen)
+   * POST /api/auth/roles
+   */
+  async roles(req, res) {
+    try {
+      if (req.admin) return errorResponse(res, 'Only app accounts have roles.', null, 403);
+      return successResponse(res, 'Roles retrieved successfully.', await authService.roles(req.user.id));
+    } catch (error) {
+      return errorResponse(res, error.message, null, error.statusCode || 400);
+    }
+  }
+
+  /**
+   * Switch to another role of the same phone number
+   * POST /api/auth/switchRole { role_id }
+   */
+  async switchRole(req, res) {
+    try {
+      if (req.admin) return errorResponse(res, 'Only app accounts have roles.', null, 403);
+      const result = await authService.switchRole(req.user.id, (req.body || {}).role_id);
+      return successResponse(res, result.switched ? 'Role switched.' : 'You are already using this role.', result);
+    } catch (error) {
+      return errorResponse(res, error.message, null, error.statusCode || 400);
+    }
+  }
 }
 
 module.exports = new AuthController();

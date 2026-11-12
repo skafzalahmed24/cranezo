@@ -353,7 +353,12 @@ const bookableCheck = async (crane, { latitude, longitude, startAt, endAt, custo
   if (!crane.owner || crane.owner.isDeleted === 1 || crane.owner.isActive === 1) {
     return { ok: false, reason: 'This crane is not available for booking.' };
   }
-  if (customerId && crane.ownerId === customerId) return { ok: false, reason: 'You cannot book your own crane.' };
+  if (customerId) {
+    const { samePerson } = require('../utils/person');
+    if (await samePerson(crane.ownerId, customerId)) return { ok: false, reason: 'You cannot book your own crane.' };
+    // the operator who drives this crane cannot also be its customer (the same phone number's other role)
+    if (crane.operatorId && await samePerson(crane.operatorId, customerId)) return { ok: false, reason: 'You are the operator of this crane, so you cannot book it as a customer.' };
+  }
   if (crane.latitude === null || crane.longitude === null) {
     return { ok: false, reason: 'This crane has no location yet.' };
   }

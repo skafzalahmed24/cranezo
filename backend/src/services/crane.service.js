@@ -356,8 +356,9 @@ class CraneService {
     if (!/^\d{6,15}$/.test(mobile)) throw new ServiceError('mobile_number must be 6 to 15 digits.');
     if (body.user_email && !/\S+@\S+\.\S+/.test(body.user_email)) throw new ServiceError('user_email is invalid.');
 
-    const existing = await User.findOne({ where: { mobileNumber: mobile, countryCode }, attributes: ['id'] });
-    if (existing) throw new ServiceError('A user with this mobile number already exists.', 409);
+    // one phone number can be an owner, an operator and a customer: only another operator account blocks it
+    const existing = await User.findOne({ where: { mobileNumber: mobile, countryCode, roleId: OPERATOR_ROLE_ID }, attributes: ['id'] });
+    if (existing) throw new ServiceError('An operator with this mobile number already exists.', 409);
 
     const operator = await User.create({
       countryCode,

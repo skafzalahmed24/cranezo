@@ -14,6 +14,7 @@ const verifiedOperator = [...operatorOnly, requireVerifiedOperator];
 
 // Operator app: Home, Jobs, job steps and Earnings. All POST with a JSON payload.
 router.post('/home', operatorOnly, jobController.home);
+router.post('/ratings', operatorOnly, require('../controllers/myRatings.controller').list);
 router.post('/status', verifiedOperator, jobController.setOnline);
 router.post('/location', operatorOnly, jobController.updateLocation);
 

@@ -24,6 +24,7 @@ const generateRefreshToken = (payload) => {
     id: payload.id,
     type: 'refresh'
   };
+  if (payload.sid) refreshPayload.sid = payload.sid;
   return jwt.sign(refreshPayload, JWT_REFRESH_SECRET, {
     expiresIn: JWT_REFRESH_EXPIRES_IN
   });

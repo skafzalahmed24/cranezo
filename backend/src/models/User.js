@@ -208,6 +208,12 @@ module.exports = (sequelize) => {
       type: DataTypes.TEXT,
       allowNull: true,
       field: 'device_details'
+    },
+    // the one signed-in device of this phone number (changes at every OTP sign-in; see auth.middleware)
+    sessionId: {
+      type: DataTypes.STRING(64),
+      allowNull: true,
+      field: 'session_id'
     }
   }, {
     tableName: 'users',

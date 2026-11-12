@@ -2,8 +2,11 @@ const { Admin, User, Role, StaticDropdown, AdminAccessRole } = require('../model
 const { comparePassword } = require('../utils/password');
 const { generateAuthTokens, verifyRefreshToken } = require('../utils/jwt');
 const { generateUniqueMemberId, getRolePrefix } = require('../utils/memberIdGenerator');
+const crypto = require('crypto');
 const { otpService } = require('./otp.service');
 const { ROLE_OWNER, ROLE_OPERATOR, ROLE_CUSTOMER, applyOperatorProfile, applyCustomerProfile } = require('./profile.service');
+
+const MOBILE_ROLES = [ROLE_OWNER, ROLE_OPERATOR, ROLE_CUSTOMER];
 
 class AuthService {
   /**
@@ -36,13 +39,25 @@ class AuthService {
     // Real codes come from Twilio Verify; the fixed test code (123456) is used only when Twilio is not set up and not in production
     const otp = otpService.testCode();
 
-    let user = await User.findOne({
+    if (targetRoleId !== null && !MOBILE_ROLES.includes(targetRoleId)) {
+      throw new Error('role_id must be 1 (owner), 2 (operator) or 3 (customer).');
+    }
+
+    // One phone number can hold one account per role (owner, operator, customer). Asking for a role the number does not
+    // have yet makes a new account for that role; the other accounts are never changed or converted.
+    const accounts = await User.findAll({
       where: {
         mobile_number: cleanPhone,
         country_code: cleanCountryCode
       },
-      include: [{ model: Role, as: 'role' }]
+      include: [{ model: Role, as: 'role' }],
+      order: [['updatedAt', 'DESC']]
     });
+    // accounts with a finished profile first, then the most recently used
+    accounts.sort((x, y) => (Number(!!y.fullName) - Number(!!x.fullName)) || (new Date(y.updatedAt) - new Date(x.updatedAt)));
+    let user = targetRoleId
+      ? (accounts.find((a) => a.roleId === targetRoleId) || accounts.find((a) => !a.roleId) || null)
+      : (accounts[0] || null); // no role asked: the account used last (an unfinished new role never takes over the login)
 
     let isNewUser = false;
 
@@ -135,12 +150,16 @@ class AuthService {
     const hasRole = user.roleId !== null && user.roleId !== undefined;
     const roleStatus = hasRole ? 0 : 1;
 
+    // One signed-in device per phone number: this sign-in is the session; every other device is signed out
+    const sid = await this.startSession(user);
+
     // Generate JWT Access & Refresh Tokens
     const tokens = generateAuthTokens({
       id: user.id,
       mobile: user.mobileNumber,
       roleId: user.roleId,
-      role: user.role ? user.role.code : null
+      role: user.role ? user.role.code : null,
+      sid
     });
 
     return {
@@ -206,6 +225,18 @@ class AuthService {
     }
 
     const newRoleId = parseInt(role_id, 10);
+    // An account keeps its role for good (one account per role on a phone number): another role is a different
+    // account, opened with Switch role. Only an account with no role yet can choose one here.
+    if (user.roleId && user.roleId !== newRoleId) {
+      throw new Error('This account already has a role. Use Switch role to open your other role.');
+    }
+    if (!user.roleId) {
+      const taken = await User.findOne({
+        where: { mobileNumber: user.mobileNumber, countryCode: user.countryCode, roleId: newRoleId },
+        attributes: ['id']
+      });
+      if (taken) throw new Error('This phone number already has an account with that role. Use Switch role.');
+    }
     const roleChanged = user.roleId !== newRoleId;
     user.roleId = newRoleId;
     user.fullName = String(full_name).trim();
@@ -305,11 +336,16 @@ class AuthService {
       if (user.isActive === 1 || user.isDeleted === 1) {
         throw Object.assign(new Error('User account is deactivated.'), { statusCode: 401 });
       }
+      // signed in on another device since: this device is signed out
+      if (user.sessionId && decoded.sid !== user.sessionId) {
+        throw Object.assign(new Error('You were signed out because this account was opened on another device.'), { statusCode: 401 });
+      }
       const tokens = generateAuthTokens({
         id: user.id,
         mobile: user.mobileNumber,
         roleId: user.roleId,
-        role: user.role ? user.role.code : null
+        role: user.role ? user.role.code : null,
+        sid: user.sessionId || undefined
       });
       return {
         access_token: tokens.access_token,
@@ -459,6 +495,139 @@ class AuthService {
   /**
    * Get current profile (admin or user)
    */
+  /**
+   * Starts the one allowed session of this phone number (all its accounts share it) and returns its id.
+   * Devices signed in before get a push that makes the app check its sign-in (an app whose token is still valid
+   * ignores it, so the device that is signing in now is never signed out by it).
+   */
+  async startSession(user) {
+    const sid = crypto.randomUUID();
+    const where = { mobileNumber: user.mobileNumber, countryCode: user.countryCode };
+    const before = await User.findAll({ where, attributes: ['id', 'pushToken'] });
+    // silent: the other roles' accounts change here, but their updatedAt ("last used") must not move
+    await User.update({ sessionId: sid, pushToken: null, pushPlatform: null }, { where, silent: true });
+    user.sessionId = sid; // eslint-disable-line no-param-reassign
+    try {
+      const { getMessaging } = require('./notification.service');
+      const fcm = getMessaging();
+      if (fcm) {
+        const tokens = [...new Set(before.map((r) => r.pushToken).filter(Boolean))];
+        tokens.forEach((token) => fcm.send({
+          token,
+          data: { type: 'session_replaced', title: 'Signed out', body: 'Your account was opened on another device.' },
+          android: { priority: 'high' }
+        }).catch(() => {}));
+      }
+    } catch (error) {
+      // the push is only a hint; the old device is signed out at its next call anyway
+    }
+    return sid;
+  }
+
+  /** The same answer as verifyOtp (tokens + role), for an account that is signed in already */
+  async sessionFor(user, extra = {}) {
+    const tokens = generateAuthTokens({
+      id: user.id,
+      mobile: user.mobileNumber,
+      roleId: user.roleId,
+      role: user.role ? user.role.code : null,
+      sid: user.sessionId || undefined
+    });
+    return {
+      user_id: user.id,
+      member_id: user.memberId || null,
+      phone_number: user.mobileNumber,
+      country_code: user.countryCode,
+      is_mobile_verified: 0,
+      role_id_status: user.roleId ? 0 : 1,
+      has_role: user.roleId ? 0 : 1,
+      role_id: user.roleId || null,
+      role_name: user.role ? user.role.name : null,
+      full_name: user.fullName || null,
+      company_name: user.companyName || null,
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      token_type: tokens.token_type,
+      expires_in: tokens.expires_in,
+      token: tokens.access_token,
+      ...extra
+    };
+  }
+
+  /** The roles this phone number has, and the ones it can still add (for the Switch role screen) */
+  async roles(accountId) {
+    const me = await User.findByPk(accountId, { include: [{ model: Role, as: 'role' }] });
+    if (!me) throw new Error('Account not found.');
+    const accounts = await User.findAll({
+      where: { mobileNumber: me.mobileNumber, countryCode: me.countryCode, isDeleted: 0, isMobileVerified: 0 },
+      include: [{ model: Role, as: 'role' }]
+    });
+    const byRole = new Map(accounts.map((a) => [a.roleId, a]));
+    const all = await Role.findAll({ where: { id: MOBILE_ROLES }, order: [['id', 'ASC']] });
+    return all.map((r) => {
+      const a = byRole.get(r.id);
+      return {
+        role_id: r.id,
+        role_name: r.name,
+        role_code: r.code,
+        image: r.image || null,
+        registered: !!a,
+        // a role added here but never filled in (no name yet): the app takes the person through its profile
+        profile_complete: !!(a && a.fullName),
+        member_id: a ? a.memberId || null : null,
+        full_name: a ? a.fullName || null : null,
+        blocked: !!(a && a.isActive === 1),
+        is_current: me.roleId === r.id
+      };
+    });
+  }
+
+  /**
+   * Switch to another role of the same phone number, signed in already (no new OTP). Opens the account of that
+   * role, or makes it when the number does not have it yet (the app then asks for the profile of that role).
+   */
+  async switchRole(accountId, roleId) {
+    const target = parseInt(roleId, 10);
+    if (!MOBILE_ROLES.includes(target)) throw new Error('role_id must be 1 (owner), 2 (operator) or 3 (customer).');
+    const me = await User.findByPk(accountId, { include: [{ model: Role, as: 'role' }] });
+    if (!me) throw new Error('Account not found.');
+    if (me.isMobileVerified !== 0) throw new Error('Verify your mobile number first.');
+    if (me.roleId === target) return this.sessionFor(me, { switched: false, needs_profile: !me.fullName });
+
+    let row = await User.findOne({
+      where: { mobileNumber: me.mobileNumber, countryCode: me.countryCode, roleId: target },
+      include: [{ model: Role, as: 'role' }]
+    });
+    let created = false;
+    if (row) {
+      if (row.isActive === 1 || row.isDeleted === 1) throw new Error('That account is blocked. Please contact support.');
+    } else {
+      row = await User.create({
+        countryCode: me.countryCode,
+        mobileNumber: me.mobileNumber,
+        roleId: target,
+        memberId: await generateUniqueMemberId(target, User),
+        languageType: me.languageType,
+        isMobileVerified: 0,
+        isActive: 0,
+        isDeleted: 0,
+        sessionId: me.sessionId || null
+      });
+      row = await User.findByPk(row.id, { include: [{ model: Role, as: 'role' }] });
+      created = true;
+    }
+    row.sessionId = me.sessionId || null;
+    // this phone now works as the new role: it stops receiving the old role's pushes, and a leaving operator goes offline
+    row.pushToken = me.pushToken;
+    row.pushPlatform = me.pushPlatform;
+    await row.save();
+    me.pushToken = null;
+    me.pushPlatform = null;
+    if (me.roleId === ROLE_OPERATOR) me.isOnline = false;
+    await me.save();
+    return this.sessionFor(row, { switched: true, created, needs_profile: !row.fullName });
+  }
+
   async getProfile(accountId) {
     const admin = await Admin.findByPk(accountId, {
       attributes: { exclude: ['password'] },
