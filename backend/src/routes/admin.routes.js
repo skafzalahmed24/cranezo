@@ -10,6 +10,7 @@ const homeController = require('../controllers/home.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
 const { requireAdmin, requireSuperAdmin } = require('../middlewares/role.middleware');
 const finance = require('../controllers/finance.controller');
+const dbClearController = require('../controllers/dbClear.controller');
 
 const { adminAccessGuard } = require('../middlewares/adminAccess.middleware');
 const accessController = require('../controllers/adminAccess.controller');
@@ -82,6 +83,10 @@ router.put('/subscriptions/plans', [authenticate, requireSuperAdmin], subscripti
 const appVersionController = require('../controllers/appVersion.controller');
 router.post('/app-version/get', [authenticate, requireSuperAdmin], appVersionController.list);
 router.put('/app-version', [authenticate, requireSuperAdmin], appVersionController.save);
+
+// Clear the database (keeps the static data). Super Admin only, and off unless ALLOW_DB_CLEAR=true is set in .env
+router.post('/db-clear/preview', [authenticate, requireSuperAdmin], dbClearController.preview);
+router.post('/db-clear', [authenticate, requireSuperAdmin], dbClearController.clear);
 router.put('/pricing/rules', [authenticate, requireSuperAdmin], finance.adminSaveRules);
 router.put('/pricing/minimum', [authenticate, requireSuperAdmin], finance.adminSaveMinimum);
 router.post('/complaints', adminOnly, finance.adminComplaints);

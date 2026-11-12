@@ -20,7 +20,7 @@ const FIRST_CHOICE = [
 export const canView = (permissions, view) => {
   if (!Array.isArray(permissions)) return false;
   const all = permissions.includes('*');
-  if (view === 'admin-access') return all; // Admins & Roles: Super Admin only
+  if (view === 'admin-access' || view === 'clear-data') return all; // Admins & Roles, Clear Database: Super Admin only
   if (all) return true;
   // a crane can be opened from the list of cranes or from the approvals
   if (view === 'crane-details') return permissions.includes('cranes') || permissions.includes('crane-approvals');

@@ -25,6 +25,7 @@ import {
   Percent,
   Search,
   SlidersHorizontal,
+  DatabaseZap,
 } from 'lucide-react';
 import { canView } from '../../utils/access';
 import logoImg from '../../assets/logo.png';
@@ -85,6 +86,7 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
       title: 'ACCESS',
       items: [
         { id: 'admin-access', label: 'Admins & Roles', icon: UserCog },
+        { id: 'clear-data', label: 'Clear Database', icon: DatabaseZap },
       ],
     },
   ];

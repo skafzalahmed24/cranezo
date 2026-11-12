@@ -67,7 +67,7 @@ function App() {
   document.title = 'Cranezo | Admin Portal';
 
   // Route 2: Admin Dashboard at "/admin/dashboard" or "/admin"
-  if (currentPath === '/admin/dashboard' || currentPath === '/admin') {
+  if (currentPath === '/admin/dashboard' || currentPath === '/admin' || currentPath === '/admin/clear-data') {
     const token = localStorage.getItem('cranezo_token');
     // If not logged in, route to login
     if (!token && !userSession) {
@@ -85,6 +85,7 @@ function App() {
           }
         }
         onLogout={handleLogout}
+        initialView={currentPath === '/admin/clear-data' ? 'clear-data' : undefined}
       />
     );
   }

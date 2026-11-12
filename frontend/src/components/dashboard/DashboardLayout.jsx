@@ -26,14 +26,15 @@ import PricingRules from './PricingRules';
 import AppVersions from './AppVersions';
 import Subscriptions from './Subscriptions';
 import AdminAccess from './AdminAccess';
+import ClearDatabase from './ClearDatabase';
 import { canView, firstAllowedView } from '../../utils/access';
 import AddUserModal from './AddUserModal';
 import AddCraneModal from './AddCraneModal';
 import { apiRequest } from '../../utils/api';
 import '../../styles/dashboard.css';
 
-export const DashboardLayout = ({ userSession, onLogout }) => {
-  const [activeView, setActiveView] = useState('cranes'); // Default to cranes as requested
+export const DashboardLayout = ({ userSession, onLogout, initialView = 'cranes' }) => {
+  const [activeView, setActiveView] = useState(initialView); // Default to cranes as requested
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedOwnerId, setSelectedOwnerId] = useState(null);
   const [selectedOperatorId, setSelectedOperatorId] = useState(null);
@@ -358,6 +359,8 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
 
           {activeView === 'admin-access' && <AdminAccess />}
 
+          {activeView === 'clear-data' && <ClearDatabase />}
+
           {/* Placeholders for other subpages while keeping navigation active */}
           {![
             'dashboard',
@@ -386,6 +389,7 @@ export const DashboardLayout = ({ userSession, onLogout }) => {
             'app-versions',
             'subscriptions',
             'admin-access',
+            'clear-data',
             'reviews',
             'reports',
             'notifications',

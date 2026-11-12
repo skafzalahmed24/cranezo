@@ -13,6 +13,7 @@
     "db:seed:super-admin": "npx sequelize-cli db:seed --seed 20261119000002-super-admin-full-access-seeder.js",
     "db:seed:admin-roles": "npx sequelize-cli db:seed --seed 20261119000001-admin-access-roles-seeder.js",
     "db:seed:subscriptions": "npx sequelize-cli db:seed --seed 20261118000001-subscription-plans-seeder.js",
+    "db:clear": "node scripts/clear-db.js",
     "db:seed:undo": "npx sequelize-cli db:seed:undo:all",
     "db:setup": "npm run db:migrate && npm run db:seed",
     "push:test": "node scripts/push-test.js"
