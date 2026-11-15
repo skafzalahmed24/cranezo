@@ -131,7 +131,6 @@ class JobService {
     const licenseValid = !!license && operator.operatorLicenseStatus !== 2
       && !(operator.licenseExpiryDate && operator.licenseExpiryDate < today);
     const expiredCraneDocs = await CraneDocument.count({ where: { craneId: b.craneId, expiryDate: { [Op.lt]: today } } });
-    const sitePhotos = (b.jobPhotos || []).filter((p) => p.kind === 'site').length;
     const craneTitle = H.craneTitle(b.crane);
 
     const crane = b.crane.approvalStatus === CRANE_APPROVAL_STATUS.VERIFIED;
@@ -142,8 +141,7 @@ class JobService {
       { key: 'crane_verified', label: 'Crane Verified', description: crane ? `${craneTitle} is verified` : 'This crane is not verified', ok: crane },
       { key: 'operator_verified', label: 'Operator Verified', description: operatorOk ? 'You are eligible for this job' : 'Your operator license is missing, expired or rejected', ok: operatorOk },
       { key: 'documents_valid', label: 'Documents Valid', description: docsOk ? 'All documents are up to date' : 'Some documents have expired', ok: docsOk },
-      { key: 'arrival_completed', label: 'Arrival Completed', description: b.arrivalConfirmedAt ? `Arrived at site at ${H.iso(b.arrivedAt)}` : 'Waiting for the customer to confirm your arrival', ok: !!b.arrivalConfirmedAt },
-      { key: 'site_verified', label: 'Site Verified', description: sitePhotos ? 'Site photos captured' : 'Take photos of the site', ok: sitePhotos > 0 }
+      { key: 'arrival_completed', label: 'Arrival Completed', description: b.arrivalConfirmedAt ? `Arrived at site at ${H.iso(b.arrivedAt)}` : 'Waiting for the customer to confirm your arrival', ok: !!b.arrivalConfirmedAt }
     ];
   }
 
@@ -441,10 +439,24 @@ class JobService {
     return this.view(await this.mine(operatorId, bookingId));
   }
 
-  async earningsSummary(operatorId) {
+  /** Earnings filter: period = today | 6m | 1y | all (default all). Returns the earliest completedAt to include, or null. */
+  periodSince(period) {
+    const p = String(period || 'all').toLowerCase();
+    if (p === 'today') return istDayRange().start;
+    if (p === '6m') return new Date(Date.now() - 183 * 24 * 3600 * 1000);
+    if (p === '1y') return new Date(Date.now() - 365 * 24 * 3600 * 1000);
+    return null;
+  }
+
+  async earningsSummary(operatorId, input = {}) {
     const { start, end } = istDayRange();
     const completed = { operatorId, status: BOOKING_STATUS.COMPLETED };
+    const since = this.periodSince(input.period);
+    const inPeriod = since ? { ...completed, completedAt: { [Op.gte]: since } } : completed;
     return {
+      period: String(input.period || 'all').toLowerCase(),
+      period_earnings: Number((await Booking.sum('operatorCommissionAmount', { where: inPeriod })) || 0),
+      period_jobs: await Booking.count({ where: inPeriod }),
       today_jobs: await Booking.count({ where: { operatorId, status: { [Op.in]: [1, 5, 6, 7] }, startAt: { [Op.gte]: start, [Op.lt]: end } } }),
       today_earnings: Number((await Booking.sum('operatorCommissionAmount', { where: { ...completed, completedAt: { [Op.gte]: start, [Op.lt]: end } } })) || 0),
       // commission the owner still has to pay / has paid
@@ -460,7 +472,7 @@ class JobService {
     const range = parseRange(input);
     if (range.error) throw new ServiceError(range.error);
     const { rows, count } = await Booking.findAndCountAll({
-      where: { operatorId, status: BOOKING_STATUS.COMPLETED },
+      where: { operatorId, status: BOOKING_STATUS.COMPLETED, ...(this.periodSince(input.period) ? { completedAt: { [Op.gte]: this.periodSince(input.period) } } : {}) },
       include: H.bookingInclude,
       distinct: true,
       limit: range.limit,
@@ -475,6 +487,7 @@ class JobService {
       completed_at: H.iso(b.completedAt),
       start_at: H.iso(b.startAt),
       crane_label: H.craneTitle(b.crane),
+      crane_photo: H.primaryPhoto(b.crane),
       amount: commissionAmount(b),
       earnings: operatorEarnings(b),
       settlement_status: b.operatorSettlementStatus,
@@ -725,6 +738,19 @@ class JobService {
     return this.view(await this.mine(operatorId, bookingId));
   }
 
+  /** The operator goes on a break (or comes back): the customer and the owner get a message */
+  async notifyBreak(b, started) {
+    const title = started ? 'Operator is on a break' : 'Operator is back at work';
+    const body = started
+      ? `${b.bookingCode}: the operator is on a short break. Work will continue shortly.`
+      : `${b.bookingCode}: the operator is back and work has resumed.`;
+    for (const userId of [b.customerId, b.ownerId]) {
+      if (!userId) continue;
+      // eslint-disable-next-line no-await-in-loop
+      await notificationService.notify(userId, { type: userId === b.customerId ? 'job_break' : 'job_break_owner', title, body, data: { booking_id: b.id, booking_code: b.bookingCode, on_break: started } }).catch(() => {});
+    }
+  }
+
   /** Job Monitoring: "Add Waiting" start / stop */
   async waiting(operatorId, bookingId, action) {
     const b = await this.mine(operatorId, bookingId);
@@ -733,9 +759,11 @@ class JobService {
     if (action === 'start') {
       if (b.waitingSince) throw new ServiceError('Waiting time is already running.', 409);
       await b.update({ waitingSince: now });
+      await this.notifyBreak(b, true);
     } else if (action === 'stop') {
       if (!b.waitingSince) throw new ServiceError('Waiting time is not running.', 409);
       await b.update({ waitingSeconds: waitingSecondsNow(b, now), waitingSince: null });
+      await this.notifyBreak(b, false);
     } else {
       throw new ServiceError('action must be "start" or "stop".');
     }

@@ -551,10 +551,13 @@ class CraneService {
     const photos = body.photos !== undefined ? normalizePhotos(body.photos) : null;
     const documents = body.documents !== undefined ? await normalizeDocuments(body.documents) : null;
 
-    // Identity / compliance changes, or fixing a rejected crane, go back to admin review
-    const reviewTriggers = ['craneType', 'capacity', 'registrationNumber'];
+    // Fixing a rejected crane, or changing ANYTHING on an approved one (details, rate, photos, documents), goes back to
+    // the admin for review. Only the day-to-day switches (availability, assigned operator) do not.
+    const operational = ['availabilityStatus', 'operatorId'];
+    const changed = Object.keys(updates).filter((k) => !operational.includes(k) && String(updates[k]) !== String(crane[k]));
     const needsReview = crane.approvalStatus === CRANE_APPROVAL_STATUS.REJECTED
-      || reviewTriggers.some((k) => updates[k] !== undefined && updates[k] !== crane[k])
+      || changed.length > 0
+      || photos !== null
       || documents !== null;
     if (needsReview) Object.assign(updates, RESET_TO_REVIEW());
 

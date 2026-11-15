@@ -39,5 +39,6 @@ module.exports = {
   evidence: handler('Job evidence retrieved successfully.', (req) => ownerJobService.evidence(owner(req), body(req).booking_id)),
   earningsSummary: handler('Earnings retrieved successfully.', (req) => ownerJobService.earningsSummary(owner(req), body(req))),
   earningsTrend: handler('Earnings trend retrieved successfully.', (req) => ownerJobService.earningsTrend(owner(req), body(req))),
+  report: handler('Report retrieved successfully.', (req) => ownerJobService.report(owner(req), body(req))),
   earningsJobs: ranged('Completed jobs retrieved successfully.', (req) => ownerJobService.earningsJobs(owner(req), body(req)))
 };

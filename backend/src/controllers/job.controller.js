@@ -55,7 +55,7 @@ module.exports = {
   requestConfirmation: handler('Confirmation requested.', (req) => jobService.requestConfirmation(op(req), job(req))),
   confirmCompletion: handler('Job completed successfully.', (req) => jobService.confirmCompletion(op(req), job(req), body(req).otp)),
 
-  earningsSummary: handler('Earnings retrieved successfully.', (req) => jobService.earningsSummary(op(req))),
+  earningsSummary: handler('Earnings retrieved successfully.', (req) => jobService.earningsSummary(op(req), body(req))),
   earningsList: ranged('Earnings retrieved successfully.', (req) => jobService.earningsList(op(req), body(req))),
 
   // customer: confirm the operator is at the site

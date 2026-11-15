@@ -29,6 +29,7 @@ router.post('/jobs/evidence', ownerOnly, ownerJobController.evidence);
 router.post('/earnings/summary', ownerOnly, ownerJobController.earningsSummary);
 router.post('/earnings/trend', ownerOnly, ownerJobController.earningsTrend);
 router.post('/earnings/jobs', ownerOnly, ownerJobController.earningsJobs);
+router.post('/report', ownerOnly, ownerJobController.report);
 
 // Rapido-style requests from customers near the owner's cranes
 const craneRequests = require('../controllers/craneRequest.controller');

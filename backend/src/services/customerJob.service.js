@@ -395,7 +395,7 @@ class CustomerJobService {
       platformCollectedAmount: r2(Number(b.platformCollectedAmount || 0) + total),
       paidAt: new Date()
     });
-    for (const userId of [b.ownerId, b.operatorId]) {
+    for (const userId of [b.ownerId]) {
       if (!userId) continue;
       // eslint-disable-next-line no-await-in-loop
       await notificationService.notify(userId, {
@@ -454,7 +454,7 @@ class CustomerJobService {
     await refresh(User, 'ownerId', b.ownerId);
 
     // the owner and the operator hear about the rating (this notice was defined but never sent)
-    for (const userId of [b.ownerId, b.operatorId]) {
+    for (const userId of [b.ownerId]) {
       if (!userId) continue; // eslint-disable-line no-continue
       // eslint-disable-next-line no-await-in-loop
       await notificationService.notify(userId, {

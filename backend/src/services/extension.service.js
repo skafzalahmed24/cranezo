@@ -79,7 +79,9 @@ class ExtensionService {
     await this.expireStale();
     const rows = await BookingExtension.findAll({ where: { bookingId: booking.id }, order: [['createdAt', 'DESC']] });
     const now = new Date();
-    const pending = rows.find((e) => e.status === EXTENSION_STATUS.PENDING);
+    // once the work has ended (or the job is completed) no extra time request is open any more
+    const jobOver = !!booking.workEndedAt || booking.status === 7;
+    const pending = jobOver ? null : rows.find((e) => e.status === EXTENSION_STATUS.PENDING);
     return {
       pending: pending ? view(pending, booking, now) : null,
       approved_minutes: booking.extraMinutes,

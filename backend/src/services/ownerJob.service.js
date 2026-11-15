@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Booking, Crane, JobPhoto, JobIssue, StaticDropdown } = require('../models');
+const { Booking, Crane, JobPhoto, JobIssue, StaticDropdown, User } = require('../models');
 const { BOOKING_STATUS, BOOKING_STATUS_LABELS, BOOKING_CONFIG } = require('../constants/booking');
 const { JOB_CONFIG, STAGE_LABELS, jobStage, timers, progressSteps, waitingSecondsNow, workingSecondsNow } = require('../constants/job');
 const { parseRange } = require('../utils/range');
@@ -579,6 +579,76 @@ class OwnerJobService {
           expected_in_days: expectedBy ? Math.max(0, Math.ceil((expectedBy - now) / DAY_MS)) : null
         }
       }
+    };
+  }
+
+  /**
+   * Detailed report: what the customers paid, the platform fee, GST, what went to each operator (paid and still to pay)
+   * and the owner's own share, for a period (today | 6m | 1y | all) with one row per operator and per job.
+   */
+  async report(ownerId, input = {}) {
+    const period = String(input.period || 'all').toLowerCase();
+    const now = new Date();
+    let since = null;
+    if (period === 'today') since = startOfDay(now);
+    else if (period === '6m') since = new Date(now.getTime() - 183 * DAY_MS);
+    else if (period === '1y') since = new Date(now.getTime() - 365 * DAY_MS);
+    const where = { ownerId, status: BOOKING_STATUS.COMPLETED, completedAt: since ? { [Op.gte]: since } : { [Op.ne]: null } };
+    const rows = await Booking.findAll({
+      where,
+      attributes: ['id', 'bookingCode', 'finalAmount', 'totalAmount', 'extraAmount', 'charges', 'gstPercent', 'distanceKm', 'platformFeePercent', 'platformFeeAmount',
+        'deductionsAmount', 'netAmount', 'completedAt', 'settlementStatus', 'paymentStatus', 'paymentCollectedBy', 'paidAmount', 'platformCollectedAmount', 'distanceCharge',
+        'operatorId', 'operatorCommissionType', 'operatorCommissionValue', 'operatorCommissionAmount', 'operatorSettlementStatus', 'siteName'],
+      include: [{ model: User, as: 'operator', attributes: ['id', 'fullName', 'memberId', 'profileImage'], required: false }],
+      order: [['completedAt', 'DESC']]
+    });
+    const fee = await billing.platformFeePercent();
+    const total = sumMoney(rows, fee);
+    const paidRows = rows.filter((b) => b.operatorSettlementStatus === 'settled');
+    const dueRows = rows.filter((b) => b.operatorSettlementStatus !== 'settled');
+
+    const byOperator = new Map();
+    rows.forEach((b) => {
+      if (!b.operatorId) return;
+      const m = jobMoney(b, fee);
+      const row = byOperator.get(b.operatorId) || {
+        operator: { id: b.operatorId, name: b.operator ? b.operator.fullName : null, member_id: b.operator ? b.operator.memberId : null, profile_image: b.operator ? b.operator.profileImage : null },
+        jobs: 0, commission: 0, paid: 0, pending: 0
+      };
+      row.jobs += 1;
+      row.commission = r2(row.commission + m.commission);
+      if (b.operatorSettlementStatus === 'settled') row.paid = r2(row.paid + m.commission);
+      else row.pending = r2(row.pending + m.commission);
+      byOperator.set(b.operatorId, row);
+    });
+
+    return {
+      period,
+      from: since ? H.iso(since) : null,
+      jobs: total.jobs,
+      customer_paid: total.gross,
+      platform_fee_percent: fee,
+      platform_fee: total.platform_fee,
+      other_deductions: total.other_deductions,
+      gst: total.gst,
+      operator_commission: { total: total.commission, paid: sumMoney(paidRows, fee).commission, pending: sumMoney(dueRows, fee).commission },
+      your_share: total.share,
+      operators: [...byOperator.values()].sort((a, b) => b.pending - a.pending || b.commission - a.commission),
+      jobs_list: rows.slice(0, 30).map((b) => {
+        const m = jobMoney(b, fee);
+        return {
+          booking_id: b.id,
+          booking_code: b.bookingCode,
+          completed_at: H.iso(b.completedAt),
+          site: b.siteName,
+          customer_paid: m.gross,
+          platform_fee: m.platform_fee,
+          operator_commission: m.commission,
+          operator_name: b.operator ? b.operator.fullName : null,
+          operator_paid: b.operatorSettlementStatus === 'settled',
+          your_share: m.share
+        };
+      })
     };
   }
 
