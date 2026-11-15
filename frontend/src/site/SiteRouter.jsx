@@ -24,7 +24,7 @@ export const SiteRouter = ({ path, onNavigate }) => {
   const soon = !SITE_LIVE && !(LEGAL_LIVE && isLegal);
 
   useEffect(() => {
-    document.title = soon ? 'Cranezo | Launching soon' : (TITLES[page] || TITLES['/']);
+    document.title = soon ? TITLES['/'] : (TITLES[page] || TITLES['/']);
     // the admin panel is dark; the website is light
     const before = document.body.style.background;
     document.body.style.background = '#ffffff';

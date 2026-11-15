@@ -99,7 +99,8 @@ export const ClearDatabase = () => {
               Also delete the uploaded photos and documents ({preview.uploaded_files} files)
             </label>
             <div style={{ marginTop: 14, maxWidth: 420 }}>
-              <label style={label}>Type the database name to confirm: {preview.database}</label>
+              <label style={label}>Type the database name to confirm</label>
+              <div style={{ ...muted, marginBottom: 6 }}>Database: <code style={{ color: 'var(--dash-text)' }}>{preview.database}</code> (exactly like this, small letters)</div>
               <input
                 style={input}
                 placeholder={preview.database}
@@ -118,6 +119,14 @@ export const ClearDatabase = () => {
               >
                 {busy ? 'Clearing…' : 'Clear database'}
               </button>
+              {/* say why the button is grey, instead of leaving it looking broken */}
+              {!canClear && !busy ? (
+                <div style={{ ...muted, marginTop: 8, color: !preview.enabled ? '#f59e0b' : undefined }}>
+                  {!preview.enabled
+                    ? 'The button is off because the server has not allowed it yet: add ALLOW_DB_CLEAR=true to the server .env and restart (pm2 restart cranezo-backend --update-env).'
+                    : `Type ${preview.database} in the box above to turn the button on.`}
+                </div>
+              ) : null}
             </div>
           </Section>
         </>

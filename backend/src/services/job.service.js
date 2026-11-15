@@ -606,6 +606,7 @@ class JobService {
         body: `${b.bookingCode}: your operator reached the site. Please confirm the arrival.`,
         data: { booking_id: b.id, booking_code: b.bookingCode }
       }, { preferenceKey: 'job_updates' });
+      await this.notifyOwnerArrived(b);
       return this.view(await this.mine(operatorId, bookingId));
     }
     let lat = input.latitude !== undefined && input.latitude !== null ? Number(input.latitude) : null;
@@ -631,7 +632,19 @@ class JobService {
       body: `${b.bookingCode}: your operator reached the site. Please confirm the arrival.`,
       data: { booking_id: b.id, booking_code: b.bookingCode }
     }, { preferenceKey: 'job_updates' });
+    await this.notifyOwnerArrived(b);
     return this.view(await this.mine(operatorId, bookingId));
+  }
+
+  /** The crane owner is told when their operator reaches the customer's site */
+  async notifyOwnerArrived(b) {
+    if (!b.ownerId) return;
+    await notificationService.notify(b.ownerId, {
+      type: NOTIFICATION_TYPES.OPERATOR_ARRIVED,
+      title: 'Crane Reached the Site',
+      body: `${b.bookingCode}: your operator reached the customer's site.`,
+      data: { booking_id: b.id, booking_code: b.bookingCode }
+    }).catch(() => {});
   }
 
   /** "Confirm Arrival Manually" when the customer has not confirmed */

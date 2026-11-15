@@ -53,9 +53,9 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
     {
       title: 'OPERATIONS',
       items: [
+        { id: 'payments', label: 'Transaction History', icon: CreditCard },
         { id: 'bookings', label: 'Bookings', icon: CalendarCheck2 },
         { id: 'crane-requests', label: 'Crane Requests', icon: Search },
-        { id: 'payments', label: 'Payments', icon: CreditCard },
         { id: 'settlements', label: 'Settlements', icon: Wallet },
         { id: 'complaints', label: 'Complaints', icon: MessageSquareWarning },
         { id: 'reviews', label: 'Reviews', icon: Star },

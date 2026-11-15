@@ -297,11 +297,14 @@ class AuthService {
       ]
     });
 
+    // the new tokens must carry the session of the sign-in that is going on, or the very next call is refused as
+    // "signed in on another device" (this is the token the app keeps after sign-up)
     const tokens = generateAuthTokens({
       id: updatedUser.id,
       mobile: updatedUser.mobileNumber,
       roleId: updatedUser.roleId,
-      role: role.code
+      role: role.code,
+      sid: updatedUser.sessionId || undefined
     });
 
     return {

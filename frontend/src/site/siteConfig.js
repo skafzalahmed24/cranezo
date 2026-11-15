@@ -9,6 +9,10 @@ export const SITE_LIVE = false;
 export const LAUNCH_AT = '2027-01-17T19:00:00+05:30';
 export const LEGAL_LIVE = false;
 
+// Real customer reviews only: { name: 'Ravi K.', place: 'Kakinada', text: '...', date: '2027-02-01' }.
+// While this list is empty the website shows a calm empty state, never made-up quotes.
+export const REVIEWS = [];
+
 export const SITE = {
   name: 'Cranezo',
   // the Play Store page of the app
