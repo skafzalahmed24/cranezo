@@ -4,6 +4,7 @@ import { LoginPage, ForgotPasswordPage } from './pages';
 import SiteRouter, { SITE_PATHS } from './site/SiteRouter';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import { AUTH_EXPIRED_EVENT } from './utils/api';
+import OwnerPortal from './owner/OwnerPortal';
 
 function App() {
   const [currentPath, setCurrentPath] = useState(() => {
@@ -61,6 +62,11 @@ function App() {
   const sitePath = currentPath.length > 1 ? currentPath.replace(/\/+$/, '') : currentPath;
   if (SITE_PATHS.includes(sitePath)) {
     return <SiteRouter path={sitePath} onNavigate={navigate} />;
+  }
+
+  // the owner's website: owners and their employees (sub-admins)
+  if (currentPath === '/owner' || currentPath.startsWith('/owner/')) {
+    return <OwnerPortal onNavigate={navigate} />;
   }
 
   // everything below is the admin panel

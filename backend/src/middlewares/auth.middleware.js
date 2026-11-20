@@ -1,6 +1,7 @@
 const { verifyToken } = require('../utils/jwt');
 const { errorResponse } = require('../utils/apiResponse');
-const { Admin, User, Role, AdminAccessRole } = require('../models');
+const { Admin, User, Role, AdminAccessRole, OwnerStaff } = require('../models');
+const { permissionForPath } = require('../constants/ownerStaff');
 
 const authenticate = async (req, res, next) => {
   try {
@@ -20,6 +21,21 @@ const authenticate = async (req, res, next) => {
 
     if (!decoded || !decoded.id) {
       return errorResponse(res, 'Invalid or expired authentication token.', null, 401);
+    }
+
+    // An owner's employee: acts as the owner, but only on what the owner allowed
+    if (decoded.type === 'owner_staff') {
+      const staff = await OwnerStaff.findByPk(decoded.id);
+      if (!staff || staff.status !== 'active') return errorResponse(res, 'Your access has been stopped. Please contact your employer.', null, 403);
+      const owner = await User.findByPk(staff.ownerId, { include: [{ model: Role, as: 'role' }] });
+      if (!owner || owner.isActive === 1 || owner.isDeleted === 1) return errorResponse(res, 'The owner account is not active.', null, 403);
+      const need = permissionForPath(req.originalUrl);
+      const allowed = need === 'self' || (need && need !== 'owner_only' && (staff.permissions || []).includes(need));
+      if (!allowed) return errorResponse(res, 'You do not have permission for this. Ask the owner to allow it.', null, 403);
+      req.user = owner;
+      req.admin = null;
+      req.staff = staff;
+      return next();
     }
 
     // Check if token belongs to an Admin

@@ -63,6 +63,13 @@ router.post('/complaints/summary', ownerOnly, finance.ownerComplaintSummary);
 router.post('/complaints/get', ownerOnly, finance.ownerComplaintGet);
 router.post('/complaints/update', ownerOnly, finance.ownerComplaintUpdate);
 
+// Employees (sub-admins) of the owner: the owner approves them and chooses what they may do
+const ownerStaff = require('../controllers/ownerStaff.controller');
+router.post('/staff/me', ownerOnly, ownerStaff.me);
+router.post('/staff/list', ownerOnly, ownerStaff.list);
+router.post('/staff/update', ownerOnly, ownerStaff.update);
+router.post('/staff/remove', ownerOnly, ownerStaff.remove);
+
 // Crane management (Crane Owner)
 router.post('/cranes/form-options', ownerOnly, craneController.getFormOptions);
 router.post('/operators', ownerOnly, craneController.listOperators);
