@@ -238,11 +238,15 @@ export const MemberDetails = ({ userId, onBack, onSelectCrane }) => {
                 className="cranezo-btn-secondary"
                 title="Open this owner's account on the owner website, view only"
                 onClick={async () => {
+                  // the tab is opened first (a popup opened after a wait is blocked); if it is blocked, this tab is used
+                  const tab = window.open('', '_blank');
                   try {
                     const res = await apiRequest('/admin/view-as/owner', { method: 'POST', body: { owner_id: m.id } });
                     const url = `/owner#view=${encodeURIComponent(res.data.token)}&name=${encodeURIComponent(res.data.owner.name || '')}`;
-                    window.open(url, '_blank', 'noopener');
+                    if (tab) tab.location.href = url;
+                    else window.location.href = url;
                   } catch (e) {
+                    if (tab) tab.close();
                     window.alert(e.message);
                   }
                 }}
