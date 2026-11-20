@@ -70,14 +70,8 @@ function Banners() {
   };
   return (
     <section className="jn-banners" aria-label="Offers">
-      <div className="jn-banner" onClick={go} role="presentation" style={{ backgroundImage: `url(${fileUrl(b.image)})` }}>
-        {(b.title || b.subtitle) && (
-          <div className="jn-banner-text">
-            {b.title && <h2>{b.title}</h2>}
-            {b.subtitle && <p>{b.subtitle}</p>}
-          </div>
-        )}
-      </div>
+      {/* the picture is shown whole and full width; it already carries its own words, so no text is laid over it */}
+      <img className="jn-banner" src={fileUrl(b.image)} alt={b.title || 'Cranezo'} onClick={go} />
       {items.length > 1 && (
         <div className="jn-dots">{items.map((x, k) => <button key={x.id} type="button" aria-label={`Banner ${k + 1}`} className={k === i ? 'on' : ''} onClick={() => setI(k)} />)}</div>
       )}
@@ -149,8 +143,8 @@ export default function JoinPage() {
 
       <section className="jn-hero">
         <p className="jn-eyebrow">Crane owners and operators</p>
-        <h1>Join Cranezo. Steady jobs, clear payments.</h1>
-        <p className="jn-lead">Register your cranes or your skills with Cranezo. Customers book by the hour, day or month, and you get the jobs on your phone.</p>
+        <h1>Book and manage your site job online</h1>
+        <p className="jn-lead">Fast, reliable and affordable.</p>
         <div className="jn-choose">
           <button type="button" onClick={() => choose('owner')}><Truck size={22} aria-hidden="true" /> <strong>I own cranes</strong><small>Register my fleet</small></button>
           <button type="button" onClick={() => choose('operator')}><HardHat size={22} aria-hidden="true" /> <strong>I am an operator</strong><small>Find crane work</small></button>

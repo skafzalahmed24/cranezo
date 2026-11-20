@@ -9,12 +9,9 @@
 .jn-call { background: #fff7e0; color: var(--amber-d); border: 2px solid var(--amber); }
 .jn-wa { background: #137a3f; color: #fff; border: 2px solid #137a3f; }
 
-.jn-banners { max-width: 1100px; margin: 18px auto 0; padding: 0 clamp(14px, 4vw, 24px); }
-.jn-banner { position: relative; min-height: clamp(150px, 30vw, 300px); border-radius: 22px; background: #dfe7f3 center / cover; overflow: hidden; display: flex; align-items: flex-end; cursor: default; box-shadow: 0 10px 30px rgba(26, 58, 138, .16); }
-.jn-banner-text { width: 100%; padding: 22px 26px; background: linear-gradient(0deg, rgba(11, 18, 32, .78), rgba(11, 18, 32, 0)); color: #fff; }
-.jn-banner-text h2 { margin: 0 0 4px; font-size: clamp(20px, 3.4vw, 32px); }
-.jn-banner-text p { margin: 0; opacity: .92; }
-.jn-dots { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+.jn-banners { width: 100%; margin: 0; padding: 0; }
+.jn-banner { display: block; width: 100%; height: auto; }
+.jn-dots { display: flex; justify-content: center; gap: 8px; padding: 10px 0 0; }
 .jn-dots button { width: 9px; height: 9px; border-radius: 50%; border: 0; background: #c3cee0; cursor: pointer; padding: 0; }
 .jn-dots button.on { background: var(--ink); width: 22px; border-radius: 9px; }
 
