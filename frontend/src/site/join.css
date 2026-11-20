@@ -128,7 +128,13 @@
   .jn-bento .jn-b0 { grid-column: 1 / -1; }
 }
 @media (max-width: 640px) {
-  .jn-nav { width: 38px; height: 38px; }
+  /* on a phone the controls sit on the banner and are see-through, so the picture stays visible */
+  .jn-banners { position: relative; }
+  .jn-nav { width: 36px; height: 36px; background: rgba(255, 255, 255, .38); box-shadow: none; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  .jn-nav:hover { background: rgba(255, 255, 255, .6); box-shadow: none; }
+  .jn-dots { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); padding: 5px 9px; gap: 6px; border-radius: 999px; background: rgba(11, 18, 32, .28); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  .jn-dots button { background: rgba(255, 255, 255, .6); width: 7px; height: 7px; }
+  .jn-dots button.on { background: #fff; width: 18px; }
   .jn-prev { left: 8px; }
   .jn-next { right: 8px; }
   .jn-top { top: 8px; padding: 7px 8px 7px 12px; }
