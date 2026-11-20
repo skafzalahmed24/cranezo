@@ -42,6 +42,9 @@ router.post('/reviews', adminOnly, adminController.reviews);
 router.post('/reports', adminOnly, adminController.reports);
 router.post('/alerts', adminOnly, adminController.alerts);
 
+// the Super Admin looks into an owner's account on the owner website (view only)
+router.post('/view-as/owner', superAdminOnly, require('../controllers/ownerStaff.controller').viewAs);
+
 // Operator conduct: who needs attention (inactive / app removed), yellow and red cards, penalty rules
 const conduct = require('../controllers/conduct.controller');
 router.post('/conduct/attention', adminOnly, conduct.attention);

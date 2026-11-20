@@ -1,7 +1,7 @@
 const { verifyToken } = require('../utils/jwt');
 const { errorResponse } = require('../utils/apiResponse');
 const { Admin, User, Role, AdminAccessRole, OwnerStaff } = require('../models');
-const { permissionForPath } = require('../constants/ownerStaff');
+const { permissionForPath, viewOnlyAllowed } = require('../constants/ownerStaff');
 
 const authenticate = async (req, res, next) => {
   try {
@@ -21,6 +21,17 @@ const authenticate = async (req, res, next) => {
 
     if (!decoded || !decoded.id) {
       return errorResponse(res, 'Invalid or expired authentication token.', null, 401);
+    }
+
+    // The Super Admin looking into an owner's account: reads only
+    if (decoded.type === 'owner_view') {
+      const owner = await User.findByPk(decoded.id, { include: [{ model: Role, as: 'role' }] });
+      if (!owner || owner.isDeleted === 1) return errorResponse(res, 'Owner not found.', null, 404);
+      if (!viewOnlyAllowed(req.originalUrl)) return errorResponse(res, 'View only: the Super Admin cannot change anything while viewing an owner account.', null, 403);
+      req.user = owner;
+      req.admin = null;
+      req.viewer = { adminId: decoded.by };
+      return next();
     }
 
     // An owner's employee: acts as the owner, but only on what the owner allowed

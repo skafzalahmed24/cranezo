@@ -6,9 +6,12 @@ export { uploadFile, API_BASE };
 export const TOKEN_KEY = 'cranezo_owner_token';
 export const SESSION_KEY = 'cranezo_owner_session';
 
+// a Super Admin looking into an account lives in this tab only (sessionStorage), so it never replaces a real sign-in
+const store = () => (sessionStorage.getItem(TOKEN_KEY) ? sessionStorage : localStorage);
+
 export const getSession = () => {
   try {
-    return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    return JSON.parse(store().getItem(SESSION_KEY) || 'null');
   } catch (e) {
     return null;
   }
@@ -17,14 +20,24 @@ export const saveSession = (token, session) => {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(SESSION_KEY, JSON.stringify(session));
 };
+export const saveViewSession = (token, session) => {
+  sessionStorage.setItem(TOKEN_KEY, token);
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+};
+export const clearViewSession = () => {
+  sessionStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
+};
 export const clearSession = () => {
+  sessionStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(SESSION_KEY);
 };
 
 /** JSON request; throws Error(message). A 401 drops the session (the page then shows the sign-in). */
 export const call = async (path, body = {}, { auth = true } = {}) => {
-  const token = localStorage.getItem(TOKEN_KEY);
+  const token = store().getItem(TOKEN_KEY);
   const response = await fetch(`${API_BASE}/api${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(auth && token ? { Authorization: `Bearer ${token}` } : {}) },

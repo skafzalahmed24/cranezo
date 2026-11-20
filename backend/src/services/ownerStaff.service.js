@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const { OwnerStaff, User } = require('../models');
-const { generateAccessToken } = require('../utils/jwt');
+const { generateAccessToken, generateTimedToken } = require('../utils/jwt');
 const { OWNER_PERMISSIONS, PERMISSION_KEYS } = require('../constants/ownerStaff');
 const { notificationService } = require('./notification.service');
 
@@ -78,6 +78,16 @@ class OwnerStaffService {
     const authService = require('./auth.service');
     const r = await authService.registerOrLogin({ phone_number: phone, country_code: input.country_code || '+91', role_id: OWNER_ROLE_ID });
     return { user_id: r.user_id, otp: r.otp };
+  }
+
+  /** The Super Admin looks into an owner's account (view only, 2 hours). It is written to the server log. */
+  async viewAs(admin, input = {}) {
+    const owner = await User.findOne({ where: { id: String(input.owner_id || ''), roleId: OWNER_ROLE_ID, isDeleted: 0 }, attributes: ['id', 'fullName', 'companyName', 'memberId'] });
+    if (!owner) throw new StaffError('Owner not found.', 404);
+    const token = generateTimedToken({ id: owner.id, type: 'owner_view', by: admin ? String(admin.id) : null }, '2h');
+    // eslint-disable-next-line no-console
+    console.log(`[view-as] admin ${admin ? admin.id : '?'} opened owner ${owner.memberId} (view only)`);
+    return { token, owner: { id: owner.id, name: owner.companyName || owner.fullName, member_id: owner.memberId }, expires_in: '2h' };
   }
 
   async login(input = {}) {

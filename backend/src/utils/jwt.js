@@ -30,6 +30,9 @@ const generateRefreshToken = (payload) => {
   });
 };
 
+/** A short-lived token (e.g. the Super Admin looking into an owner account) */
+const generateTimedToken = (payload, expiresIn) => jwt.sign(payload, JWT_ACCESS_SECRET, { expiresIn });
+
 /**
  * Generate both Access Token and Refresh Token for authentication
  */
@@ -79,6 +82,7 @@ const verifyRefreshToken = (token) => {
 module.exports = {
   generateToken,
   generateAccessToken,
+  generateTimedToken,
   generateRefreshToken,
   generateAuthTokens,
   verifyToken,

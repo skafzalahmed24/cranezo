@@ -36,4 +36,23 @@ const permissionForPath = (url) => {
   return hit ? hit[1] : null;
 };
 
-module.exports = { OWNER_PERMISSIONS, PERMISSION_KEYS, permissionForPath };
+// What the Super Admin can only LOOK at when viewing an owner's account: reads only, nothing that changes data
+const VIEW_ONLY = [
+  /^\/owner\/(home|earnings|report|getCranes|ratings)/,
+  /^\/owner\/jobs\/(summary|list|get|track|evidence)$/,
+  /^\/owner\/operators$/,
+  /^\/owner\/salary\/list$/,
+  /^\/owner\/(transactions|settlements|operator-payments)(\/jobs|\/get)?$/,
+  /^\/owner\/billing\/settings$/,
+  /^\/owner\/requests\/(list|summary|get)$/,
+  /^\/owner\/crane-requests$/,
+  /^\/owner\/complaints(\/summary|\/get)?$/,
+  /^\/owner\/staff\/(list|me)$/,
+  /^\/(dropdowns|places)/
+];
+const viewOnlyAllowed = (url) => {
+  const path = String(url || '').split('?')[0].replace(/^\/api/, '');
+  return VIEW_ONLY.some((re) => re.test(path));
+};
+
+module.exports = { OWNER_PERMISSIONS, PERMISSION_KEYS, permissionForPath, viewOnlyAllowed };

@@ -232,6 +232,24 @@ export const MemberDetails = ({ userId, onBack, onSelectCrane }) => {
               </div>
               <div style={{ color: 'var(--dash-text-muted)', fontSize: 13, marginTop: 4 }}>{m.member_id}</div>
             </div>
+            {m.role_id === 1 && (
+              <button
+                type="button"
+                className="cranezo-btn-secondary"
+                title="Open this owner's account on the owner website, view only"
+                onClick={async () => {
+                  try {
+                    const res = await apiRequest('/admin/view-as/owner', { method: 'POST', body: { owner_id: m.id } });
+                    const url = `/owner#view=${encodeURIComponent(res.data.token)}&name=${encodeURIComponent(res.data.owner.name || '')}`;
+                    window.open(url, '_blank', 'noopener');
+                  } catch (e) {
+                    window.alert(e.message);
+                  }
+                }}
+              >
+                View as owner
+              </button>
+            )}
             <button type="button" className={m.status === 0 ? 'cranezo-btn-danger-outline' : 'cranezo-btn-secondary'} onClick={toggleBlock}>
               {m.status === 0 ? <><Ban size={15} /> Block {m.role_name}</> : <><RotateCcw size={15} /> Unblock</>}
             </button>

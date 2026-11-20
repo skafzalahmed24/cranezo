@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import OwnerAuth from './OwnerAuth';
 import { OwnerCranes } from './OwnerCranes';
 import { OwnerTeam } from './OwnerTeam';
-import { call, clearSession, getSession, inr, when } from './ownerApi';
+import { call, clearSession, clearViewSession, getSession, saveViewSession, inr, when } from './ownerApi';
 import './owner.css';
 
 const PERIODS = [['today', 'Today'], ['6m', '6 months'], ['1y', '1 year'], ['all', 'Overall']];
@@ -17,7 +17,7 @@ const PAGES = [
   { id: 'team', label: 'My team', need: 'owner_only' },
 ];
 
-const can = (session, need) => session && (session.kind === 'owner' || (need !== 'owner_only' && (session.permissions || []).includes(need)));
+const can = (session, need) => session && (session.kind === 'owner' || session.kind === 'viewer' || (need !== 'owner_only' && (session.permissions || []).includes(need)));
 
 const Stat = ({ label, value, tone }) => (
   <div className={`op-stat ${tone || ''}`}>
@@ -250,8 +250,17 @@ function Payments() {
   );
 }
 
+// opened by the Super Admin from the owner's page: /owner#view=<token>&name=<owner>
+const takeViewLink = () => {
+  const m = /[#&]view=([^&]+)/.exec(window.location.hash || '');
+  if (!m) return;
+  const name = /[#&]name=([^&]*)/.exec(window.location.hash || '');
+  saveViewSession(decodeURIComponent(m[1]), { kind: 'viewer', name: name ? decodeURIComponent(name[1]) || 'Owner' : 'Owner', permissions: ['*'] });
+  window.history.replaceState({}, '', window.location.pathname);
+};
+
 export default function OwnerPortal({ onNavigate }) {
-  const [session, setSession] = useState(getSession);
+  const [session, setSession] = useState(() => { takeViewLink(); return getSession(); });
   const [page, setPage] = useState(null);
 
   useEffect(() => {
@@ -278,11 +287,17 @@ export default function OwnerPortal({ onNavigate }) {
         </nav>
         <div className="op-who">
           <strong>{session.name}</strong>
-          <span>{session.kind === 'staff' ? `Employee of ${session.owner_name}` : 'Owner'}</span>
+          <span>{session.kind === 'staff' ? `Employee of ${session.owner_name}` : session.kind === 'viewer' ? 'Admin view (read only)' : 'Owner'}</span>
           <button type="button" className="op-link" onClick={signOut}>Sign out</button>
         </div>
       </aside>
       <main className="op-main">
+        {session.kind === 'viewer' && (
+          <div className="op-alert ok" style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+            <span>Cranezo admin view of <strong>{session.name}</strong>. You can only look; nothing can be changed. This view ends in 2 hours.</span>
+            <button type="button" className="op-link" onClick={() => { clearViewSession(); setSession(getSession()); window.close(); }}>Close</button>
+          </div>
+        )}
         {!current && <div className="op-alert bad">You do not have access to any page yet. Ask the owner to give you permissions.</div>}
         {current && current.id === 'overview' && <Overview />}
         {current && current.id === 'jobs' && <Jobs />}

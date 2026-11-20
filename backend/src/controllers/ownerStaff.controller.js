@@ -15,6 +15,7 @@ const owner = (req) => req.user.id;
 module.exports = {
   register: handler('Registered. Your employer must approve you before you can sign in.', (req) => S.register(body(req))),
   ownerOtp: handler('Code sent.', (req) => S.ownerOtp(body(req))),
+  viewAs: handler('Owner view opened.', (req) => S.viewAs(req.admin, body(req))),
   login: handler('Signed in.', (req) => S.login(body(req))),
   me: handler('Retrieved successfully.', (req) => (req.staff ? S.me(req.staff) : Promise.resolve({ staff: null, owner: { id: req.user.id, name: req.user.companyName || req.user.fullName }, is_owner: true }))),
   list: handler('Employees retrieved successfully.', (req) => S.list(owner(req))),
