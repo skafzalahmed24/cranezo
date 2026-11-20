@@ -128,6 +128,20 @@
   .jn-bento .jn-b0 { grid-column: 1 / -1; }
 }
 @media (max-width: 640px) {
+  /* tighter on a phone: less empty space between the parts */
+  .jn-hero { padding: 84px 16px 22px; border-radius: 0 0 28px 28px; }
+  .jn-hero h1 { font-size: 34px; }
+  .jn-lead { margin-top: 10px; font-size: 16px; }
+  .jn-choose { margin-top: 20px; gap: 10px; }
+  .jn-choose button { padding: 12px 14px; }
+  .jn-down { margin-top: 14px; }
+  .jn-banners { padding-top: 14px; }
+  .jn-highlights, .jn-steps { padding-top: 34px; }
+  .jn-highlights h2, .jn-steps h2 { margin-bottom: 16px; }
+  .jn-bento { gap: 12px; }
+  .jn-bento article { padding: 18px; }
+  .jn-form-wrap { padding-top: 34px; padding-bottom: 28px; }
+  .jn-foot { padding-top: 24px; padding-bottom: 24px; }
   /* on a phone the controls sit on the banner and are see-through, so the picture stays visible */
   .jn-banners { position: relative; }
   .jn-nav { width: 36px; height: 36px; background: rgba(255, 255, 255, .38); box-shadow: none; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
