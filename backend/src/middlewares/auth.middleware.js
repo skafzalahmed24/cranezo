@@ -71,6 +71,8 @@ const authenticate = async (req, res, next) => {
       return errorResponse(res, 'You were signed out because this account was opened on another device.', { code: 'SESSION_REPLACED' }, 401);
     }
 
+    // operators: remember the last time the app was used (7 quiet days = needs attention)
+    if (account.roleId === 2) require('../services/conduct.service').conductService.touch(account).catch(() => {});
     req.user = account;
     req.admin = null;
     next();

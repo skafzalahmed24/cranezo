@@ -42,6 +42,15 @@ router.post('/reviews', adminOnly, adminController.reviews);
 router.post('/reports', adminOnly, adminController.reports);
 router.post('/alerts', adminOnly, adminController.alerts);
 
+// Operator conduct: who needs attention (inactive / app removed), yellow and red cards, penalty rules
+const conduct = require('../controllers/conduct.controller');
+router.post('/conduct/attention', adminOnly, conduct.attention);
+router.post('/conduct/operator', adminOnly, conduct.detail);
+router.post('/conduct/rules', adminOnly, conduct.rules);
+router.post('/conduct/card', superAdminOnly, conduct.giveCard);
+router.post('/conduct/clear', superAdminOnly, conduct.clear);
+router.post('/conduct/rules/save', superAdminOnly, conduct.saveRules);
+
 // Crane approvals
 router.post('/cranes/summary', adminOnly, craneController.adminSummary);
 router.post('/cranes/list', adminOnly, craneController.adminList);

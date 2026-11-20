@@ -1,7 +1,7 @@
 const { User } = require('../models');
 const { errorResponse } = require('../utils/apiResponse');
 
-const DOC_ATTRS = ['id', 'operatorLicenseFront', 'operatorLicenseStatus', 'voterIdFile', 'voterIdStatus', 'aadharCardFile', 'aadharStatus',
+const DOC_ATTRS = ['id', 'conductBlocked', 'operatorLicenseFront', 'operatorLicenseStatus', 'voterIdFile', 'voterIdStatus', 'aadharCardFile', 'aadharStatus',
   'panCardFile', 'panStatus', 'otherDocumentFile', 'otherDocumentStatus'];
 
 /**
@@ -34,6 +34,9 @@ async function operatorVerified(operatorId) {
 const requireVerifiedOperator = async (req, res, next) => {
   try {
     if (req.path === '/status' && req.body && req.body.online !== true) return next();
+    if (req.user.conductBlocked) {
+      return errorResponse(res, 'Your account is restricted (red card). You cannot take jobs until Cranezo clears it. Please contact support.', { code: 'OPERATOR_RESTRICTED' }, 403);
+    }
     if (await operatorVerified(req.user.id)) return next();
     return errorResponse(res, NOT_VERIFIED, { code: 'OPERATOR_NOT_VERIFIED' }, 403);
   } catch (error) {

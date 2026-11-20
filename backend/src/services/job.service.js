@@ -391,6 +391,7 @@ class JobService {
         owner_name: crane.owner ? crane.owner.companyName || crane.owner.fullName : null
       } : null,
       today_jobs: { count: todayCount, items: todayJobs.map((b) => this.listItem(b)) },
+      conduct: await require('./conduct.service').conductService.mine(operatorId),
       today_earnings: Number(todayEarnings),
       // overall: all completed jobs plus tips
       overall_earnings: Number((await Booking.sum('operatorCommissionAmount', { where: { operatorId, status: BOOKING_STATUS.COMPLETED } })) || 0),
@@ -590,6 +591,16 @@ class JobService {
       // the yellow line from the operator to the site, along roads a crane can use
       out.route = r ? r.route : [];
       out.speed_kmph = r ? r.speed_kmph : null;
+      // the phone is at the site (within 100 m): the customer is told once, even if the operator has not tapped "reached" yet
+      if (b.status === BOOKING_STATUS.EN_ROUTE && !b.arrivedAt && !b.reachedNotifiedAt && H.haversineKm(latitude, longitude, Number(b.latitude), Number(b.longitude)) <= 0.1) {
+        await b.update({ reachedNotifiedAt: new Date() });
+        await notificationService.notify(b.customerId, {
+          type: 'crane_arriving_soon',
+          title: 'Your crane is at your location',
+          body: `${b.bookingCode}: the crane has reached your site. The operator will confirm shortly.`,
+          data: { booking_id: b.id, booking_code: b.bookingCode }
+        }).catch(() => {});
+      }
       // "Crane Arriving Soon", once per job, when about 15 minutes away
       if (b.status === BOOKING_STATUS.EN_ROUTE && !b.arrivedAt && !b.arrivingNotifiedAt && out.eta_minutes <= 15) {
         await b.update({ arrivingNotifiedAt: new Date() });

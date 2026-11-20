@@ -329,6 +329,7 @@ class AdminService {
       { key: 'cranes', label: 'Cranes waiting for approval', count: await Crane.count({ where: { approvalStatus: 0 } }), view: 'crane-approvals', tone: 'warn' },
       { key: 'documents', label: 'Operators with documents to check', count: docsPending, view: 'operators', tone: 'warn' },
       { key: 'no_crane', label: '"No crane found" requests to call', count: await CraneRequest.count({ where: { status: 'not_found', adminStatus: 'new' } }), view: 'crane-requests', tone: 'bad' },
+      { key: 'operators_attention', label: 'Operators inactive for days or who removed the app', count: (await require('./conduct.service').conductService.attention()).items.length, view: 'operator-conduct', tone: 'warn' },
       { key: 'complaints', label: 'Open complaints', count: await Complaint.count({ where: { status: { [Op.in]: ['open', 'in_review'] } } }), view: 'complaints', tone: 'bad' },
       { key: 'refunds', label: 'Payments to refund (paid after the booking expired)', count: refunds, view: 'payments', tone: 'bad' },
       {

@@ -70,6 +70,7 @@ module.exports = (sequelize) => {
     extraAmount: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0, field: 'extra_amount' },
     paymentReference: { type: DataTypes.STRING(40), allowNull: true, field: 'payment_reference' },
     paidAt: { type: DataTypes.DATE, allowNull: true, field: 'paid_at' },
+    reachedNotifiedAt: { type: DataTypes.DATE, allowNull: true, field: 'reached_notified_at' },
     arrivingNotifiedAt: { type: DataTypes.DATE, allowNull: true, field: 'arriving_notified_at' },
     settlementStatus: { type: DataTypes.STRING(12), allowNull: false, defaultValue: 'pending', field: 'settlement_status' },
     settledAt: { type: DataTypes.DATE, allowNull: true, field: 'settled_at' },

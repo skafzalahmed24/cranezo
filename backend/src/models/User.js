@@ -172,6 +172,12 @@ module.exports = (sequelize) => {
     ratingAverage: { type: DataTypes.DECIMAL(3, 2), allowNull: true, field: 'rating_average' },
     ratingCount: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0, field: 'rating_count' },
     isOnline: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false, field: 'is_online' },
+    // operator conduct: last time the app was used, when it was removed, red-card restriction and the penalty to clear
+    lastActiveAt: { type: DataTypes.DATE, allowNull: true, field: 'last_active_at' },
+    appRemovedAt: { type: DataTypes.DATE, allowNull: true, field: 'app_removed_at' },
+    penaltyDue: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0, field: 'penalty_due' },
+    conductBlocked: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false, field: 'conduct_blocked' },
+    safetyAckAt: { type: DataTypes.DATE, allowNull: true, field: 'safety_ack_at' },
     onlineUpdatedAt: { type: DataTypes.DATE, allowNull: true, field: 'online_updated_at' },
     appearance: { type: DataTypes.STRING(10), allowNull: false, defaultValue: 'system', comment: 'light, dark or system' },
     notificationPreferences: { type: DataTypes.JSONB, allowNull: true, field: 'notification_preferences' },

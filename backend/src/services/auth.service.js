@@ -152,6 +152,8 @@ class AuthService {
 
     // One signed-in device per phone number: this sign-in is the session; every other device is signed out
     const sid = await this.startSession(user);
+    // an operator coming back after removing the app gets a yellow card (and the penalty, if one is set)
+    await require('./conduct.service').conductService.onSignIn(user).catch(() => {});
 
     // Generate JWT Access & Refresh Tokens
     const tokens = generateAuthTokens({

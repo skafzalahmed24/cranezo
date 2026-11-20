@@ -100,6 +100,8 @@ const sendPush = async (user, { title, body, data }) => {
     // the app was uninstalled or the token expired: forget it; the app sends a new one on its next start
     if (['messaging/registration-token-not-registered', 'messaging/invalid-registration-token'].includes(error.code)) {
       await User.update({ pushToken: null }, { where: { id: user.id, pushToken: user.pushToken } }).catch(() => {});
+      // an operator whose app is gone: the Super Admin and the owner are told
+      if (error.code === 'messaging/registration-token-not-registered') require('./conduct.service').conductService.appRemoved(user.id).catch(() => {});
     }
     return false;
   }

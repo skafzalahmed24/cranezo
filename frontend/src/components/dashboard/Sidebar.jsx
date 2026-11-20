@@ -57,6 +57,7 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
         { id: 'bookings', label: 'Bookings', icon: CalendarCheck2 },
         { id: 'crane-requests', label: 'Crane Requests', icon: Search },
         { id: 'settlements', label: 'Settlements', icon: Wallet },
+        { id: 'operator-conduct', label: 'Operator Conduct', icon: ShieldCheck },
         { id: 'complaints', label: 'Complaints', icon: MessageSquareWarning },
         { id: 'reviews', label: 'Reviews', icon: Star },
       ],

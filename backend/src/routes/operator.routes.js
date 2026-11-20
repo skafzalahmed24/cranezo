@@ -50,6 +50,9 @@ router.post('/job-requests/withdraw', operatorOnly, finance.operatorWithdrawRequ
 router.post('/settlements', operatorOnly, finance.operatorSettlements);
 router.post('/settlements/get', operatorOnly, finance.operatorSettlementGet);
 
+// the operator read the safety rules
+router.post('/safety/ack', operatorOnly, require('../controllers/conduct.controller').safetyAck);
+
 // Cranes assigned to the signed-in operator (pass crane_id for one). POST with JSON payload.
 router.post('/getAssignedCranes', authenticate, authorize(ROLES.OPERATOR), profileController.assignedCranes);
 

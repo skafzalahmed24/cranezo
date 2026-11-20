@@ -32,6 +32,7 @@ const definePriceMinimum = require('./PriceMinimum');
 const defineOwnerSubscription = require('./OwnerSubscription');
 const defineAdminAccessRole = require('./AdminAccessRole');
 const defineOwnerStaff = require('./OwnerStaff');
+const defineOperatorCard = require('./OperatorCard');
 const defineSubscriptionPayment = require('./SubscriptionPayment');
 
 const Role = defineRole(sequelize);
@@ -67,6 +68,7 @@ const PriceMinimum = definePriceMinimum(sequelize);
 const OwnerSubscription = defineOwnerSubscription(sequelize);
 const AdminAccessRole = defineAdminAccessRole(sequelize);
 const OwnerStaff = defineOwnerStaff(sequelize);
+const OperatorCard = defineOperatorCard(sequelize);
 const SubscriptionPayment = defineSubscriptionPayment(sequelize);
 
 // Associations
@@ -160,6 +162,7 @@ module.exports = {
   sequelize,
   AdminAccessRole,
   OwnerStaff,
+  OperatorCard,
   OwnerSubscription,
   SubscriptionPayment,
   Role,

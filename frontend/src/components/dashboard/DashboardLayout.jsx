@@ -6,6 +6,7 @@ import AdminBookings from './AdminBookings';
 import AdminReviews from './AdminReviews';
 import AdminReports from './AdminReports';
 import AdminAlerts from './AdminAlerts';
+import OperatorConduct from './OperatorConduct';
 import UserDetails from './UserDetails';
 import CraneDetails from './CraneDetails';
 import CraneApprovals from './CraneApprovals';
@@ -330,6 +331,7 @@ export const DashboardLayout = ({ userSession, onLogout, initialView = 'cranes' 
           {activeView === 'reports' && <AdminReports />}
 
           {activeView === 'notifications' && <AdminAlerts onNavigate={handleNavigate} />}
+          {activeView === 'operator-conduct' && <OperatorConduct />}
 
           {activeView === 'crane-approvals' && <CraneApprovals onReviewed={refreshPendingCranes} />}
 

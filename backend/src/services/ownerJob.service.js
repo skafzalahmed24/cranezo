@@ -444,8 +444,11 @@ class OwnerJobService {
     const { subscriptionService } = require('./subscription.service');
     // an owner who never chose a plan gets the free trial the first time the dashboard opens
     const subscription = await subscriptionService.summary(ownerId, { autoTrial: true }).catch(() => null);
+    const attention = await require('./conduct.service').conductService.attention({ ownerId }).catch(() => ({ items: [] }));
     return {
       subscription,
+      // operators of this owner who were quiet for days or removed the app
+      operators_attention: attention.items.map((o) => ({ id: o.id, name: o.name, reason: o.reason, reason_label: o.reason_label })),
       operator_dues: {
         amount: dues.total_due,
         operators: dues.items.length,
