@@ -99,11 +99,15 @@ function Jobs() {
 
 function Operators() {
   const [items, setItems] = useState(null);
+  const [payroll, setPayroll] = useState(null);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [byId, setById] = useState('');
-  const [form, setForm] = useState({ full_name: '', mobile_number: '' });
-  const load = useCallback(() => call('/owner/operators', { min: 0, max: 100 }).then((r) => setItems(r.data || [])).catch((e) => setError(e.message)), []);
+  const [form, setForm] = useState({ full_name: '', mobile_number: '', monthly_salary: '' });
+  const load = useCallback(() => {
+    call('/owner/operators', { min: 0, max: 100 }).then((r) => setItems(r.data || [])).catch((e) => setError(e.message));
+    call('/owner/salary/list').then((r) => setPayroll(r.data)).catch(() => setPayroll(null));
+  }, []);
   useEffect(() => { load(); }, [load]);
   const act = async (fn, okMsg) => {
     setError('');
@@ -115,6 +119,16 @@ function Operators() {
     } catch (e) {
       setError(e.message);
     }
+  };
+  const setSalary = (o) => {
+    const v = window.prompt(`Monthly salary for ${o.full_name} (₹). Enter 0 if they are paid per job.`, String(o.monthly_salary || 0));
+    if (v === null) return;
+    act(() => call('/owner/operators/salary', { operator_id: o.id, monthly_salary: Number(v) }), 'Monthly salary saved.');
+  };
+  const paySalary = (i) => {
+    const ref = window.prompt(`Record the salary payment of ${inr(i.salary)} to ${i.operator.name} for ${i.month}.\nTransaction reference (UPI id / UTR). Leave empty only if you paid cash:`, '');
+    if (ref === null) return;
+    act(() => call('/owner/salary/pay', { operator_id: i.operator.id, month: i.month, method: ref ? 'upi' : 'cash', reference: ref || undefined }), 'Salary payment recorded.');
   };
   return (
     <>
@@ -131,21 +145,46 @@ function Operators() {
         <div className="op-row">
           <input placeholder="Full name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
           <input placeholder="Mobile number" inputMode="numeric" value={form.mobile_number} onChange={(e) => setForm({ ...form, mobile_number: e.target.value.replace(/\D/g, '') })} />
-          <button type="button" className="op-btn" disabled={!form.full_name || form.mobile_number.length < 6} onClick={() => act(async () => { await call('/owner/operators/add', form); setForm({ full_name: '', mobile_number: '' }); }, 'Operator added.')}>Add</button>
+          <input placeholder="Monthly salary (optional)" inputMode="decimal" value={form.monthly_salary} onChange={(e) => setForm({ ...form, monthly_salary: e.target.value.replace(/[^\d.]/g, '') })} />
+          <button type="button" className="op-btn" disabled={!form.full_name || form.mobile_number.length < 6} onClick={() => act(async () => { await call('/owner/operators/add', { ...form, monthly_salary: form.monthly_salary ? Number(form.monthly_salary) : undefined }); setForm({ full_name: '', mobile_number: '', monthly_salary: '' }); }, 'Operator added.')}>Add</button>
         </div>
       </div>
       {!items && !error && <p className="op-muted">Loading…</p>}
       {items && (
         <div className="op-table-wrap">
           <table className="op-table">
-            <thead><tr><th>Name</th><th>Operator ID</th><th>Mobile</th><th>Online</th></tr></thead>
+            <thead><tr><th>Name</th><th>Operator ID</th><th>Mobile</th><th>Online</th><th>Monthly salary</th><th /></tr></thead>
             <tbody>
-              {items.length === 0 && <tr><td colSpan="4" className="op-muted">No operators in your team yet.</td></tr>}
+              {items.length === 0 && <tr><td colSpan="6" className="op-muted">No operators in your team yet.</td></tr>}
               {items.map((o) => (
-                <tr key={o.id}><td>{o.full_name}</td><td>{o.member_id}</td><td>{o.mobile_number}</td><td>{o.is_online ? 'Online' : 'Offline'}</td></tr>
+                <tr key={o.id}>
+                  <td>{o.full_name}</td><td>{o.member_id}</td><td>{o.mobile_number}</td><td>{o.is_online ? 'Online' : 'Offline'}</td>
+                  <td>{o.monthly_salary > 0 ? inr(o.monthly_salary) : 'Paid per job'}</td>
+                  <td><button type="button" className="op-btn ghost" onClick={() => setSalary(o)}>Set salary</button></td>
+                </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      {payroll && payroll.items.length > 0 && (
+        <div className="op-card">
+          <h3>Monthly salaries</h3>
+          <p className="op-muted">Still to pay: <strong className="warn-text">{inr(payroll.total_due)}</strong>. Jobs given “on monthly salary” add nothing extra.</p>
+          <div className="op-table-wrap">
+            <table className="op-table">
+              <thead><tr><th>Operator</th><th>Month</th><th>Salary</th><th>Status</th><th /></tr></thead>
+              <tbody>
+                {payroll.items.map((i) => (
+                  <tr key={i.operator.id + i.month}>
+                    <td>{i.operator.name}</td><td>{i.month}</td><td>{inr(i.salary)}</td>
+                    <td>{i.paid ? <span className="op-pill active">Paid {when(i.paid_at)}</span> : <span className="op-pill pending">To pay</span>}</td>
+                    <td>{!i.paid && <button type="button" className="op-btn" onClick={() => paySalary(i)}>Record payment</button>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </>

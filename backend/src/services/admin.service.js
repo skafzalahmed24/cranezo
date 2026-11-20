@@ -330,6 +330,20 @@ class AdminService {
       { key: 'documents', label: 'Operators with documents to check', count: docsPending, view: 'operators', tone: 'warn' },
       { key: 'no_crane', label: '"No crane found" requests to call', count: await CraneRequest.count({ where: { status: 'not_found', adminStatus: 'new' } }), view: 'crane-requests', tone: 'bad' },
       { key: 'operators_attention', label: 'Operators inactive for days or who removed the app', count: (await require('./conduct.service').conductService.attention()).items.length, view: 'operator-conduct', tone: 'warn' },
+      {
+        key: 'emergencies',
+        label: 'Emergencies and breakdowns reported in the last 24 hours',
+        count: await require('../models').JobIssue.count({ where: { kind: { [Op.in]: ['emergency', 'breakdown'] }, createdAt: { [Op.gte]: new Date(Date.now() - DAY) } } }),
+        view: 'bookings',
+        tone: 'bad'
+      },
+      {
+        key: 'low_reviews',
+        label: 'Low reviews (1 or 2 stars) in the last 7 days',
+        count: await require('../models').BookingRating.count({ where: { rating: { [Op.lte]: 2 }, createdAt: { [Op.gte]: new Date(Date.now() - 7 * DAY) } } }),
+        view: 'reviews',
+        tone: 'warn'
+      },
       { key: 'complaints', label: 'Open complaints', count: await Complaint.count({ where: { status: { [Op.in]: ['open', 'in_review'] } } }), view: 'complaints', tone: 'bad' },
       { key: 'refunds', label: 'Payments to refund (paid after the booking expired)', count: refunds, view: 'payments', tone: 'bad' },
       {

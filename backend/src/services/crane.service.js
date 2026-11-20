@@ -13,7 +13,7 @@ const {
 } = require('../constants/roles');
 
 const OPERATOR_ROLE_ID = 2;
-const OPERATOR_ATTRS = ['id', 'memberId', 'fullName', 'mobileNumber', 'countryCode', 'userEmail', 'profileImage', 'ownerId', 'isMobileVerified', 'isOnline'];
+const OPERATOR_ATTRS = ['id', 'memberId', 'fullName', 'mobileNumber', 'countryCode', 'userEmail', 'profileImage', 'ownerId', 'isMobileVerified', 'isOnline', 'monthlySalary'];
 
 class ServiceError extends Error {
   constructor(message, statusCode = 400) {
@@ -317,7 +317,9 @@ class CraneService {
       source: o.ownerId ? 'owner_added' : 'registered',
       is_mobile_verified: o.isMobileVerified === 0,
       // the operator's Online / Offline button; an offline operator cannot be given a job
-      is_online: o.isOnline === true
+      is_online: o.isOnline === true,
+      // the monthly wage the owner pays this operator (0 = paid per job)
+      monthly_salary: Number(o.monthlySalary || 0)
     };
   }
 
@@ -347,6 +349,21 @@ class CraneService {
    * Owner adds an operator directly (stored in users, role 2, owner_id = owner).
    * The operator can later sign in with the normal OTP flow using this mobile number.
    */
+  cleanSalary(value) {
+    if (value === undefined || value === null || value === '') return 0;
+    const n = Number(value);
+    if (!Number.isFinite(n) || n < 0 || n > 1000000) throw new ServiceError('monthly_salary must be between 0 and 1000000.');
+    return Math.round(n * 100) / 100;
+  }
+
+  /** The owner sets (or changes) the monthly wage of an operator in their team */
+  async setOperatorSalary(ownerId, body = {}) {
+    const operator = await User.findOne({ where: { id: String(body.operator_id || ''), roleId: OPERATOR_ROLE_ID, ownerId, isDeleted: 0 }, attributes: OPERATOR_ATTRS });
+    if (!operator) throw new ServiceError('This operator is not in your team.', 404);
+    await operator.update({ monthlySalary: this.cleanSalary(body.monthly_salary) });
+    return this.formatOperator(operator);
+  }
+
   async createOperator(ownerId, body) {
     // an operator who registered on their own: the owner types the operator ID (like OP754197), the record is fetched and added to the team
     if (body.operator_id) {
@@ -379,6 +396,7 @@ class CraneService {
       roleId: OPERATOR_ROLE_ID,
       memberId: await generateUniqueMemberId(OPERATOR_ROLE_ID, User),
       ownerId,
+      monthlySalary: this.cleanSalary(body.monthly_salary),
       isMobileVerified: 1,
       isActive: 0,
       isDeleted: 0

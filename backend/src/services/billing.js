@@ -21,9 +21,9 @@ const num = (v, fallback = 0) => (v === null || v === undefined || v === '' ? fa
 
 const CHARGE_TYPES = ['fixed', 'percent'];
 // per_km is kept only so older jobs still read; owners can no longer choose it
-const COMMISSION_TYPES = ['percent', 'fixed'];
-const COMMISSION_LABELS = { percent: '% of job value', per_km: 'Per km', fixed: 'Fixed ₹ per job' };
-const DEFAULT_FEE_PERCENT = 5;
+const COMMISSION_TYPES = ['percent', 'fixed', 'salary'];
+const COMMISSION_LABELS = { percent: '% of job value', per_km: 'Per km', fixed: 'Fixed ₹ per job', salary: 'Monthly salary (nothing extra per job)' };
+const DEFAULT_FEE_PERCENT = 20;
 const MAX_CHARGES = 10;
 
 // ---------------------------------------------------------------- settings
@@ -201,7 +201,8 @@ const cleanCharges = (list) => {
 
 const cleanCommission = (type, value) => {
   const t = String(type || '').toLowerCase();
-  if (!COMMISSION_TYPES.includes(t)) throw new ServiceError('commission type must be percent or fixed.');
+  if (!COMMISSION_TYPES.includes(t)) throw new ServiceError('commission type must be percent, fixed or salary.');
+  if (t === 'salary') return { type: 'salary', value: 0 };
   const v = Number(value);
   if (!Number.isFinite(v) || v < 0) throw new ServiceError('commission value must be 0 or more.');
   if (t === 'percent' && v > 100) throw new ServiceError('A commission percentage cannot be more than 100.');
@@ -284,7 +285,8 @@ const commissionOf = (b, subtotal) => {
   if (!b.operatorCommissionType) return { type: null, type_label: null, value: null, amount: 0, set: false };
   const value = num(b.operatorCommissionValue);
   let amount;
-  if (b.operatorCommissionType === 'percent') amount = r2((subtotal * value) / 100);
+  if (b.operatorCommissionType === 'salary') amount = 0; // paid with the monthly salary
+  else if (b.operatorCommissionType === 'percent') amount = r2((subtotal * value) / 100);
   else if (b.operatorCommissionType === 'per_km') amount = r2(value * num(b.distanceKm));
   else amount = r2(value);
   // once the job is completed the stored amount is final

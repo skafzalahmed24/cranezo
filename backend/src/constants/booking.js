@@ -48,6 +48,8 @@ const BOOKING_CONFIG = {
   MAX_HOURS: 12,
   FULL_DAY_HOURS: 8,
   MAX_DAYS: 30,
+  // monthly booking: 30 days each
+  MAX_MONTHS: 6,
   // how far ahead a customer can schedule
   MAX_SCHEDULE_DAYS: 90,
   MIN_SCHEDULE_LEAD_MINUTES: 30,

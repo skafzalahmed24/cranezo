@@ -73,7 +73,7 @@ const parseStart = (input, now = new Date()) => {
   return { startType, startAt: at };
 };
 
-/** duration: { type: hours | full_day | days, hours, days } */
+/** duration: { type: hours | full_day | days | months, hours, days, months } */
 const parseDuration = (duration, startAt, minHours = C.MIN_HOURS) => {
   const d = duration || {};
   const type = String(d.type || 'hours').toLowerCase();
@@ -96,15 +96,24 @@ const parseDuration = (duration, startAt, minHours = C.MIN_HOURS) => {
     if (days > C.MAX_DAYS) throw new ServiceError(`You can book up to ${C.MAX_DAYS} days.`);
     return { durationType: 'days', hours: days * C.FULL_DAY_HOURS, days, endAt: addMs(startAt, days * 24 * HOUR) };
   }
-  throw new ServiceError('duration.type must be "hours", "full_day" or "days".');
+  if (type === 'months') {
+    // a month is 30 days of the daily rate
+    const months = toInt(d.months);
+    if (!Number.isInteger(months) || months < 1) throw new ServiceError('duration.months must be at least 1.');
+    if (months > C.MAX_MONTHS) throw new ServiceError(`You can book up to ${C.MAX_MONTHS} months.`);
+    const days = months * 30;
+    return { durationType: 'months', hours: days * C.FULL_DAY_HOURS, days, endAt: addMs(startAt, days * 24 * HOUR) };
+  }
+  throw new ServiceError('duration.type must be "hours", "full_day", "days" or "months".');
 };
 
 const durationLabel = (b) => {
+  if (b.durationType === 'months') { const m = Math.round(b.durationDays / 30); return `${m} ${m === 1 ? 'Month' : 'Months'} (${b.durationDays} days)`; }
   if (b.durationType === 'days') return `${b.durationDays} ${b.durationDays === 1 ? 'Day' : 'Days'}`;
   if (b.durationType === 'full_day') return 'Full Day (8 Hours)';
   return `${b.durationHours} Hours`;
 };
-const SERVICE_TYPE = { hours: 'Hourly', full_day: 'Full Day', days: 'Multiple Days' };
+const SERVICE_TYPE = { hours: 'Hourly', full_day: 'Full Day', days: 'Multiple Days', months: 'Monthly' };
 
 /** Operator and fuel are included in the hourly rate for now, so only the crane rental is charged */
 const computePrice = (hourlyRate, hours) => {
@@ -419,7 +428,8 @@ class BookingService {
       duration_types: [
         { id: 'hours', name: 'Hours', description: `Select the number of hours (Minimum ${C.MIN_HOURS} hours)`, min: C.MIN_HOURS, max: C.MAX_HOURS, default: 8 },
         { id: 'full_day', name: 'Full day', description: `Typically ${C.FULL_DAY_HOURS} hours per day`, hours: C.FULL_DAY_HOURS },
-        { id: 'days', name: 'Multiple Days', description: 'Select the number of days', min: 1, max: C.MAX_DAYS, default: 1 }
+        { id: 'days', name: 'Multiple Days', description: 'Select the number of days', min: 1, max: C.MAX_DAYS, default: 1 },
+        { id: 'months', name: 'Monthly', description: 'Select the number of months (30 days each)', min: 1, max: C.MAX_MONTHS, default: 1 }
       ],
       payment_methods: PAYMENT_METHODS,
       default_payment_method: 'ONLINE',

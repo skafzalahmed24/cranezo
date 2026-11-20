@@ -53,6 +53,8 @@ module.exports = {
     payout_methods: payoutMethods()
   })),
   ownerOperatorPending: handler('Operator jobs retrieved successfully.', (req) => settlementService.operatorPendingJobs(me(req), body(req).operator_id)),
+  ownerSalaryList: handler('Salaries retrieved successfully.', (req) => settlementService.salaryList(me(req))),
+  ownerPaySalary: handler('Salary payment recorded.', (req) => settlementService.paySalary(me(req), body(req))),
   ownerPayOperator: handler('Payment to operator recorded.', (req) => settlementService.payOperator(me(req), body(req))),
   ownerJobRequests: ranged('Job requests retrieved successfully.', (req) => jobRequestService.ownerRequests(me(req), body(req))),
   ownerJobRequestRespond: handler('Job request answered.', (req) => jobRequestService.respond(me(req), body(req))),

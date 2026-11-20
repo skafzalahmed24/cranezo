@@ -74,6 +74,9 @@ router.post('/staff/remove', ownerOnly, ownerStaff.remove);
 router.post('/cranes/form-options', ownerOnly, craneController.getFormOptions);
 router.post('/operators', ownerOnly, craneController.listOperators);
 router.post('/operators/add', ownerOnly, craneController.addOperator);
+router.post('/operators/salary', ownerOnly, craneController.setOperatorSalary);
+router.post('/salary/list', ownerOnly, require('../controllers/finance.controller').ownerSalaryList);
+router.post('/salary/pay', ownerOnly, require('../controllers/finance.controller').ownerPaySalary);
 router.post('/cranes', ownerOnly, craneController.createCrane);
 // One read API: pass crane_id for details, omit it for the full list (owner_id optional)
 router.post('/getCranes', ownerOnly, craneController.getCranes);

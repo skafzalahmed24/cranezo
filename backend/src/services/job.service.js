@@ -334,7 +334,7 @@ class JobService {
 
   async home(operatorId) {
     const user = await User.findByPk(operatorId, {
-      attributes: ['id', 'fullName', 'isOnline', 'operatorLicenseFront', 'operatorLicenseStatus', 'voterIdFile', 'voterIdStatus', 'aadharCardFile', 'aadharStatus',
+      attributes: ['id', 'fullName', 'isOnline', 'monthlySalary', 'operatorLicenseFront', 'operatorLicenseStatus', 'voterIdFile', 'voterIdStatus', 'aadharCardFile', 'aadharStatus',
         'panCardFile', 'panStatus', 'otherDocumentFile', 'otherDocumentStatus', 'profileImage']
     });
     if (!user) throw new ServiceError('User not found.', 404);
@@ -392,6 +392,8 @@ class JobService {
       } : null,
       today_jobs: { count: todayCount, items: todayJobs.map((b) => this.listItem(b)) },
       conduct: await require('./conduct.service').conductService.mine(operatorId),
+      monthly_salary: Number(user.monthlySalary || 0),
+      salary_received: Number((await require('../models').Settlement.sum('amount', { where: { operatorId, periodMonth: { [Op.ne]: null } } })) || 0),
       today_earnings: Number(todayEarnings),
       // overall: all completed jobs plus tips
       overall_earnings: Number((await Booking.sum('operatorCommissionAmount', { where: { operatorId, status: BOOKING_STATUS.COMPLETED } })) || 0),
@@ -1034,7 +1036,7 @@ class JobService {
     const defaults = await billing.ownerSettings(ownerId);
     // what the operator earns, when the owner set it together with the choice of operator
     const hasType = commissionType !== null && commissionType !== undefined && commissionType !== '';
-    if (hasType && (commissionValue === null || commissionValue === undefined || String(commissionValue).trim() === '')) {
+    if (hasType && commissionType !== 'salary' && (commissionValue === null || commissionValue === undefined || String(commissionValue).trim() === '')) {
       throw new ServiceError('Enter what the operator will earn for this job.');
     }
     const chosen = hasType ? billing.cleanCommission(commissionType, commissionValue) : null;
@@ -1045,7 +1047,9 @@ class JobService {
       operatorRespondedAt: null,
       operatorDeclineReason: null,
       operatorCommissionType: chosen ? chosen.type : (b.operatorCommissionType || defaults.default_commission_type),
-      operatorCommissionValue: chosen ? chosen.value : (b.operatorCommissionType ? b.operatorCommissionValue : defaults.default_commission_value)
+      operatorCommissionValue: chosen ? chosen.value : (b.operatorCommissionType ? b.operatorCommissionValue : defaults.default_commission_value),
+      // on the monthly salary nothing is owed for this job
+      ...(chosen && chosen.type === 'salary' ? { operatorSettlementStatus: 'settled' } : {})
     });
     if (silent) return null;
 

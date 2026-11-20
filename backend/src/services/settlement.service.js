@@ -291,6 +291,46 @@ class SettlementService {
     return this.get(settlement.id);
   }
 
+  // ======================================================================== monthly salaries (owner -> operator)
+
+  /** Operators of this owner with a monthly salary: this month and last month, paid or not */
+  async salaryList(ownerId) {
+    const ops = await User.findAll({ where: { ownerId, roleId: 2, isDeleted: 0, monthlySalary: { [Op.gt]: 0 } }, attributes: ['id', 'fullName', 'memberId', 'monthlySalary'], order: [['fullName', 'ASC']] });
+    const now = new Date();
+    const key = (d) => `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+    const months = [key(now), key(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1)))];
+    const paid = ops.length ? await Settlement.findAll({ where: { operatorId: ops.map((o) => o.id), periodMonth: months }, attributes: ['operatorId', 'periodMonth', 'amount', 'settledAt'] }) : [];
+    const items = [];
+    ops.forEach((o) => months.forEach((m) => {
+      const p = paid.find((x) => x.operatorId === o.id && x.periodMonth === m);
+      items.push({ operator: { id: o.id, name: o.fullName, member_id: o.memberId }, month: m, salary: Number(o.monthlySalary), paid: !!p, paid_amount: p ? Number(p.amount) : null, paid_at: p ? iso(p.settledAt) : null });
+    }));
+    return { months, items, total_due: r2(items.filter((i) => !i.paid).reduce((n, i) => n + i.salary, 0)) };
+  }
+
+  /** The owner records paying a monthly salary */
+  async paySalary(ownerId, input = {}) {
+    const month = String(input.month || '');
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw new ServiceError('month must look like 2026-11.');
+    if (!UUID_RE.test(String(input.operator_id || ''))) throw new ServiceError('A valid operator_id is required.');
+    const op = await User.findOne({ where: { id: input.operator_id, ownerId, roleId: 2, isDeleted: 0 }, attributes: ['id', 'fullName', 'monthlySalary'] });
+    if (!op) throw new ServiceError('This operator is not in your team.', 404);
+    const salary = Number(op.monthlySalary || 0);
+    if (!(salary > 0)) throw new ServiceError('This operator has no monthly salary set.', 409);
+    if (await Settlement.findOne({ where: { operatorId: op.id, periodMonth: month }, attributes: ['id'] })) throw new ServiceError('This month is already paid.', 409);
+    const payout = parsePayout(input);
+    const created = await Settlement.create({
+      settlementCode: code('SAL'), kind: 'owner_operator', direction: 'owner_to_operator', ownerId, operatorId: op.id,
+      amount: salary, jobsCount: 0, periodMonth: month, method: payout.method, reference: payout.reference, note: payout.note || `Salary for ${month}`,
+      settledAt: payout.settledAt, createdByType: 'owner', createdBy: ownerId
+    });
+    await notificationService.notify(op.id, {
+      type: 'commission_paid', title: 'Salary Received',
+      body: `Your owner paid your salary of ₹${salary} for ${month}.`, data: { settlement_id: created.id }
+    }).catch(() => {});
+    return this.get(created.id);
+  }
+
   // ======================================================================== history
 
   async get(id) {

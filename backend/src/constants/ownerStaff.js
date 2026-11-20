@@ -17,6 +17,8 @@ const RULES = [
   [/^\/owner\/subscription/, 'owner_only'],
   [/^\/owner\/billing\/settings\/save$/, 'manage_payments'],
   [/^\/owner\/operator-payments\/pay$/, 'manage_payments'],
+  [/^\/owner\/salary\/pay$/, 'manage_payments'],
+  [/^\/owner\/salary/, 'view_payments'],
   [/^\/owner\/(billing|transactions|settlements|operator-payments|report)/, 'view_payments'],
   [/^\/owner\/(requests\/(accept|decline)|crane-requests\/accept)/, 'handle_requests'],
   [/^\/owner\/(cranes|getCranes)/, 'manage_cranes'],

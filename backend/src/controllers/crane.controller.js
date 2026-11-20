@@ -29,6 +29,12 @@ class CraneController {
     } catch (error) { return handle(res, error); }
   }
 
+  async setOperatorSalary(req, res) {
+    try {
+      return successResponse(res, 'Monthly salary saved.', await craneService.setOperatorSalary(req.user.id, req.body || {}));
+    } catch (error) { return handle(res, error); }
+  }
+
   async listOperators(req, res) {
     try {
       const range = parseRange(req.body);

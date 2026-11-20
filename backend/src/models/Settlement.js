@@ -5,6 +5,8 @@ module.exports = (sequelize) => sequelize.define('Settlement', {
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true, allowNull: false },
   settlementCode: { type: DataTypes.STRING(30), allowNull: false, unique: true, field: 'settlement_code' },
   kind: { type: DataTypes.STRING(20), allowNull: false },
+  // a monthly salary payment: the month it is for (YYYY-MM)
+  periodMonth: { type: DataTypes.STRING(7), allowNull: true, field: 'period_month' },
   direction: { type: DataTypes.STRING(24), allowNull: false },
   ownerId: { type: DataTypes.UUID, allowNull: false, field: 'owner_id' },
   operatorId: { type: DataTypes.UUID, allowNull: true, field: 'operator_id' },

@@ -27,7 +27,7 @@ const requirement = {
   duration: {
     type: 'object',
     properties: {
-      type: { type: 'string', enum: ['hours', 'full_day', 'days'], example: 'hours' },
+      type: { type: 'string', enum: ['hours', 'full_day', 'days', 'months'], example: 'hours' },
       hours: { type: 'integer', example: 8, description: 'type hours: 4 to 12 (and not below the crane minimum)' },
       days: { type: 'integer', example: 2, description: 'type days: 1 to 30 (each day is 8 working hours)' }
     }
