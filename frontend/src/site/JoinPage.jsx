@@ -260,7 +260,7 @@ export default function JoinPage() {
 
             <div className="jn-fields">
               <label>{kind === 'owner' ? 'Owner / Business name *' : 'Full name (as on your license / ID) *'}
-                <input value={f.full_name} onChange={(e) => set({ full_name: e.target.value })} autoComplete="name" />
+                <input value={f.full_name} onChange={(e) => set({ full_name: e.target.value })} autoComplete="name" placeholder={kind === 'owner' ? 'Full name of the crane owner or registered company name' : 'Enter your full name as shown on your ID / license'} />
               </label>
               <label>Mobile and WhatsApp number *
                 <input inputMode="numeric" value={f.mobile_number} onChange={(e) => set({ mobile_number: e.target.value.replace(/[^\d+ ]/g, '').slice(0, 14) })} autoComplete="tel" placeholder="10 digit number" />
