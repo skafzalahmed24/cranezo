@@ -67,6 +67,7 @@ router.post('/complaints/update', ownerOnly, finance.ownerComplaintUpdate);
 const ownerStaff = require('../controllers/ownerStaff.controller');
 router.post('/staff/me', ownerOnly, ownerStaff.me);
 router.post('/staff/list', ownerOnly, ownerStaff.list);
+router.post('/staff/create', ownerOnly, ownerStaff.create);
 router.post('/staff/update', ownerOnly, ownerStaff.update);
 router.post('/staff/remove', ownerOnly, ownerStaff.remove);
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { call, saveSession } from './ownerApi';
 
-/** Owner: mobile OTP. Employee: email and password, or register with the owner's ID. */
+/** Owner: mobile OTP. Employee: the email and password the owner made for them. */
 export default function OwnerAuth({ onSignedIn, onHome }) {
   const [mode, setMode] = useState('owner'); // owner | employee | register
   const [busy, setBusy] = useState(false);
@@ -15,7 +15,6 @@ export default function OwnerAuth({ onSignedIn, onHome }) {
   // employee
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [reg, setReg] = useState({ owner_id: '', full_name: '', email: '', mobile_number: '', password: '' });
 
   const run = async (fn) => {
     setBusy(true);
@@ -51,13 +50,6 @@ export default function OwnerAuth({ onSignedIn, onHome }) {
     onSignedIn();
   });
 
-  const register = () => run(async () => {
-    const res = await call('/owner-portal/staff/register', reg, { auth: false });
-    setNotice(res.data.message);
-    setMode('employee');
-    setEmail(reg.email);
-  });
-
   return (
     <div className="op-auth">
       <div className="op-auth-card">
@@ -68,7 +60,6 @@ export default function OwnerAuth({ onSignedIn, onHome }) {
         <div className="op-tabs">
           <button type="button" className={mode === 'owner' ? 'on' : ''} onClick={() => { setMode('owner'); setError(''); }}>Owner</button>
           <button type="button" className={mode === 'employee' ? 'on' : ''} onClick={() => { setMode('employee'); setError(''); }}>Employee</button>
-          <button type="button" className={mode === 'register' ? 'on' : ''} onClick={() => { setMode('register'); setError(''); }}>Join a team</button>
         </div>
 
         {error && <div className="op-alert bad">{error}</div>}
@@ -93,17 +84,6 @@ export default function OwnerAuth({ onSignedIn, onHome }) {
           </div>
         )}
 
-        {mode === 'register' && (
-          <div className="op-form">
-            <label>Owner ID<input value={reg.owner_id} onChange={(e) => setReg({ ...reg, owner_id: e.target.value.toUpperCase() })} placeholder="Ask your employer (in their app profile)" /></label>
-            <label>Your name<input value={reg.full_name} onChange={(e) => setReg({ ...reg, full_name: e.target.value })} /></label>
-            <label>Email<input type="email" value={reg.email} onChange={(e) => setReg({ ...reg, email: e.target.value })} /></label>
-            <label>Mobile (optional)<input inputMode="numeric" value={reg.mobile_number} onChange={(e) => setReg({ ...reg, mobile_number: e.target.value })} /></label>
-            <label>Password (8+ characters)<input type="password" value={reg.password} onChange={(e) => setReg({ ...reg, password: e.target.value })} /></label>
-            <button type="button" className="op-btn" disabled={busy || !reg.owner_id || !reg.full_name || !reg.email || reg.password.length < 8} onClick={register}>{busy ? 'Please wait…' : 'Ask to join'}</button>
-            <p className="op-muted small">Your employer approves you and chooses what you can do.</p>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ export function OwnerTeam() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [draft, setDraft] = useState({}); // staff id -> permission list being edited
+  const [nf, setNf] = useState({ full_name: '', email: '', password: '', permissions: [] });
 
   const load = useCallback(() => call('/owner/staff/list').then((r) => setData(r.data)).catch((e) => setError(e.message)), []);
   useEffect(() => { load(); }, [load]);
@@ -36,10 +37,27 @@ export function OwnerTeam() {
   return (
     <>
       <h2>My team</h2>
-      <p className="op-muted">Employees join with your owner ID. You approve them and choose what each one may do. They only see your account.</p>
+      <p className="op-muted">Make a login for each employee and choose what they may do. They sign in at the Employee tab of this page and only see your account.</p>
+      <div className="op-card">
+        <h3>Add an employee</h3>
+        <div className="op-grid">
+          <label>Name<input value={nf.full_name} onChange={(e) => setNf({ ...nf, full_name: e.target.value })} /></label>
+          <label>Email<input type="email" value={nf.email} onChange={(e) => setNf({ ...nf, email: e.target.value })} /></label>
+          <label>Password (8+ characters)<input type="text" autoComplete="off" value={nf.password} onChange={(e) => setNf({ ...nf, password: e.target.value })} /></label>
+        </div>
+        <div className="op-perms">
+          {(data ? data.permissions : []).map((p) => (
+            <label key={p.key} className="op-check">
+              <input type="checkbox" checked={nf.permissions.includes(p.key)} onChange={() => setNf({ ...nf, permissions: nf.permissions.includes(p.key) ? nf.permissions.filter((k) => k !== p.key) : [...nf.permissions, p.key] })} />
+              {p.label}
+            </label>
+          ))}
+        </div>
+        <button type="button" className="op-btn" disabled={!nf.full_name || !nf.email || nf.password.length < 8 || nf.permissions.length === 0} onClick={() => act(async () => { await call('/owner/staff/create', nf); setNf({ full_name: '', email: '', password: '', permissions: [] }); }, 'Employee added. Share the email and password with them.')}>Add employee</button>
+      </div>
       {error && <div className="op-alert bad">{error}</div>}
       {notice && <div className="op-alert ok">{notice}</div>}
-      {data && data.items.length === 0 && <p className="op-muted">No employees yet. Share your owner ID (in your app profile) so they can register at the “Join a team” tab of this page.</p>}
+      {data && data.items.length === 0 && <p className="op-muted">No employees yet.</p>}
       {data && data.items.map((s) => (
         <div className="op-card" key={s.id}>
           <div className="op-row spread">

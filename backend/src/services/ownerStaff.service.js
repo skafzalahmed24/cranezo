@@ -115,6 +115,24 @@ class OwnerStaffService {
     return { items: rows.map(view), permissions: OWNER_PERMISSIONS };
   }
 
+  /** The owner creates an employee's login (name, email, password, what they may do); it works at once */
+  async create(ownerId, input = {}) {
+    const fullName = String(input.full_name || '').trim();
+    const email = String(input.email || '').trim().toLowerCase();
+    const password = String(input.password || '');
+    if (!fullName) throw new StaffError('Enter the employee name.');
+    if (!/^\S+@\S+\.\S+$/.test(email)) throw new StaffError('Enter a valid email address.');
+    if (password.length < 8) throw new StaffError('The password must have at least 8 characters.');
+    const permissions = cleanPermissions(input.permissions || []);
+    if (!permissions.length) throw new StaffError('Choose at least one thing this employee may do.');
+    if (await OwnerStaff.findOne({ where: { email }, attributes: ['id'] })) throw new StaffError('This email is already used.', 409);
+    const s = await OwnerStaff.create({
+      ownerId, fullName, email, mobileNumber: input.mobile_number ? String(input.mobile_number).trim().slice(0, 20) : null,
+      passwordHash: await bcrypt.hash(password, 10), permissions, status: 'active'
+    });
+    return view(s);
+  }
+
   async mine(ownerId, id) {
     const s = await OwnerStaff.findOne({ where: { id: String(id || ''), ownerId } });
     if (!s) throw new StaffError('Employee not found.', 404);

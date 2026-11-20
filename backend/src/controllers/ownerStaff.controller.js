@@ -19,6 +19,7 @@ module.exports = {
   login: handler('Signed in.', (req) => S.login(body(req))),
   me: handler('Retrieved successfully.', (req) => (req.staff ? S.me(req.staff) : Promise.resolve({ staff: null, owner: { id: req.user.id, name: req.user.companyName || req.user.fullName }, is_owner: true }))),
   list: handler('Employees retrieved successfully.', (req) => S.list(owner(req))),
+  create: handler('Employee added.', (req) => S.create(owner(req), body(req))),
   update: handler('Employee updated.', (req) => S.update(owner(req), body(req))),
   remove: handler('Employee removed.', (req) => S.remove(owner(req), body(req).staff_id))
 };
