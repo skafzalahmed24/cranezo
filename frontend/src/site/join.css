@@ -13,7 +13,7 @@
 .jn-logo img { height: 30px; display: block; }
 .jn-contact { display: flex; gap: 8px; }
 .jn-call, .jn-wa { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 999px; font-weight: 700; font-size: 14px; text-decoration: none; transition: transform .15s, box-shadow .15s; }
-.jn .jn-call { background: rgba(255, 255, 255, .1); color: #fff; border: 1px solid rgba(255, 255, 255, .22); }
+.jn .jn-call { background: rgba(255, 255, 255, .92); color: #0B1220; border: 0; box-shadow: 0 6px 16px rgba(255, 255, 255, .12); }
 .jn .jn-wa { background: linear-gradient(135deg, #1fbf62, #0e9448); color: #fff; box-shadow: 0 6px 16px rgba(31, 191, 98, .35); }
 .jn-call:hover, .jn-wa:hover { transform: translateY(-1px); }
 
@@ -45,7 +45,13 @@
 
 /* banner (curved, full width) */
 .jn-banners { width: 100%; padding: clamp(26px, 5vw, 48px) clamp(12px, 3vw, 32px) 0; }
-.jn-banner { display: block; width: 100%; height: auto; border-radius: clamp(20px, 3.4vw, 38px); box-shadow: 0 22px 56px rgba(26, 58, 138, .26); }
+.jn-slider { position: relative; overflow: hidden; border-radius: clamp(20px, 3.4vw, 38px); box-shadow: 0 22px 56px rgba(26, 58, 138, .26); touch-action: pan-y; }
+.jn-track { display: flex; align-items: flex-start; transition: transform .7s cubic-bezier(.65, 0, .25, 1); }
+.jn-banner { display: block; flex: 0 0 100%; width: 100%; height: auto; user-select: none; }
+.jn-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 46px; height: 46px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .92); color: #0B1220; display: grid; place-items: center; cursor: pointer; box-shadow: 0 6px 18px rgba(26, 58, 138, .22); transition: background .15s, transform .15s, box-shadow .15s; }
+.jn-nav:hover { background: #fff; transform: translateY(-50%) scale(1.08); box-shadow: 0 10px 24px rgba(26, 58, 138, .3); }
+.jn-prev { left: 14px; }
+.jn-next { right: 14px; }
 .jn-dots { display: flex; justify-content: center; gap: 8px; padding: 14px 0 0; }
 .jn-dots button { width: 9px; height: 9px; border-radius: 50%; border: 0; background: #c3cee0; cursor: pointer; padding: 0; transition: width .2s; }
 .jn-dots button.on { background: var(--text); width: 24px; border-radius: 9px; }
@@ -122,6 +128,9 @@
   .jn-bento .jn-b0 { grid-column: 1 / -1; }
 }
 @media (max-width: 640px) {
+  .jn-nav { width: 38px; height: 38px; }
+  .jn-prev { left: 8px; }
+  .jn-next { right: 8px; }
   .jn-top { top: 8px; padding: 7px 8px 7px 12px; }
   .jn-logo img { height: 26px; }
   .jn-contact .jn-call span { font-size: 13px; }
@@ -136,5 +145,6 @@
 @media (prefers-reduced-motion: reduce) {
   .jn-rise { opacity: 1; transform: none; transition: none; }
   .jn-orb, .jn-live { animation: none; }
+  .jn-track { transition: none; }
   .jn *, .jn *::before { transition: none !important; }
 }

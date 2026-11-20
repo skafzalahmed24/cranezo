@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Phone, MessageCircle, MapPin, Wallet, ShieldCheck, Bell, Languages, CalendarClock, Truck, HardHat, Check, ArrowDown, ArrowRight, ClipboardList, PhoneCall, Rocket } from 'lucide-react';
+import { Phone, MessageCircle, MapPin, Wallet, ShieldCheck, Bell, Languages, CalendarClock, Truck, HardHat, Check, ArrowDown, ArrowRight, ChevronLeft, ChevronRight, ClipboardList, PhoneCall, Rocket } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 import { API_BASE, fileUrl } from '../utils/api';
 import { SITE } from './siteConfig';
@@ -66,30 +66,59 @@ const STEPS = [
 
 const toggle = (list, key) => (list.includes(key) ? list.filter((k) => k !== key) : [...list, key]);
 
+/** The banners the Super Admin made for the website: slides on its own, with left and right buttons, swipe and dots */
 function Banners() {
   const [items, setItems] = useState([]);
   const [i, setI] = useState(0);
+  const [hold, setHold] = useState(false);
+  const touch = useRef(null);
   useEffect(() => {
     fetch(`${API_BASE}/api/public/banners`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
       .then((r) => r.json()).then((p) => { if (p.status === 1) setItems((p.data || []).filter((b) => b.image)); }).catch(() => {});
   }, []);
+  const n = items.length;
+  const go = (k) => setI(((k % n) + n) % n);
+  // automatic sliding every 4.5 s; it waits while the pointer is over the banner or a finger is on it
   useEffect(() => {
-    if (items.length < 2) return undefined;
-    const t = setInterval(() => setI((x) => (x + 1) % items.length), 5000);
+    if (n < 2 || hold) return undefined;
+    const t = setInterval(() => setI((x) => (x + 1) % n), 4500);
     return () => clearInterval(t);
-  }, [items.length]);
-  if (!items.length) return null;
-  const b = items[Math.min(i, items.length - 1)];
-  const go = (e) => {
+  }, [n, hold, i]);
+  if (!n) return null;
+  const open = (b) => {
     const a = b.action || {};
-    if (a.type === 'url' && /^https:\/\//.test(a.value || '')) window.open(a.value, '_blank', 'noopener');
+    if (a.type === 'url' && String(a.value || '').startsWith('https://')) window.open(a.value, '_blank', 'noopener');
+  };
+  const onTouchEnd = (e) => {
+    if (touch.current === null) return;
+    const dx = e.changedTouches[0].clientX - touch.current;
+    touch.current = null;
+    setHold(false);
+    if (Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1));
   };
   return (
-    <section className="jn-banners" aria-label="Offers">
-      {/* the picture is shown whole and full width; it already carries its own words, so no text is laid over it */}
-      <img className="jn-banner" src={fileUrl(b.image)} alt={b.title || 'Cranezo'} onClick={go} />
-      {items.length > 1 && (
-        <div className="jn-dots">{items.map((x, k) => <button key={x.id} type="button" aria-label={`Banner ${k + 1}`} className={k === i ? 'on' : ''} onClick={() => setI(k)} />)}</div>
+    <section className="jn-banners" aria-label="Offers" aria-roledescription="carousel">
+      <div
+        className="jn-slider"
+        onMouseEnter={() => setHold(true)}
+        onMouseLeave={() => setHold(false)}
+        onTouchStart={(e) => { touch.current = e.touches[0].clientX; setHold(true); }}
+        onTouchEnd={onTouchEnd}
+      >
+        <div className="jn-track" style={{ transform: `translateX(-${i * 100}%)` }}>
+          {items.map((b, k) => (
+            <img key={b.id} className="jn-banner" src={fileUrl(b.image)} alt={b.title || 'Cranezo'} onClick={() => open(b)} draggable="false" aria-hidden={k !== i} />
+          ))}
+        </div>
+        {n > 1 && (
+          <>
+            <button type="button" className="jn-nav jn-prev" aria-label="Previous banner" onClick={() => go(i - 1)}><ChevronLeft size={24} aria-hidden="true" /></button>
+            <button type="button" className="jn-nav jn-next" aria-label="Next banner" onClick={() => go(i + 1)}><ChevronRight size={24} aria-hidden="true" /></button>
+          </>
+        )}
+      </div>
+      {n > 1 && (
+        <div className="jn-dots">{items.map((x, k) => <button key={x.id} type="button" aria-label={`Banner ${k + 1}`} className={k === i ? 'on' : ''} onClick={() => go(k)} />)}</div>
       )}
     </section>
   );
