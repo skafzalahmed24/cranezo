@@ -9,8 +9,8 @@
 .jn-call { background: #fff7e0; color: var(--amber-d); border: 2px solid var(--amber); }
 .jn-wa { background: #137a3f; color: #fff; border: 2px solid #137a3f; }
 
-.jn-banners { width: 100%; margin: 0; padding: 0; }
-.jn-banner { display: block; width: 100%; height: auto; }
+.jn-banners { width: 100%; margin: 0; padding: 16px clamp(12px, 3vw, 32px) 0; }
+.jn-banner { display: block; width: 100%; height: auto; border-radius: clamp(18px, 3vw, 34px); box-shadow: 0 12px 34px rgba(26, 58, 138, .2); }
 .jn-dots { display: flex; justify-content: center; gap: 8px; padding: 10px 0 0; }
 .jn-dots button { width: 9px; height: 9px; border-radius: 50%; border: 0; background: #c3cee0; cursor: pointer; padding: 0; }
 .jn-dots button.on { background: var(--ink); width: 22px; border-radius: 9px; }
@@ -33,7 +33,10 @@
 .jn-grid article { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: 0 6px 18px rgba(30, 58, 138, .08); }
 .jn-grid h3 { margin: 10px 0 4px; font-size: 17px; }
 .jn-grid p { margin: 0; color: var(--muted); font-size: 14.5px; }
-.jn-ic { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 13px; background: #fff3d1; color: var(--amber-d); }
+.jn-ic { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; background: linear-gradient(145deg, #FFC24D, #FF9A1F); color: #1a1200; box-shadow: 0 8px 18px rgba(255, 154, 31, .38); }
+.jn-grid article { transition: transform .15s, box-shadow .15s; }
+.jn-grid article:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(26, 58, 138, .16); }
+.jn-cic { display: inline-grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(145deg, #FFC24D, #FF9A1F); color: #1a1200; box-shadow: 0 8px 18px rgba(255, 154, 31, .4); margin-bottom: 6px; }
 
 .jn-form-wrap { max-width: 760px; margin: 38px auto 0; padding: 0 clamp(14px, 4vw, 24px) 40px; scroll-margin-top: 70px; }
 .jn-form, .jn-done { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: clamp(18px, 4vw, 30px); box-shadow: 0 14px 40px rgba(26, 58, 138, .12); }
@@ -72,7 +75,6 @@
 .jn-foot p { margin: 8px 0 0; }
 .jn-foot-links { display: grid; gap: 8px; justify-items: end; }
 .jn-foot a { color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
-.jn-play { height: 46px; width: auto; }
 
 @media (max-width: 640px) {
   .jn-top { padding: 8px 12px; flex-wrap: nowrap; }

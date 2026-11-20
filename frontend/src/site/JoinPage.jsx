@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Phone, MessageCircle, MapPin, Wallet, ShieldCheck, Bell, Languages, CalendarClock, Truck, HardHat, Check, ArrowDown } from 'lucide-react';
 import logoImg from '../assets/logo.png';
-import playImg from '../assets/playstore.png';
 import { API_BASE, fileUrl } from '../utils/api';
 import { SITE } from './siteConfig';
 import './join.css';
@@ -146,8 +145,8 @@ export default function JoinPage() {
         <h1>Book and manage your site job online</h1>
         <p className="jn-lead">Fast, reliable and affordable.</p>
         <div className="jn-choose">
-          <button type="button" onClick={() => choose('owner')}><Truck size={22} aria-hidden="true" /> <strong>I own cranes</strong><small>Register my fleet</small></button>
-          <button type="button" onClick={() => choose('operator')}><HardHat size={22} aria-hidden="true" /> <strong>I am an operator</strong><small>Find crane work</small></button>
+          <button type="button" onClick={() => choose('owner')}><span className="jn-cic"><Truck size={26} aria-hidden="true" /></span> <strong>I own cranes</strong><small>Register my fleet</small></button>
+          <button type="button" onClick={() => choose('operator')}><span className="jn-cic"><HardHat size={26} aria-hidden="true" /></span> <strong>I am an operator</strong><small>Find crane work</small></button>
         </div>
         <a className="jn-down" href="#join-form"><ArrowDown size={16} aria-hidden="true" /> Fill the short form</a>
       </section>
@@ -156,7 +155,7 @@ export default function JoinPage() {
         <h2>Why join Cranezo</h2>
         <div className="jn-grid">
           {HIGHLIGHTS.map(({ icon: Icon, title, text }) => (
-            <article key={title}><span className="jn-ic"><Icon size={22} aria-hidden="true" /></span><h3>{title}</h3><p>{text}</p></article>
+            <article key={title}><span className="jn-ic"><Icon size={26} strokeWidth={2.2} aria-hidden="true" /></span><h3>{title}</h3><p>{text}</p></article>
           ))}
         </div>
       </section>
@@ -243,7 +242,6 @@ export default function JoinPage() {
         <div className="jn-foot-links">
           {phone && <a href={`tel:+91${phone}`}><Phone size={14} aria-hidden="true" /> Call / WhatsApp: {phone}</a>}
           {SITE.email && <a href={`mailto:${SITE.email}`}>{SITE.email}</a>}
-          <a href={SITE.playStoreUrl} target="_blank" rel="noopener noreferrer" aria-label="Get it on Google Play"><img src={playImg} alt="Get it on Google Play" className="jn-play" /></a>
         </div>
       </footer>
     </div>
