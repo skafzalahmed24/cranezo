@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Phone, MessageCircle, MapPin, Wallet, ShieldCheck, Bell, Languages, CalendarClock, Truck, HardHat, Check, ArrowDown } from 'lucide-react';
+import { Phone, MessageCircle, MapPin, Wallet, ShieldCheck, Bell, Languages, CalendarClock, Truck, HardHat, Check, ArrowDown, ArrowRight, ClipboardList, PhoneCall, Rocket } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 import { API_BASE, fileUrl } from '../utils/api';
 import { SITE } from './siteConfig';
@@ -46,6 +46,23 @@ const empty = {
   owner: { full_name: '', mobile_number: '', location: '', equipment: [], equipment_other: '', fleet_details: '', supplies_operators: '', documents: [] },
   operator: { full_name: '', mobile_number: '', location: '', primary_role: '', experience: '', license_status: '', documents: [] },
 };
+
+/** Adds the class "in" to every .jn-rise when it scrolls into view (a soft fade-up) */
+function useReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll('.jn-rise');
+    if (!('IntersectionObserver' in window)) { els.forEach((e) => e.classList.add('in')); return undefined; }
+    const io = new IntersectionObserver((list) => list.forEach((x) => { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }), { threshold: 0.12 });
+    els.forEach((e) => io.observe(e));
+    return () => io.disconnect();
+  }, []);
+}
+
+const STEPS = [
+  { icon: ClipboardList, title: 'Fill the short form', text: 'One minute. Tell us about your cranes or your skills.' },
+  { icon: PhoneCall, title: 'We call you', text: 'Our team talks to you and checks your details and documents.' },
+  { icon: Rocket, title: 'Start getting jobs', text: 'Install the Cranezo app and take your first booking.' },
+];
 
 const toggle = (list, key) => (list.includes(key) ? list.filter((k) => k !== key) : [...list, key]);
 
@@ -98,6 +115,7 @@ export default function JoinPage() {
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
   const formRef = useRef(null);
+  useReveal();
   const f = form[kind];
   const set = (patch) => setForm({ ...form, [kind]: { ...f, ...patch } });
   const phone = SITE.phone;
@@ -133,31 +151,63 @@ export default function JoinPage() {
       <header className="jn-top">
         <a className="jn-logo" href="/" aria-label="Cranezo home"><img src={logoImg} alt="Cranezo" /></a>
         <div className="jn-contact">
-          {phone && <a href={`tel:+91${phone}`} className="jn-call"><Phone size={16} aria-hidden="true" /> <span>Call: {phone}</span></a>}
+          {phone && <a href={`tel:+91${phone}`} className="jn-call"><Phone size={16} aria-hidden="true" /> <span>{phone}</span></a>}
           {phone && <a href={`https://wa.me/91${phone}`} target="_blank" rel="noopener noreferrer" className="jn-wa"><MessageCircle size={16} aria-hidden="true" /> <span>WhatsApp</span></a>}
         </div>
       </header>
 
-      <Banners />
-
       <section className="jn-hero">
-        <p className="jn-eyebrow">Crane owners and operators</p>
-        <h1>Book and manage your site job online</h1>
-        <p className="jn-lead">Fast, reliable and affordable.</p>
-        <div className="jn-choose">
-          <button type="button" onClick={() => choose('owner')}><span className="jn-cic"><Truck size={26} aria-hidden="true" /></span> <strong>I own cranes</strong><small>Register my fleet</small></button>
-          <button type="button" onClick={() => choose('operator')}><span className="jn-cic"><HardHat size={26} aria-hidden="true" /></span> <strong>I am an operator</strong><small>Find crane work</small></button>
+        <span className="jn-orb jn-orb-a" aria-hidden="true" />
+        <span className="jn-orb jn-orb-b" aria-hidden="true" />
+        <div className="jn-hero-in">
+          <p className="jn-pill"><span className="jn-live" aria-hidden="true" /> For crane owners and operators</p>
+          <h1>Book and manage your <em>site job</em> online</h1>
+          <p className="jn-lead">Fast, reliable and affordable.</p>
+          <div className="jn-choose">
+            <button type="button" onClick={() => choose('owner')}>
+              <span className="jn-cic"><Truck size={26} aria-hidden="true" /></span>
+              <span className="jn-ct"><strong>I own cranes</strong><small>Register my fleet</small></span>
+              <ArrowRight size={20} className="jn-arrow" aria-hidden="true" />
+            </button>
+            <button type="button" onClick={() => choose('operator')}>
+              <span className="jn-cic"><HardHat size={26} aria-hidden="true" /></span>
+              <span className="jn-ct"><strong>I am an operator</strong><small>Find crane work</small></span>
+              <ArrowRight size={20} className="jn-arrow" aria-hidden="true" />
+            </button>
+          </div>
+          <a className="jn-down" href="#join-form"><ArrowDown size={16} aria-hidden="true" /> Or fill the short form</a>
         </div>
-        <a className="jn-down" href="#join-form"><ArrowDown size={16} aria-hidden="true" /> Fill the short form</a>
       </section>
 
+      <Banners />
+
       <section className="jn-highlights" aria-label="Why Cranezo">
-        <h2>Why join Cranezo</h2>
-        <div className="jn-grid">
-          {HIGHLIGHTS.map(({ icon: Icon, title, text }) => (
-            <article key={title}><span className="jn-ic"><Icon size={26} strokeWidth={2.2} aria-hidden="true" /></span><h3>{title}</h3><p>{text}</p></article>
+        <p className="jn-kicker jn-rise">Why Cranezo</p>
+        <h2 className="jn-rise">Everything for steady crane work, in one app</h2>
+        <div className="jn-bento">
+          {HIGHLIGHTS.map(({ icon: Icon, title, text }, k) => (
+            <article key={title} className={`jn-rise jn-b${k}`} style={{ transitionDelay: `${k * 60}ms` }}>
+              <span className="jn-ic"><Icon size={26} strokeWidth={2.2} aria-hidden="true" /></span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </article>
           ))}
         </div>
+      </section>
+
+      <section className="jn-steps" aria-label="How it works">
+        <p className="jn-kicker jn-rise">How it works</p>
+        <h2 className="jn-rise">Three simple steps</h2>
+        <ol>
+          {STEPS.map(({ icon: Icon, title, text }, k) => (
+            <li key={title} className="jn-rise" style={{ transitionDelay: `${k * 80}ms` }}>
+              <span className="jn-num">{k + 1}</span>
+              <Icon size={22} aria-hidden="true" className="jn-step-ic" />
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section className="jn-form-wrap" id="join-form" ref={formRef}>
@@ -233,6 +283,14 @@ export default function JoinPage() {
           </form>
         )}
       </section>
+
+      {phone && (
+        <div className="jn-bar">
+          <a href={`tel:+91${phone}`}><Phone size={18} aria-hidden="true" /> Call</a>
+          <a href={`https://wa.me/91${phone}`} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} aria-hidden="true" /> WhatsApp</a>
+          <a className="jn-bar-go" href="#join-form">Register</a>
+        </div>
+      )}
 
       <footer className="jn-foot">
         <div>
