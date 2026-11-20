@@ -148,3 +148,5 @@
   .jn-track { transition: none; }
   .jn *, .jn *::before { transition: none !important; }
 }
+
+.jn ::placeholder { font-size: 14px; color: #9aa6ba; opacity: 1; }

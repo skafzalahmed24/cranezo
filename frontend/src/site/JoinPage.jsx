@@ -260,13 +260,13 @@ export default function JoinPage() {
 
             <div className="jn-fields">
               <label>{kind === 'owner' ? 'Owner / Business name *' : 'Full name (as on your license / ID) *'}
-                <input value={f.full_name} onChange={(e) => set({ full_name: e.target.value })} autoComplete="name" placeholder={kind === 'owner' ? 'Full name of the crane owner or registered company name' : 'Enter your full name as shown on your ID / license'} />
+                <input value={f.full_name} onChange={(e) => set({ full_name: e.target.value })} autoComplete="name" placeholder={kind === 'owner' ? 'Owner or company name' : 'Your full name'} />
               </label>
               <label>Mobile and WhatsApp number *
                 <input inputMode="numeric" value={f.mobile_number} onChange={(e) => set({ mobile_number: e.target.value.replace(/[^\d+ ]/g, '').slice(0, 14) })} autoComplete="tel" placeholder="10 digit number" />
               </label>
               <label className="wide">{kind === 'owner' ? 'Base yard location and operating areas *' : 'Current city / home location and work preference *'}
-                <input value={f.location} onChange={(e) => set({ location: e.target.value })} placeholder={kind === 'owner' ? 'City or district of your yard, and the areas you serve' : 'Your city or area, and daily shifts, monthly jobs or outstation'} />
+                <input value={f.location} onChange={(e) => set({ location: e.target.value })} placeholder={kind === 'owner' ? 'Yard city, areas you serve' : 'City, daily or monthly jobs'} />
               </label>
             </div>
 
