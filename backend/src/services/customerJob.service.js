@@ -58,6 +58,7 @@ const paymentBlock = (b) => {
     collected_by: b.paymentCollectedBy,
     advance_percent: b.advancePercent,
     advance_amount: Number(b.advanceAmount),
+    tip_amount: Number(b.tipAmount || 0),
     paid_amount: paid,
     balance_due: isPaid ? 0 : r2(total - paid),
     payment_reference: b.paymentReference,
@@ -415,6 +416,34 @@ class CustomerJobService {
       type: 'receipt_ready',
       title: 'Receipt Generated',
       body: `Your invoice for booking ${b.bookingCode} is ready.`,
+      data: { booking_id: b.id, booking_code: b.bookingCode }
+    });
+  }
+
+  /** A tip arrived (online, verified): all of it is the operator's. The operator, the owner and the customer are told. */
+  async completeTip(b, tx) {
+    const tip = Number(tx.amount);
+    await b.update({ tipAmount: r2(Number(b.tipAmount || 0) + tip) });
+    if (b.operatorId) {
+      await notificationService.notify(b.operatorId, {
+        type: 'tip_received',
+        title: 'You got a tip!',
+        body: `${b.bookingCode}: the customer tipped you ₹${tip}. Thank you for the great work.`,
+        data: { booking_id: b.id, booking_code: b.bookingCode }
+      });
+    }
+    if (b.ownerId) {
+      await notificationService.notify(b.ownerId, {
+        type: 'tip_received_owner',
+        title: 'Tip for your operator',
+        body: `${b.bookingCode}: the customer tipped your operator ₹${tip}.`,
+        data: { booking_id: b.id, booking_code: b.bookingCode }
+      });
+    }
+    await notificationService.notify(b.customerId, {
+      type: 'payment_success',
+      title: 'Tip Sent',
+      body: `Your tip of ₹${tip} was sent to the operator. Thank you!`,
       data: { booking_id: b.id, booking_code: b.bookingCode }
     });
   }

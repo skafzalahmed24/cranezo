@@ -392,6 +392,9 @@ class JobService {
       } : null,
       today_jobs: { count: todayCount, items: todayJobs.map((b) => this.listItem(b)) },
       today_earnings: Number(todayEarnings),
+      // overall: all completed jobs plus tips
+      overall_earnings: Number((await Booking.sum('operatorCommissionAmount', { where: { operatorId, status: BOOKING_STATUS.COMPLETED } })) || 0),
+      total_tips: Number((await Booking.sum('tipAmount', { where: { operatorId, status: BOOKING_STATUS.COMPLETED } })) || 0),
       document_status: this.documentStatus(user),
       active_job: active ? { booking_id: active.id, booking_code: active.bookingCode, status: active.status } : null,
       jobs_waiting_for_response: pendingAccept,
@@ -463,6 +466,8 @@ class JobService {
       pending_settlement: Number((await Booking.sum('operatorCommissionAmount', { where: { ...completed, operatorSettlementStatus: 'pending' } })) || 0),
       completed_settlement: Number((await Booking.sum('operatorCommissionAmount', { where: { ...completed, operatorSettlementStatus: 'settled' } })) || 0),
       total_earned: Number((await Booking.sum('operatorCommissionAmount', { where: completed })) || 0),
+      // tips from customers (all of it is the operator's) and everything earned so far
+      total_tips: Number((await Booking.sum('tipAmount', { where: completed })) || 0),
       completed_jobs: await Booking.count({ where: completed }),
       jobs_without_commission: await Booking.count({ where: { ...completed, operatorCommissionAmount: null } })
     };
@@ -488,6 +493,7 @@ class JobService {
       start_at: H.iso(b.startAt),
       crane_label: H.craneTitle(b.crane),
       crane_photo: H.primaryPhoto(b.crane),
+      tip: Number(b.tipAmount || 0),
       amount: commissionAmount(b),
       earnings: operatorEarnings(b),
       settlement_status: b.operatorSettlementStatus,

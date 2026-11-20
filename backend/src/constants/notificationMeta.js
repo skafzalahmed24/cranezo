@@ -30,6 +30,8 @@ const META = {
   crane_arriving_soon: { category: 'crane', icon: 'crane', screen: 'track' },
   operator_arrived: { category: 'crane', icon: 'crane', screen: 'booking' },
   job_started: { category: 'job', icon: 'clock', screen: 'booking' },
+  tip_received: { category: 'payment', icon: 'payment', screen: 'operator_job' },
+  tip_received_owner: { category: 'payment', icon: 'payment', screen: 'owner_job' },
   job_break: { category: 'job', icon: 'clock', screen: 'booking' },
   job_break_owner: { category: 'job', icon: 'clock', screen: 'owner_job' },
   completion_requested: { category: 'job', icon: 'clock', screen: 'booking' },

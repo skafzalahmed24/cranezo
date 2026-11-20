@@ -88,6 +88,8 @@ module.exports = (sequelize) => {
     gatewayFeePercent: { type: DataTypes.DECIMAL(5, 2), allowNull: false, defaultValue: 0, field: 'gateway_fee_percent' },
     advancePaidAt: { type: DataTypes.DATE, allowNull: true, field: 'advance_paid_at' },
     platformCollectedAmount: money('platform_collected_amount'),
+    // tip the customer gave the operator after the job (all of it goes to the operator)
+    tipAmount: money('tip_amount'),
     // bill: owner charges and GST copied when the booking is made (see services/billing.js)
     charges: { type: DataTypes.JSONB, allowNull: true },
     chargesAmount: money('charges_amount'),

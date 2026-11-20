@@ -295,6 +295,7 @@ class OwnerJobService {
         is_online: crane.operator.isOnline === true
       } : null,
       // who to call at the site when the customer booked for someone else
+      tip_amount: Number(b.tipAmount || 0),
       site_contact: b.contactName || b.contactPhone ? { name: b.contactName, phone: b.contactPhone } : null,
       assigned_operator: base.operator ? {
         ...base.operator,

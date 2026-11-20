@@ -35,7 +35,7 @@ const view = (t) => {
     gateway_order_id: t.gatewayOrderId,
     // advance / final balance (online payments)
     kind: t.meta && t.meta.kind ? t.meta.kind : null,
-    kind_label: t.meta && t.meta.kind === 'advance' ? 'Advance' : (t.meta && t.meta.kind === 'final' ? 'Final payment' : null),
+    kind_label: t.meta && t.meta.kind === 'advance' ? 'Advance' : (t.meta && t.meta.kind === 'final' ? 'Final payment' : (t.meta && t.meta.kind === 'tip' ? 'Tip for operator' : null)),
     failure_reason: t.failureReason,
     customer: t.customer ? { id: t.customer.id, name: t.customer.companyName || t.customer.fullName } : null,
     owner: t.owner ? { id: t.owner.id, name: t.owner.companyName || t.owner.fullName, member_id: t.owner.memberId } : null,

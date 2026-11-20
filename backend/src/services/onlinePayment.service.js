@@ -6,7 +6,9 @@ const { paymentService } = require('./payment.service');
 const { gateway } = require('./gateway.service');
 const { bookingHelpers: H } = require('./booking.service');
 
-const KINDS = ['advance', 'final'];
+const KINDS = ['advance', 'final', 'tip'];
+const TIP_MIN = 10;
+const TIP_MAX = 5000;
 const r2 = (n) => Math.round(Number(n) * 100) / 100;
 
 /**
@@ -37,11 +39,21 @@ class OnlinePaymentService {
     return customerJobService.amountDue(b);
   }
 
+  /** A tip for the operator: after the job, one tip per booking, between the minimum and maximum */
+  tipFor(b, value) {
+    if (b.status !== BOOKING_STATUS.COMPLETED) throw new ServiceError('You can tip the operator once the job is completed.', 409);
+    if (!b.operatorId) throw new ServiceError('This job had no operator to tip.', 409);
+    if (Number(b.tipAmount || 0) > 0) throw new ServiceError('You have already tipped the operator for this job. Thank you!', 409);
+    const tip = r2(value);
+    if (!Number.isFinite(tip) || tip < TIP_MIN || tip > TIP_MAX) throw new ServiceError(`The tip must be between ₹${TIP_MIN} and ₹${TIP_MAX}.`);
+    return tip;
+  }
+
   async order(customerId, input = {}) {
     const kind = String(input.kind || '');
-    if (!KINDS.includes(kind)) throw new ServiceError('kind must be advance or final.');
+    if (!KINDS.includes(kind)) throw new ServiceError('kind must be advance, final or tip.');
     const b = await this.booking(customerId, input.booking_id);
-    const amount = this.amountFor(b, kind);
+    const amount = kind === 'tip' ? this.tipFor(b, input.tip_amount) : this.amountFor(b, kind);
     if (amount <= 0) throw new ServiceError('Nothing to pay.', 409);
 
     const order = await gateway.createOrder({
@@ -69,7 +81,7 @@ class OnlinePaymentService {
       // what the customer reads on the Razorpay page
       description: kind === 'advance'
         ? `Advance to confirm your crane booking ${b.bookingCode}`
-        : `Balance payment for your completed crane job ${b.bookingCode}`,
+        : (kind === 'tip' ? `Tip for your operator, booking ${b.bookingCode}` : `Balance payment for your completed crane job ${b.bookingCode}`),
       prefill: { name: customer ? customer.fullName : null, contact: customer ? `${customer.countryCode || ''}${customer.mobileNumber || ''}` : null }
     };
   }
@@ -112,6 +124,9 @@ class OnlinePaymentService {
       }
       const { craneRequestService } = require('./craneRequest.service');
       await craneRequestService.confirmWithAdvance(b, { method: 'ONLINE', tx });
+    } else if (kind === 'tip') {
+      const { customerJobService } = require('./customerJob.service');
+      await customerJobService.completeTip(b, tx);
     } else {
       const { customerJobService } = require('./customerJob.service');
       await customerJobService.completeFinal(b, tx);

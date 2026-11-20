@@ -283,13 +283,13 @@ class CraneService {
   }
 
   /**
-   * All operators an owner can use: ones they added (source owner_added)
-   * plus independently registered ones (source registered).
+   * The operators in the owner's team (added by the owner, or joined with their operator ID).
    * Admins (ownerId null) see every operator.
    */
   operatorWhere(ownerId, search) {
     const where = { roleId: OPERATOR_ROLE_ID, isDeleted: 0, isActive: 0 };
-    if (ownerId) where.ownerId = { [Op.or]: [ownerId, null] };
+    // only this owner's own operators; an operator outside the team is added with the operator ID
+    if (ownerId) where.ownerId = ownerId;
     if (search && String(search).trim()) {
       const term = `%${String(search).trim()}%`;
       where[Op.and] = [{
@@ -348,6 +348,16 @@ class CraneService {
    * The operator can later sign in with the normal OTP flow using this mobile number.
    */
   async createOperator(ownerId, body) {
+    // an operator who registered on their own: the owner types the operator ID (like OP754197), the record is fetched and added to the team
+    if (body.operator_id) {
+      const memberId = String(body.operator_id).trim().toUpperCase();
+      const found = await User.findOne({ where: { memberId, roleId: OPERATOR_ROLE_ID, isDeleted: 0 }, attributes: [...OPERATOR_ATTRS, 'isActive'] });
+      if (!found) throw new ServiceError('No operator found with this operator ID.', 404);
+      if (found.isActive !== 0) throw new ServiceError('This operator is blocked.', 409);
+      if (found.ownerId && found.ownerId !== ownerId) throw new ServiceError('This operator already works with another owner.', 409);
+      if (!found.ownerId) await found.update({ ownerId });
+      return this.formatOperator(found);
+    }
     const fullName = String(body.full_name || '').trim();
     const mobile = String(body.mobile_number || body.phone_number || '').trim();
     const countryCode = String(body.country_code || '+91').trim();
