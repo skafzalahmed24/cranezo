@@ -2,13 +2,13 @@ import React, { useEffect } from 'react';
 import SiteLayout from './SiteLayout';
 import HomePage from './HomePage';
 import { AboutPage, ContactPage, LegalPage } from './InfoPages';
-import WelcomePage from '../pages/WelcomePage';
+import JoinPage from './JoinPage';
 import { SITE_LIVE, LEGAL_LIVE } from './siteConfig';
 
 export const SITE_PATHS = ['/', '/welcome', '/about', '/contact', '/privacy', '/terms'];
 
 const TITLES = {
-  '/': 'Cranezo | Book cranes online',
+  '/': 'Join Cranezo | Crane owners and operators',
   '/about': 'About Cranezo',
   '/contact': 'Contact Cranezo',
   '/privacy': 'Privacy policy | Cranezo',
@@ -31,8 +31,8 @@ export const SiteRouter = ({ path, onNavigate }) => {
     return () => { document.body.style.background = before; };
   }, [page, soon]);
 
-  // the welcome page with the countdown
-  if (soon) return <WelcomePage />;
+  // until the website is live the public face is the Join Cranezo page (owners and operators register here)
+  if (soon) return <JoinPage />;
 
   let content;
   if (page === '/about') content = <AboutPage onNavigate={onNavigate} />;

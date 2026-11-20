@@ -8,7 +8,7 @@ const { customerJobService } = require('./customerJob.service');
 const { ServiceError } = require('./crane.service');
 const { bookingHelpers: H } = require('./booking.service');
 
-const AUDIENCES = ['all', 'customer', 'operator', 'owner'];
+const AUDIENCES = ['all', 'customer', 'operator', 'owner', 'website'];
 const ROLE_KEY = { 1: 'owner', 2: 'operator', 3: 'customer' };
 const ACTION_TYPES = ['none', 'book_crane', 'screen', 'url'];
 // screens a banner may open (the app maps these keys to its own screens)

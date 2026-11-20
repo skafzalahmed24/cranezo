@@ -17,7 +17,7 @@ const input = {
 };
 const label = { display: 'block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--dash-text-subtle)', margin: '0 0 6px' };
 
-const AUDIENCES = [['all', 'Everyone'], ['customer', 'Customers'], ['operator', 'Operators'], ['owner', 'Crane owners']];
+const AUDIENCES = [['all', 'Everyone'], ['customer', 'Customers'], ['operator', 'Operators'], ['owner', 'Crane owners'], ['website', 'Website (public page)']];
 const ACTIONS = [['none', 'Nothing (only shows the banner)'], ['book_crane', 'Open Book a Crane'], ['screen', 'Open an app screen'], ['url', 'Open a web link']];
 const SCREENS = [['my_jobs', 'My Jobs'], ['track', 'Track My Crane'], ['support', 'Help & Support'], ['notifications', 'Notifications'], ['profile', 'Profile'], ['earnings', 'Earnings']];
 

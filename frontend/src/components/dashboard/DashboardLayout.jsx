@@ -7,6 +7,7 @@ import AdminReviews from './AdminReviews';
 import AdminReports from './AdminReports';
 import AdminAlerts from './AdminAlerts';
 import OperatorConduct from './OperatorConduct';
+import Leads from './Leads';
 import UserDetails from './UserDetails';
 import CraneDetails from './CraneDetails';
 import CraneApprovals from './CraneApprovals';
@@ -332,6 +333,7 @@ export const DashboardLayout = ({ userSession, onLogout, initialView = 'cranes' 
 
           {activeView === 'notifications' && <AdminAlerts onNavigate={handleNavigate} />}
           {activeView === 'operator-conduct' && <OperatorConduct />}
+          {activeView === 'leads' && <Leads />}
 
           {activeView === 'crane-approvals' && <CraneApprovals onReviewed={refreshPendingCranes} />}
 
@@ -381,6 +383,8 @@ export const DashboardLayout = ({ userSession, onLogout, initialView = 'cranes' 
             'support',
             'announcements',
             'banners',
+            'leads',
+            'operator-conduct',
             'settings',
             'payments',
             'settlements',

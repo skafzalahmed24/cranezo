@@ -14,7 +14,7 @@ const VIEW_MODULE = {
 const FIRST_CHOICE = [
   'dashboard', 'bookings', 'cranes', 'crane-approvals', 'users', 'owners', 'operators', 'crane-requests', 'payments',
   'settlements', 'complaints', 'reviews', 'reports', 'support', 'announcements', 'notifications', 'banners', 'legal',
-  'subscriptions', 'platform-fee', 'pricing-rules', 'app-versions', 'settings',
+  'leads', 'subscriptions', 'platform-fee', 'pricing-rules', 'app-versions', 'settings',
 ];
 
 export const canView = (permissions, view) => {

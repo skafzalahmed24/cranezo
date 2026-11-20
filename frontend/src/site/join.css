@@ -1,0 +1,90 @@
+/* Join Cranezo: one friendly page. Ink #0B1220, amber #FFB020, soft blue-grey page. */
+.jn { --ink: #0B1220; --muted: #5b6577; --line: #d6deea; --page: #f3f6fb; --card: #fff; --amber: #FFB020; --amber-d: #8a5a00; --navy: #1a3a8a; min-height: 100vh; background: var(--page); color: var(--ink); font-family: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; line-height: 1.5; }
+.jn * { box-sizing: border-box; }
+.jn .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.jn-top { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px clamp(14px, 4vw, 40px); background: rgba(255, 255, 255, .94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.jn-logo img { height: 34px; display: block; }
+.jn-contact { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.jn-call, .jn-wa { display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; border-radius: 999px; font-weight: 700; font-size: 14px; text-decoration: none; }
+.jn-call { background: #fff7e0; color: var(--amber-d); border: 2px solid var(--amber); }
+.jn-wa { background: #137a3f; color: #fff; border: 2px solid #137a3f; }
+
+.jn-banners { max-width: 1100px; margin: 18px auto 0; padding: 0 clamp(14px, 4vw, 24px); }
+.jn-banner { position: relative; min-height: clamp(150px, 30vw, 300px); border-radius: 22px; background: #dfe7f3 center / cover; overflow: hidden; display: flex; align-items: flex-end; cursor: default; box-shadow: 0 10px 30px rgba(26, 58, 138, .16); }
+.jn-banner-text { width: 100%; padding: 22px 26px; background: linear-gradient(0deg, rgba(11, 18, 32, .78), rgba(11, 18, 32, 0)); color: #fff; }
+.jn-banner-text h2 { margin: 0 0 4px; font-size: clamp(20px, 3.4vw, 32px); }
+.jn-banner-text p { margin: 0; opacity: .92; }
+.jn-dots { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+.jn-dots button { width: 9px; height: 9px; border-radius: 50%; border: 0; background: #c3cee0; cursor: pointer; padding: 0; }
+.jn-dots button.on { background: var(--ink); width: 22px; border-radius: 9px; }
+
+.jn-hero { max-width: 880px; margin: 0 auto; padding: clamp(28px, 6vw, 56px) clamp(14px, 4vw, 24px) 10px; text-align: center; }
+.jn-eyebrow { margin: 0 0 8px; text-transform: uppercase; letter-spacing: .12em; font-size: 12.5px; font-weight: 800; color: var(--amber-d); }
+.jn-hero h1 { margin: 0; font-size: clamp(30px, 6vw, 52px); line-height: 1.08; letter-spacing: -.02em; }
+.jn-lead { margin: 16px auto 0; max-width: 640px; font-size: clamp(16px, 2.2vw, 19px); color: var(--muted); }
+.jn-choose { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 26px auto 0; max-width: 640px; }
+.jn-choose button { display: grid; gap: 2px; justify-items: center; padding: 20px 16px; border-radius: 20px; border: 2px solid var(--ink); background: #fff; color: var(--ink); font: inherit; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.jn-choose button:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(26, 58, 138, .18); }
+.jn-choose button:first-child { background: var(--ink); color: #fff; }
+.jn-choose strong { font-size: 18px; }
+.jn-choose small { color: inherit; opacity: .75; font-size: 13.5px; }
+.jn-down { display: inline-flex; align-items: center; gap: 6px; margin-top: 18px; color: var(--navy); font-weight: 700; text-decoration: none; }
+
+.jn-highlights { max-width: 1100px; margin: 34px auto 0; padding: 0 clamp(14px, 4vw, 24px); }
+.jn-highlights h2, .jn-form h2 { margin: 0 0 14px; font-size: clamp(22px, 3.4vw, 30px); letter-spacing: -.01em; }
+.jn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.jn-grid article { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: 0 6px 18px rgba(30, 58, 138, .08); }
+.jn-grid h3 { margin: 10px 0 4px; font-size: 17px; }
+.jn-grid p { margin: 0; color: var(--muted); font-size: 14.5px; }
+.jn-ic { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 13px; background: #fff3d1; color: var(--amber-d); }
+
+.jn-form-wrap { max-width: 760px; margin: 38px auto 0; padding: 0 clamp(14px, 4vw, 24px) 40px; scroll-margin-top: 70px; }
+.jn-form, .jn-done { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: clamp(18px, 4vw, 30px); box-shadow: 0 14px 40px rgba(26, 58, 138, .12); }
+.jn-muted { color: var(--muted); margin: 0 0 14px; }
+.jn-muted.small { font-size: 13px; margin: 8px 0 0; }
+.jn-kind { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 0; padding: 0; margin: 0 0 18px; }
+.jn-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.jn-fields .wide { grid-column: 1 / -1; }
+.jn label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; }
+.jn input[type='text'], .jn input:not([type]), .jn input[inputmode], .jn textarea, .jn-other { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; font: inherit; font-weight: 400; color: var(--ink); background: #fff; }
+.jn textarea { resize: vertical; }
+.jn input:focus, .jn textarea:focus { outline: 3px solid rgba(255, 176, 32, .45); border-color: var(--amber); }
+.jn-set { border: 0; padding: 0; margin: 0 0 16px; min-width: 0; }
+.jn-set legend { font-size: 14.5px; font-weight: 700; margin-bottom: 8px; padding: 0; }
+.jn-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
+.jn-opt { flex-direction: row !important; align-items: center; gap: 10px !important; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; font-weight: 500 !important; transition: border-color .12s, background .12s; }
+.jn-opt:hover { border-color: #b8c6dd; }
+.jn-opt.on { border-color: var(--amber); background: #fff7e0; }
+.jn-opt input { width: 18px; height: 18px; accent-color: #b27700; flex: none; }
+.jn-kind .jn-opt { justify-content: center; text-align: center; padding: 14px; font-weight: 700 !important; }
+.jn-kind .jn-opt.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.jn-kind .jn-opt input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.jn-other { margin-top: 8px; }
+.jn-text { margin-bottom: 16px; }
+.jn-hp { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; opacity: 0; }
+.jn-error { background: #fde7e4; color: #b42318; padding: 11px 14px; border-radius: 12px; margin-bottom: 12px; font-size: 14px; }
+.jn-btn { display: inline-block; background: var(--amber); color: #1a1200; border: 0; border-radius: 999px; padding: 14px 26px; font: inherit; font-weight: 800; cursor: pointer; }
+.jn-btn:disabled { opacity: .5; cursor: not-allowed; }
+.jn-submit { width: 100%; font-size: 17px; }
+.jn-done { text-align: center; }
+.jn-ok { display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: #e1f5e8; color: #137a3f; margin-bottom: 8px; }
+.jn-done a { color: var(--navy); font-weight: 700; }
+
+.jn-foot { background: var(--ink); color: #c9d3e6; padding: 30px clamp(14px, 4vw, 40px); display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; align-items: center; }
+.jn-foot-logo { height: 30px; filter: brightness(0) invert(1); }
+.jn-foot p { margin: 8px 0 0; }
+.jn-foot-links { display: grid; gap: 8px; justify-items: end; }
+.jn-foot a { color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.jn-play { height: 46px; width: auto; }
+
+@media (max-width: 640px) {
+  .jn-top { padding: 8px 12px; flex-wrap: nowrap; }
+  .jn-logo img { height: 28px; }
+  .jn-contact { flex-wrap: nowrap; gap: 6px; }
+  .jn-call, .jn-wa { padding: 8px 11px; font-size: 13px; }
+  .jn-wa span { display: none; }
+  .jn-form-wrap { scroll-margin-top: 64px; }
+  .jn-fields { grid-template-columns: 1fr; }
+  .jn-foot-links { justify-items: start; }
+}
+@media (prefers-reduced-motion: reduce) { .jn-choose button { transition: none; } }

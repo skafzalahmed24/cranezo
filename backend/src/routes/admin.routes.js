@@ -55,6 +55,13 @@ router.post('/conduct/card', superAdminOnly, conduct.giveCard);
 router.post('/conduct/clear', superAdminOnly, conduct.clear);
 router.post('/conduct/rules/save', superAdminOnly, conduct.saveRules);
 
+// Join requests from the website (owners and operators who want to join)
+const leadsController = require('../controllers/leads.controller');
+router.post('/leads/list', adminOnly, leadsController.list);
+router.post('/leads/summary', adminOnly, leadsController.summary);
+router.post('/leads/options', adminOnly, leadsController.options);
+router.post('/leads/update', adminOnly, leadsController.update);
+
 // Crane approvals
 router.post('/cranes/summary', adminOnly, craneController.adminSummary);
 router.post('/cranes/list', adminOnly, craneController.adminList);

@@ -19,7 +19,8 @@ export const SITE = {
   playStoreUrl: 'https://play.google.com/store/apps/details?id=com.cranezo',
   // shown in the footer and on the Contact page; a field left empty is simply not shown
   email: 'support@cranezo.com',
-  phone: '',
+  // Call and WhatsApp (10 digits, no +91)
+  phone: '9705799889',
   address: '',
 };
 

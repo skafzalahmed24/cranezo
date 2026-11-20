@@ -19,6 +19,7 @@ const MODULES = [
   { key: 'reports', label: 'Reports & Analytics', group: 'Insights' },
   { key: 'notifications', label: 'Notifications', group: 'System' },
   { key: 'banners', label: 'Banners', group: 'System' },
+  { key: 'leads', label: 'Join requests (leads)', group: 'System' },
   { key: 'support', label: 'Support', group: 'System' },
   { key: 'announcements', label: 'Announcements', group: 'System' },
   { key: 'legal', label: 'Legal Pages', group: 'System' },
@@ -63,6 +64,7 @@ const modulesForCall = (path, body = {}) => {
     [/^\/support/, ['support']],
     [/^\/announcements/, ['announcements']],
     [/^\/banners/, ['banners']],
+    [/^\/leads/, ['leads']],
     [/^\/legal/, ['legal']],
     [/^\/settings/, ['settings']]
   ];

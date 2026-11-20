@@ -72,6 +72,7 @@ export const Sidebar = ({ activeView, onNavigate, onLogout, mobileOpen, onCloseM
       title: 'SYSTEM',
       items: [
         { id: 'notifications', label: 'Notifications', icon: Bell },
+        { id: 'leads', label: 'Join Requests', icon: UserCog },
         { id: 'banners', label: 'Banners', icon: Images },
         { id: 'support', label: 'Support', icon: LifeBuoy },
         { id: 'announcements', label: 'Announcements', icon: Megaphone },

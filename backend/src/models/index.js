@@ -33,6 +33,7 @@ const defineOwnerSubscription = require('./OwnerSubscription');
 const defineAdminAccessRole = require('./AdminAccessRole');
 const defineOwnerStaff = require('./OwnerStaff');
 const defineOperatorCard = require('./OperatorCard');
+const defineLead = require('./Lead');
 const defineSubscriptionPayment = require('./SubscriptionPayment');
 
 const Role = defineRole(sequelize);
@@ -69,6 +70,7 @@ const OwnerSubscription = defineOwnerSubscription(sequelize);
 const AdminAccessRole = defineAdminAccessRole(sequelize);
 const OwnerStaff = defineOwnerStaff(sequelize);
 const OperatorCard = defineOperatorCard(sequelize);
+const Lead = defineLead(sequelize);
 const SubscriptionPayment = defineSubscriptionPayment(sequelize);
 
 // Associations
@@ -163,6 +165,7 @@ module.exports = {
   AdminAccessRole,
   OwnerStaff,
   OperatorCard,
+  Lead,
   OwnerSubscription,
   SubscriptionPayment,
   Role,
