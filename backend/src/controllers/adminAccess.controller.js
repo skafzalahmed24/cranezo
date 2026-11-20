@@ -12,6 +12,7 @@ const body = (req) => req.body || {};
 
 module.exports = {
   me: run('Profile retrieved successfully.', (req) => adminAccessService.me(req.admin)),
+  changePassword: run('Password changed.', (req) => adminAccessService.changeOwnPassword(req.admin, body(req))),
   catalog: run('Modules retrieved successfully.', () => adminAccessService.catalog()),
   listRoles: run('Roles retrieved successfully.', () => adminAccessService.listRoles()),
   createRole: run('Role created.', (req) => adminAccessService.createRole(body(req)), 201),

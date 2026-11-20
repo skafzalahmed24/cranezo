@@ -24,6 +24,7 @@ router.use(authenticate, requireAdmin, adminAccessGuard);
 // Who am I and what may I see (every admin), and the Super Admin's roles and staff logins
 const superAdminOnly = [authenticate, requireSuperAdmin];
 router.post('/me', adminOnly, accessController.me);
+router.post('/change-password', adminOnly, accessController.changePassword);
 router.post('/permissions/catalog', superAdminOnly, accessController.catalog);
 router.post('/access-roles/list', superAdminOnly, accessController.listRoles);
 router.post('/access-roles', superAdminOnly, accessController.createRole);

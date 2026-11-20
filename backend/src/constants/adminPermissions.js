@@ -43,6 +43,7 @@ const modulesForCall = (path, body = {}) => {
   const p = String(path || '').replace(/\/+$/, '') || '/';
   const rules = [
     [/^\/me$/, []],
+    [/^\/change-password$/, []],
     [/^\/(dashboard-stats|dashboard|alerts)$/, ['dashboard']],
     [/^\/bookings(\/|$)/, ['bookings']],
     [/^\/reviews$/, ['reviews']],

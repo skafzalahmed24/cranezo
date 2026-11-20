@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiRequest } from '../../utils/api';
 import {
   Menu,
   Search,
@@ -8,6 +9,7 @@ import {
   ChevronDown,
   LogOut,
   Settings,
+  KeyRound,
 } from 'lucide-react';
 
 export const Header = ({
@@ -20,6 +22,17 @@ export const Header = ({
   onToggleMobileSidebar,
 }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [pw, setPw] = useState(null); // null = closed, otherwise the form
+  const savePassword = async () => {
+    if (pw.next !== pw.again) return setPw({ ...pw, error: 'The two new passwords are not the same.', ok: '' });
+    setPw({ ...pw, busy: true, error: '', ok: '' });
+    try {
+      await apiRequest('/admin/change-password', { method: 'POST', body: { current_password: pw.current, new_password: pw.next } });
+      setPw({ current: '', next: '', again: '', busy: false, error: '', ok: 'Password changed. Use the new password the next time you sign in.' });
+    } catch (e) {
+      setPw({ ...pw, busy: false, error: e.message, ok: '' });
+    }
+  };
 
   const getTitle = () => {
     switch (activeView) {
@@ -184,6 +197,18 @@ export const Header = ({
                 className="cranezo-nav-item"
                 style={{ padding: '8px 10px' }}
                 onClick={() => {
+                  setShowProfileMenu(false);
+                  setPw({ current: '', next: '', again: '', busy: false, error: '', ok: '' });
+                }}
+              >
+                <KeyRound size={15} />
+                <span>Change Password</span>
+              </button>
+              <button
+                type="button"
+                className="cranezo-nav-item"
+                style={{ padding: '8px 10px' }}
+                onClick={() => {
                   onToggleTheme();
                   setShowProfileMenu(false);
                 }}
@@ -207,6 +232,32 @@ export const Header = ({
           )}
         </div>
       </div>
+      {pw && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', zIndex: 200, display: 'grid', placeItems: 'center', padding: 16 }} onClick={() => setPw(null)}>
+          <div className="cranezo-card" style={{ width: 'min(420px, 100%)', padding: 22 }} onClick={(e) => e.stopPropagation()}>
+            <h3 className="cranezo-card-title" style={{ margin: '0 0 6px' }}>Change password</h3>
+            <p style={{ margin: '0 0 14px', fontSize: 13, color: 'var(--dash-text-muted)' }}>At least 8 characters, with letters and numbers.</p>
+            {pw.error && <div style={{ color: '#ef4444', fontSize: 13, marginBottom: 10 }}>{pw.error}</div>}
+            {pw.ok && <div style={{ color: '#22c55e', fontSize: 13, marginBottom: 10 }}>{pw.ok}</div>}
+            {[['current', 'Current password'], ['next', 'New password'], ['again', 'New password again']].map(([k, label]) => (
+              <label key={k} style={{ display: 'block', fontSize: 12, color: 'var(--dash-text-subtle)', margin: '0 0 10px' }}>
+                {label}
+                <input
+                  type="password"
+                  autoComplete={k === 'current' ? 'current-password' : 'new-password'}
+                  value={pw[k]}
+                  onChange={(e) => setPw({ ...pw, [k]: e.target.value })}
+                  style={{ width: '100%', boxSizing: 'border-box', marginTop: 4, background: 'var(--dash-input-bg)', border: '1px solid var(--dash-input-border)', borderRadius: 8, color: 'var(--dash-text-body)', padding: '9px 12px', fontSize: 13 }}
+                />
+              </label>
+            ))}
+            <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
+              <button type="button" className="cranezo-btn-primary-amber" disabled={pw.busy || !pw.current || !pw.next} onClick={savePassword}>{pw.busy ? 'Saving…' : 'Save password'}</button>
+              <button type="button" className="cranezo-btn-secondary" onClick={() => setPw(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

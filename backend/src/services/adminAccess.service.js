@@ -1,6 +1,6 @@
 const { Op } = require('sequelize');
 const { Admin, AdminAccessRole, Role } = require('../models');
-const { hashPassword } = require('../utils/password');
+const { hashPassword, comparePassword } = require('../utils/password');
 const { MODULES, MODULE_KEYS } = require('../constants/adminPermissions');
 const { permissionsOf } = require('../middlewares/adminAccess.middleware');
 const { ROLES } = require('../constants/roles');
@@ -142,6 +142,18 @@ class AdminAccessService {
       name, email, password: await hashPassword(password), roleId: staffRole.id, accessRoleId: role.id, isActive: true, createdBy: creatorId || null
     });
     return (await this.listStaff()).find((s) => s.id === admin.id);
+  }
+
+  /** Any admin (Super Admin or staff) changes their OWN password: the current one is needed */
+  async changeOwnPassword(admin, input = {}) {
+    if (!admin) throw new AccessError('Sign in first.', 401);
+    const row = await Admin.findByPk(admin.id);
+    if (!row) throw new AccessError('Account not found.', 404);
+    if (!(await comparePassword(String(input.current_password || ''), row.password))) throw new AccessError('The current password is not correct.', 400);
+    const next = cleanPassword(input.new_password);
+    if (next === String(input.current_password)) throw new AccessError('Choose a password different from the current one.');
+    await row.update({ password: await hashPassword(next) });
+    return { changed: true };
   }
 
   async updateStaff(id, input = {}, actingId) {
