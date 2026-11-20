@@ -160,7 +160,6 @@ export default function JoinPage() {
         <span className="jn-orb jn-orb-a" aria-hidden="true" />
         <span className="jn-orb jn-orb-b" aria-hidden="true" />
         <div className="jn-hero-in">
-          <p className="jn-pill"><span className="jn-live" aria-hidden="true" /> For crane owners and operators</p>
           <h1>Book and manage your <em>site job</em> online</h1>
           <p className="jn-lead">Fast, reliable and affordable.</p>
           <div className="jn-choose">
@@ -226,8 +225,8 @@ export default function JoinPage() {
 
             <fieldset className="jn-kind">
               <legend className="sr">I am</legend>
-              <Radio name="kind" value="owner" current={kind} onChange={setKind}>Crane Owner / Fleet</Radio>
-              <Radio name="kind" value="operator" current={kind} onChange={setKind}>Crane Operator / Crew</Radio>
+              <Radio name="kind" value="owner" current={kind} onChange={setKind}>Crane Owner</Radio>
+              <Radio name="kind" value="operator" current={kind} onChange={setKind}>Crane Operator</Radio>
             </fieldset>
 
             <div className="jn-fields">
@@ -283,14 +282,6 @@ export default function JoinPage() {
           </form>
         )}
       </section>
-
-      {phone && (
-        <div className="jn-bar">
-          <a href={`tel:+91${phone}`}><Phone size={18} aria-hidden="true" /> Call</a>
-          <a href={`https://wa.me/91${phone}`} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} aria-hidden="true" /> WhatsApp</a>
-          <a className="jn-bar-go" href="#join-form">Register</a>
-        </div>
-      )}
 
       <footer className="jn-foot">
         <div>

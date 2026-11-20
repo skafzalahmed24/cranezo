@@ -94,7 +94,7 @@
 .jn-opt:hover { border-color: #b8c6dd; transform: translateY(-1px); }
 .jn-opt.on { border-color: var(--amber2); background: #fff6e3; box-shadow: 0 6px 16px rgba(255, 138, 31, .16); }
 .jn-opt input { width: 18px; height: 18px; accent-color: #d97a00; flex: none; }
-.jn-kind .jn-opt { justify-content: center; text-align: center; padding: 15px; font-weight: 700 !important; }
+.jn-kind .jn-opt { justify-content: center; text-align: center; padding: 15px 10px; font-weight: 700 !important; white-space: nowrap; }
 .jn-kind .jn-opt.on { background: var(--ink); color: #fff; border-color: var(--ink); box-shadow: 0 10px 24px rgba(7, 11, 20, .3); }
 .jn-kind .jn-opt input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .jn-other { margin-top: 9px; }
@@ -116,9 +116,6 @@
 .jn-foot-links { display: grid; gap: 8px; justify-items: end; }
 .jn .jn-foot a { color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
 
-/* phone action bar */
-.jn-bar { display: none; }
-
 @media (max-width: 860px) {
   .jn-bento { grid-template-columns: 1fr 1fr; }
   .jn-bento article, .jn-bento .jn-b0, .jn-bento .jn-b3, .jn-bento .jn-b4, .jn-bento .jn-b5 { grid-column: span 1; }
@@ -135,10 +132,6 @@
   .jn-bento article, .jn-bento .jn-b0, .jn-bento .jn-b3, .jn-bento .jn-b4, .jn-bento .jn-b5 { grid-column: 1 / -1; }
   .jn-foot-links { justify-items: start; }
   .jn-form-wrap { scroll-margin-top: 70px; }
-  .jn-bar { display: flex; position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 40; gap: 8px; padding: 8px; border-radius: 22px; background: rgba(12, 18, 32, .88); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, .14); box-shadow: 0 14px 34px rgba(0, 0, 0, .35); }
-  .jn .jn-bar a { flex: 1; display: inline-flex; justify-content: center; align-items: center; gap: 7px; padding: 12px 8px; border-radius: 15px; color: #fff; text-decoration: none; font-weight: 700; font-size: 14.5px; background: rgba(255, 255, 255, .1); }
-  .jn .jn-bar .jn-bar-go { background: linear-gradient(135deg, #FFC24D, #FF8A1F); color: #1a1200; }
-  .jn { padding-bottom: 84px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .jn-rise { opacity: 1; transform: none; transition: none; }
