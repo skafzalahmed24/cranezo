@@ -148,9 +148,11 @@ async function assertOperator(operatorId, ownerId) {
       isActive: 0,
       ownerId: { [Op.or]: [ownerId, null] }
     },
-    attributes: ['id']
+    attributes: ['id', 'isMobileVerified']
   });
   if (!operator) throw new ServiceError('Assigned operator is not a valid operator.');
+  // an operator the owner added must first verify the OTP sent to their mobile
+  if (operator.isMobileVerified !== 0) throw new ServiceError('This operator has not verified their mobile number yet. Enter the OTP sent to them first.', 409);
 }
 
 async function normalizeDocuments(documents) {
@@ -399,6 +401,13 @@ class CraneService {
     const existing = await User.findOne({ where: { mobileNumber: mobile, countryCode, roleId: OPERATOR_ROLE_ID }, attributes: ['id'] });
     if (existing) throw new ServiceError('An operator with this mobile number already exists.', 409);
 
+    // the pay terms are checked before anything is sent or saved
+    const terms = require('./operatorTeam.service').cleanTerms(body);
+    // An OTP goes to the operator's mobile first. The operator stays "not verified" (no jobs, no crane) until the
+    // code is entered: POST owner/operators/verify-otp. See operatorTeam.service.
+    const { otpService } = require('./otp.service');
+    await otpService.send(countryCode, mobile);
+
     const operator = await User.create({
       countryCode,
       mobileNumber: mobile,
@@ -408,13 +417,15 @@ class CraneService {
       roleId: OPERATOR_ROLE_ID,
       memberId: await generateUniqueMemberId(OPERATOR_ROLE_ID, User),
       ownerId,
-      ...require('./operatorTeam.service').cleanTerms(body),
+      ...terms,
       isMobileVerified: 1,
       isActive: 0,
       isDeleted: 0
     });
 
-    return (await this.listOperators(ownerId, { search: mobile })).find((o) => o.id === operator.id);
+    const made = (await this.listOperators(ownerId, { search: mobile })).find((o) => o.id === operator.id);
+    // the code itself is returned only for the fixed test code (never for a real SMS code)
+    return { ...made, needs_otp: true, otp: otpService.testCode() || undefined };
   }
 
   async createCrane(ownerId, body) {

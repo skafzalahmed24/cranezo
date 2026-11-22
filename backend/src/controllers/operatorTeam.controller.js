@@ -15,6 +15,8 @@ module.exports = {
   invite: run('Request sent to the operator.', (req) => operatorTeamService.invite(req.user.id, req.body || {})),
   sent: run('Requests retrieved successfully.', (req) => operatorTeamService.sent(req.user.id)),
   cancel: run('Request cancelled.', (req) => operatorTeamService.cancel(req.user.id, (req.body || {}).invite_id)),
+  verifyOtp: run('Operator verified.', (req) => operatorTeamService.verifyOtp(req.user.id, req.body || {})),
+  resendOtp: run('OTP sent.', (req) => operatorTeamService.resendOtp(req.user.id, req.body || {})),
   // operator
   received: run('Requests retrieved successfully.', (req) => operatorTeamService.received(req.user.id)),
   respond: run('Answer saved.', (req) => operatorTeamService.respond(req.user.id, req.body || {}))

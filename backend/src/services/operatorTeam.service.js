@@ -70,6 +70,47 @@ class OperatorTeamService {
     return termsOut(row);
   }
 
+  /** An operator the owner added (not one who registered on their own) */
+  async ownedOperator(ownerId, operatorId) {
+    const operator = await User.findOne({
+      where: { id: String(operatorId || ''), roleId: OPERATOR_ROLE_ID, ownerId, isDeleted: 0 },
+      attributes: [...BRIEF, 'isMobileVerified']
+    });
+    if (!operator) throw new ServiceError('This operator is not in your team.', 404);
+    return operator;
+  }
+
+  /** Send the OTP to the operator's mobile again */
+  async resendOtp(ownerId, input = {}) {
+    const operator = await this.ownedOperator(ownerId, input.operator_id);
+    if (operator.isMobileVerified === 0) throw new ServiceError('This operator is already verified.', 409);
+    const { otpService } = require('./otp.service');
+    await otpService.send(operator.countryCode, operator.mobileNumber);
+    return { id: operator.id, sent: true, otp: otpService.testCode() || undefined };
+  }
+
+  /**
+   * The owner types the OTP sent to the operator's mobile. Once it matches, the operator's number is verified:
+   * they can sign in and be given jobs and cranes.
+   */
+  async verifyOtp(ownerId, input = {}) {
+    const operator = await this.ownedOperator(ownerId, input.operator_id);
+    if (operator.isMobileVerified === 0) return { id: operator.id, is_mobile_verified: true };
+    const code = String(input.otp_number || input.otp || '').trim();
+    if (!code) throw new ServiceError('otp_number is required.');
+    const { otpService } = require('./otp.service');
+    if (!(await otpService.check(operator.countryCode, operator.mobileNumber, code))) {
+      throw new ServiceError('Invalid or expired OTP.', 400);
+    }
+    await operator.update({ isMobileVerified: 0, mobileOtp: null });
+    await notificationService.notify(operator.id, {
+      type: 'account_status',
+      title: 'Mobile number verified',
+      body: 'Your owner verified your mobile number. You can now sign in and take jobs.'
+    }).catch(() => {});
+    return { id: operator.id, is_mobile_verified: true };
+  }
+
   /** Find a registered operator by operator ID (OP...) or mobile number, and say whether they can be asked */
   async search(ownerId, input = {}) {
     const query = String(input.query || input.operator_id || '').trim();

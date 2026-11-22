@@ -83,6 +83,9 @@ router.post('/operators/search', ownerOnly, operatorTeam.search);
 router.post('/operators/invite', ownerOnly, operatorTeam.invite);
 router.post('/operators/invites', ownerOnly, operatorTeam.sent);
 router.post('/operators/invites/cancel', ownerOnly, operatorTeam.cancel);
+// an operator the owner added: the OTP sent to their mobile is verified here
+router.post('/operators/verify-otp', ownerOnly, operatorTeam.verifyOtp);
+router.post('/operators/resend-otp', ownerOnly, operatorTeam.resendOtp);
 router.post('/salary/list', ownerOnly, require('../controllers/finance.controller').ownerSalaryList);
 router.post('/salary/pay', ownerOnly, require('../controllers/finance.controller').ownerPaySalary);
 router.post('/cranes', ownerOnly, craneController.createCrane);

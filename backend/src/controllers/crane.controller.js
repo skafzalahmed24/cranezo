@@ -47,7 +47,11 @@ class CraneController {
   async addOperator(req, res) {
     try {
       const operator = await craneService.createOperator(req.user.id, req.body || {});
-      return successResponse(res, 'Operator added successfully.', operator, 201);
+      // an operator who registered on their own gets a request (a reply with status_label); a new one gets an OTP to verify
+      const message = operator && operator.status_label !== undefined
+        ? 'Request sent to the operator. They join your team after accepting.'
+        : 'Operator added. Enter the OTP sent to their mobile to verify them.';
+      return successResponse(res, message, operator, 201);
     } catch (error) { return handle(res, error); }
   }
 

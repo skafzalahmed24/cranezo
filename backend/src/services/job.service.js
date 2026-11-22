@@ -991,7 +991,7 @@ class JobService {
     let operator;
     if (operatorCode) {
       const code = String(operatorCode).trim().toUpperCase();
-      operator = await User.findOne({ where: { memberId: code, roleId: 2, isDeleted: 0 }, attributes: ['id', 'isActive', 'fullName', 'isOnline'] });
+      operator = await User.findOne({ where: { memberId: code, roleId: 2, isDeleted: 0 }, attributes: ['id', 'isActive', 'fullName', 'isOnline', 'isMobileVerified'] });
       if (!operator) throw new ServiceError(`No operator found with ID ${code}. Check the ID with the operator.`, 404);
       if (operator.isActive !== 0) throw new ServiceError('This operator account is blocked.', 409);
       operatorId = operator.id; // eslint-disable-line no-param-reassign
@@ -999,9 +999,14 @@ class JobService {
       if (!H.UUID_RE.test(String(operatorId || ''))) throw new ServiceError('Choose an operator or enter an operator ID.');
       operator = await User.findOne({
         where: { id: operatorId, roleId: 2, isDeleted: 0, isActive: 0, ownerId: { [Op.or]: [ownerId, null] } },
-        attributes: ['id', 'fullName', 'isOnline']
+        attributes: ['id', 'fullName', 'isOnline', 'isMobileVerified']
       });
       if (!operator) throw new ServiceError('That operator is not available.', 400);
+    }
+
+    // an operator the owner added must first verify the OTP sent to their mobile
+    if (operator.isMobileVerified !== 0) {
+      throw new ServiceError(`${operator.fullName || 'This operator'} has not verified their mobile number yet. Enter the OTP sent to them first.`, 409);
     }
 
     // the person who booked the crane (any of their accounts on the same phone number) cannot also be its operator
