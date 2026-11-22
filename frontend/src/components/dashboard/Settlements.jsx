@@ -70,7 +70,8 @@ export const Settlements = () => {
               items={[
                 { label: 'Platform fee', value: `${balances.platform_fee_percent}%`, hint: 'Of the job amount before GST' },
                 { label: 'Collect from owners', value: inr(balances.totals.collect_from_owners), color: '#f59e0b', hint: 'Fees on cash jobs' },
-                { label: 'Pay to owners', value: inr(balances.totals.pay_to_owners), color: '#3b82f6', hint: 'Online payments held by the platform' },
+                { label: 'Pay to owners', value: inr(balances.totals.pay_to_owners), color: '#3b82f6', hint: 'Online payments held by the platform, tips included' },
+                { label: 'Tips for operators', value: inr(balances.totals.tips), color: '#10b981', hint: 'Paid online by customers; paid out with the settlement' },
                 { label: 'Owners with dues', value: balances.totals.owners },
               ]}
             />
@@ -80,19 +81,20 @@ export const Settlements = () => {
             right={<input style={{ ...input, width: 240 }} placeholder="Search owner name or ID" value={search} onChange={(e) => setSearch(e.target.value)} />}
           >
             <Table
-              headers={['Owner', 'Member ID', 'Jobs', 'Owner owes platform', 'Platform owes owner', 'Net', 'Oldest job', '']}
+              headers={['Owner', 'Member ID', 'Jobs', 'Owner owes platform', 'Platform owes owner', 'of which tips', 'Net', 'Oldest job', '']}
               rows={(balances ? balances.items : []).map((r) => [
                 <strong key="n">{r.owner.name || '-'}</strong>,
                 r.owner.member_id || '-',
                 r.jobs,
                 inr(r.owner_owes_platform),
                 inr(r.platform_owes_owner),
+                r.tips > 0 ? <span key="t" style={{ color: '#10b981', fontWeight: 600 }}>{inr(r.tips)}</span> : '-',
                 <span key="net" style={{ color: netColor(r.net), fontWeight: 700 }}>{r.net_label}: {inr(Math.abs(r.net))}</span>,
                 day(r.oldest_job_at),
                 <button key="b" type="button" className="cranezo-btn-secondary" onClick={() => { setNotice(''); setOwner(r); }}>Settle</button>,
               ])}
               empty="Nothing to settle. Every paid job is settled."
-              minWidth={900}
+              minWidth={1000}
             />
           </Section>
         </>
@@ -123,7 +125,10 @@ const OwnerSettlement = ({ owner, methods, onBack, onDone }) => {
 
   const items = data ? data.items : [];
   const chosen = items.filter((i) => selected.includes(i.booking_id));
-  const net = Math.round(chosen.reduce((s, i) => s + i.platform_balance, 0) * 100) / 100;
+  // what the payment is: the money balance of the jobs plus the tips the customers paid online for the operators
+  const net = Math.round(chosen.reduce((s, i) => s + i.settlement_amount, 0) * 100) / 100;
+  const tipsTotal = Math.round(chosen.reduce((s, i) => s + i.tip_due, 0) * 100) / 100;
+  const jobsNet = Math.round((net - tipsTotal) * 100) / 100;
   const toggle = (id) => setSelected(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id]);
 
   const save = async () => {
@@ -151,29 +156,39 @@ const OwnerSettlement = ({ owner, methods, onBack, onDone }) => {
 
       <Section title="1. Choose the jobs">
         <Table
-          headers={['', 'Job', 'Completed', 'Customer paid', 'Paid by', 'Platform fee', 'Owner gets', 'Settlement']}
+          headers={['', 'Job', 'Completed', 'Operator', 'Customer paid', 'Paid by', 'Platform fee', 'Owner gets', 'Operator commission', 'Tip (online)', 'Settlement']}
           rows={items.map((i) => {
             const paid = i.payment_status === 'paid';
+            const tipOnly = !i.money_pending;
             return [
               <input key="c" type="checkbox" disabled={!paid} checked={selected.includes(i.booking_id)} onChange={() => toggle(i.booking_id)} />,
-              <strong key="j">{i.booking_code}</strong>,
+              <strong key="j">{i.booking_code}{tipOnly ? ' (tip only)' : ''}</strong>,
               day(i.completed_at),
+              i.operator ? i.operator.name : '-',
               paid ? inr(i.customer_total) : <Badge key="u" tone="bad">Not paid yet</Badge>,
               paid ? (i.collected_by === 'owner' ? 'Cash (owner)' : 'Online (platform)') : '-',
               inr(i.platform_fee),
               inr(i.owner_receives),
-              <span key="b" style={{ color: netColor(i.platform_balance), fontWeight: 600 }}>
-                {i.platform_balance < 0 ? `Owner pays ${inr(-i.platform_balance)}` : i.platform_balance > 0 ? `Pay owner ${inr(i.platform_balance)}` : '-'}
+              i.commission_set ? inr(i.operator_commission) : '-',
+              i.tip > 0 ? <span key="t" style={{ color: '#10b981', fontWeight: 600 }}>{inr(i.tip)}{i.tip_due < i.tip ? ` (${inr(i.tip_due)} due)` : ''}</span> : '-',
+              <span key="b" style={{ color: netColor(i.settlement_amount), fontWeight: 600 }}>
+                {i.settlement_amount < 0 ? `Owner pays ${inr(-i.settlement_amount)}` : i.settlement_amount > 0 ? `Pay owner ${inr(i.settlement_amount)}` : '-'}
               </span>,
             ];
           })}
           empty="No unsettled jobs."
-          minWidth={900}
+          minWidth={1150}
         />
         <div style={{ marginTop: 12, fontSize: 15, fontWeight: 700, color: netColor(net) }}>
           {chosen.length} job(s) selected.{' '}
           {net > 0 ? `Platform pays the owner ${inr(net)}.` : net < 0 ? `Owner pays the platform ${inr(-net)}.` : 'Nothing to pay either way.'}
         </div>
+        {tipsTotal > 0 && (
+          <div style={{ marginTop: 6, fontSize: 13, color: 'var(--dash-text-body)' }}>
+            This is {inr(jobsNet)} for the jobs + <strong style={{ color: '#10b981' }}>{inr(tipsTotal)} in tips</strong> that customers paid online for the operators.
+            The owner passes the tips to the operators from the Owner app (Pay operators).
+          </div>
+        )}
       </Section>
 
       <Section title="2. How was it paid?">
@@ -237,7 +252,7 @@ const History = () => {
     >
       <ErrorBox message={error} />
       <Table
-        headers={['Paid on', 'Code', 'Owner', kind === 'owner_operator' ? 'Operator' : 'Direction', 'Jobs', 'Amount', 'Method', 'Reference']}
+        headers={['Paid on', 'Code', 'Owner', kind === 'owner_operator' ? 'Operator' : 'Direction', 'Jobs', 'Amount', 'of which tip', 'Method', 'Reference']}
         rows={rows.map((s) => [
           when(s.settled_at),
           s.settlement_code,
@@ -245,6 +260,7 @@ const History = () => {
           kind === 'owner_operator' ? (s.operator ? s.operator.name : '-') : s.direction_label,
           s.jobs_count,
           <strong key="a">{inr(s.amount)}</strong>,
+          s.tip_amount > 0 ? inr(s.tip_amount) : '-',
           s.method_label,
           s.reference || '-',
         ])}

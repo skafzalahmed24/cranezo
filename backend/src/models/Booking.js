@@ -91,6 +91,9 @@ module.exports = (sequelize) => {
     platformCollectedAmount: money('platform_collected_amount'),
     // tip the customer gave the operator after the job (all of it goes to the operator)
     tipAmount: money('tip_amount'),
+    // how much of the tip the platform has paid to the owner, and how much the owner has paid to the operator
+    tipSettledAmount: money('tip_settled_amount'),
+    operatorTipPaidAmount: money('operator_tip_paid_amount'),
     // bill: owner charges and GST copied when the booking is made (see services/billing.js)
     charges: { type: DataTypes.JSONB, allowNull: true },
     chargesAmount: money('charges_amount'),

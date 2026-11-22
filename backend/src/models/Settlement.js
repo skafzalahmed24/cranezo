@@ -12,6 +12,8 @@ module.exports = (sequelize) => sequelize.define('Settlement', {
   operatorId: { type: DataTypes.UUID, allowNull: true, field: 'operator_id' },
   amount: { type: DataTypes.DECIMAL(12, 2), allowNull: false },
   jobsCount: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0, field: 'jobs_count' },
+  // the tip inside this payout (the amount already includes it)
+  tipAmount: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0, field: 'tip_amount' },
   method: { type: DataTypes.STRING(20), allowNull: true },
   reference: { type: DataTypes.STRING(80), allowNull: true },
   note: { type: DataTypes.TEXT, allowNull: true },
