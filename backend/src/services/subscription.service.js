@@ -229,8 +229,11 @@ class SubscriptionService {
     if (payment.status !== 'success') {
       const paid = await gateway.paidPaymentFor(payment.gatewayOrderId).catch(() => null);
       if (paid) await this.apply(payment, paid.paymentId);
+      else if (payment.status === 'initiated') await payment.update({ status: 'failed', failureReason: 'Payment not completed' }).catch(() => {});
     }
-    return this.summary(ownerId);
+    // "paid" is about THIS payment only: an owner who already has a plan must not look paid after a failed attempt
+    const after = await SubscriptionPayment.findByPk(payment.id);
+    return { ...(await this.summary(ownerId)), paid: !!after && after.status === 'success' };
   }
 
   /** Marks the payment paid and moves the due date: from the old due date while it is not expired, else from today */
@@ -242,10 +245,15 @@ class SubscriptionService {
       const now = new Date();
       const row = await OwnerSubscription.findByPk(fresh.ownerId, { lock: transaction.LOCK.UPDATE, transaction });
       const live = row && now <= new Date(new Date(row.dueAt).getTime() + s.grace_days * DAY);
+      // this payment covers from the old due date (or from today when the plan had lapsed)
       const start = live ? new Date(row.dueAt) : now;
       const end = addPeriod(start, fresh.plan);
+      // The "From" date the owner sees is when the running, unbroken subscription began: a monthly plan that is
+      // extended or upgraded to yearly keeps its first date, and only the due date moves forward.
+      // After a lapse it starts again from today.
+      const shownFrom = live ? new Date(row.periodStart) : now;
       if (row) {
-        await row.update({ plan: fresh.plan, periodStart: start, dueAt: end, lastPaidAt: now, remindedAt: null }, { transaction });
+        await row.update({ plan: fresh.plan, periodStart: shownFrom, dueAt: end, lastPaidAt: now, remindedAt: null }, { transaction });
       } else {
         await OwnerSubscription.create({ ownerId: fresh.ownerId, plan: fresh.plan, startedAt: now, periodStart: start, dueAt: end, lastPaidAt: now }, { transaction });
       }
