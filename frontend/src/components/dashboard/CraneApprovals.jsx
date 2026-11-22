@@ -266,14 +266,14 @@ export const CraneApprovals = ({ onReviewed }) => {
             style={{
               ...cardStyle,
               width: 'min(720px, 94vw)',
-              maxHeight: '90vh',
+              maxHeight: '92dvh',
               overflowY: 'auto',
-              padding: '24px',
+              padding: '20px',
               color: 'var(--dash-text-body)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <h3 style={{ margin: 0, color: 'var(--dash-text-title)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px 12px', flexWrap: 'wrap', marginBottom: '16px' }}>
+              <h3 style={{ margin: 0, color: 'var(--dash-text-title)', minWidth: 0, overflowWrap: 'anywhere' }}>
                 {selected.crane_code} · {selected.model_name || selected.crane_type_name}
               </h3>
               <StatusBadge status={selected.approval_status} label={selected.approval_label} />
@@ -327,7 +327,7 @@ export const CraneApprovals = ({ onReviewed }) => {
             {selected.documents.map((doc) => (
               <div
                 key={doc.id}
-                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: '1px solid var(--dash-border-subtle)' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px 10px', flexWrap: 'wrap', padding: '8px 0', borderBottom: '1px solid var(--dash-border-subtle)' }}
               >
                 <FileText size={16} />
                 <span>{doc.document_type_name}</span>
@@ -372,7 +372,7 @@ export const CraneApprovals = ({ onReviewed }) => {
 
             {error && <p style={{ color: '#ef4444', marginTop: '12px' }}>{error}</p>}
 
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'flex-end', marginTop: '20px' }}>
               {rejecting ? (
                 <>
                   <button type="button" className="cranezo-btn-secondary" onClick={() => setRejecting(false)}>

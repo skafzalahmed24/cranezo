@@ -1588,6 +1588,7 @@
   width: 100%;
   max-width: 880px;
   max-height: 92vh;
+  max-height: 92dvh;
   overflow-y: auto;
   padding: 28px 32px 28px;
   box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04);
@@ -2140,6 +2141,24 @@
   justify-content: flex-end;
   gap: 12px;
   margin-top: 10px;
+}
+
+/* Popups on phones: less edge padding, two-column forms become one column */
+@media (max-width: 640px) {
+  .cranezo-modal-backdrop {
+    padding: 10px;
+  }
+  .cranezo-crane-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .cranezo-crane-form {
+    padding: 16px !important;
+    gap: 16px !important;
+  }
+  .cranezo-modal-footer-v2,
+  .cranezo-modal-actions {
+    flex-wrap: wrap;
+  }
 }
 
 /* Mobile & Tablet Responsiveness for Modal */

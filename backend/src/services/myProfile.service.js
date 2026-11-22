@@ -39,8 +39,17 @@ const includes = [
   { model: StaticDropdown, as: 'constitutionInfo', attributes: ['id', 'dropdownName'] },
   { model: StaticDropdown, as: 'natureOfBusinessInfo', attributes: ['id', 'dropdownName'] },
   { model: StaticDropdown, as: 'stateInfo', attributes: ['id', 'dropdownName'] },
+  { model: StaticDropdown, as: 'ownerTypeInfo', attributes: ['id', 'dropdownName'] },
+  { model: StaticDropdown, as: 'partnersInfo', attributes: ['id', 'dropdownName'] },
+  { model: StaticDropdown, as: 'ownershipTypeInfo', attributes: ['id', 'dropdownName'] },
   { model: User, as: 'ownerAccount', attributes: ['id', 'memberId', 'fullName', 'companyName'] }
 ];
+
+const OWNER_KEYS = [
+  'company_name', 'owner_type', 'years_of_experience', 'number_of_business_partners', 'business_ownership_type',
+  'business_category', 'company_date_establishment', 'state', 'city', 'pincode', 'business_address'
+];
+const isFilled = (v) => v !== undefined && v !== null && String(v).trim() !== '';
 
 const pick = (info) => (info ? { id: info.id, name: info.dropdownName } : null);
 const has = (body, keys) => keys.some((k) => body[k] !== undefined);
@@ -86,9 +95,14 @@ class MyProfileService {
     if (u.roleId === ROLE_CUSTOMER) profile.customer = this.customerBlock(u);
     if (u.roleId === ROLE_OPERATOR) profile.operator = await this.operatorBlock(u);
     if (u.roleId === ROLE_OWNER) {
-      // Basic info only for now; more owner sections will be added later
       profile.owner = {
         company_name: u.companyName,
+        owner_type: pick(u.ownerTypeInfo),
+        years_of_experience: pick(u.experienceInfo),
+        partners: pick(u.partnersInfo),
+        ownership_type: pick(u.ownershipTypeInfo),
+        business_category: u.businessCategory,
+        company_date_establishment: u.companyDateEstablishment,
         business_address: u.businessAddress,
         city: u.city,
         state: u.state,
@@ -96,7 +110,48 @@ class MyProfileService {
       };
     }
 
+    profile.profile_completion = this.completion(u);
     return profile;
+  }
+
+  /**
+   * How much of the profile is filled, for every role: { percent, filled, total, missing: [labels] }.
+   * The fields are the ones asked at registration plus the photo and email.
+   */
+  completion(u) {
+    const common = [
+      ['Full name', u.fullName], ['Email', u.userEmail], ['Profile photo', u.profileImage]
+    ];
+    let fields;
+    if (u.roleId === ROLE_OWNER) {
+      fields = [
+        ...common,
+        ['Company name', u.companyName], ['Owner type', u.ownerType], ['Years of experience', u.yearsOfExperience],
+        ['Number of partners', u.numberOfBusinessPartners], ['Ownership type', u.businessOwnershipType],
+        ['Business category', u.businessCategory], ['Established on', u.companyDateEstablishment],
+        ['Business address', u.businessAddress], ['City', u.city], ['State', u.state], ['Pincode', u.pincode]
+      ];
+    } else if (u.roleId === ROLE_OPERATOR) {
+      fields = [
+        ...common,
+        ['License number', u.operatorLicenseNumber], ['License expiry', u.licenseExpiryDate],
+        ['Years of experience', u.yearsOfExperience], ['Operator type', u.operatorType],
+        ['License (front)', u.operatorLicenseFront], ['License (back)', u.operatorLicenseBack], ['Voter ID', u.voterIdFile]
+      ];
+    } else {
+      const business = !!u.customerTypeInfo && u.customerTypeInfo.dropdownName === 'Business User';
+      fields = business
+        ? [
+          ...common,
+          ['Company name', u.companyName], ['Company address', u.businessAddress], ['Constitution', u.constitution],
+          ['Established on', u.companyDateEstablishment], ['GST number', u.gstNumber], ['Nature of business', u.natureOfBusiness]
+        ]
+        : [...common, ['Aadhar number', u.aadharNumber], ['PAN number', u.panNumber], ['City', u.city], ['State', u.stateId || u.state]];
+    }
+    const missing = fields.filter(([, v]) => !isFilled(v)).map(([label]) => label);
+    const total = fields.length;
+    const filled = total - missing.length;
+    return { percent: Math.round((filled / total) * 100), filled, total, missing };
   }
 
   customerBlock(u) {
@@ -229,6 +284,7 @@ class MyProfileService {
     try {
       if (user.roleId === ROLE_CUSTOMER && has(body, CUSTOMER_KEYS)) await this.applyCustomerEdit(user, body);
       if (user.roleId === ROLE_OPERATOR && has(body, OPERATOR_KEYS)) await this.applyOperatorEdit(user, body);
+      if (user.roleId === ROLE_OWNER && has(body, OWNER_KEYS)) this.applyOwnerEdit(user, body);
     } catch (error) {
       // validation errors from the shared profile rules are user facing
       throw error instanceof ProfileError ? error : new ProfileError(error.message);
@@ -236,6 +292,35 @@ class MyProfileService {
 
     await user.save();
     return this.getMe(userId);
+  }
+
+  /** Owner details from Personal Info: the same fields the owner gave at registration */
+  applyOwnerEdit(user, body) {
+    const text = (v) => (isFilled(v) ? String(v).trim() : null);
+    const id = (v) => (isFilled(v) ? parseInt(v, 10) : null);
+    if (body.company_name !== undefined) {
+      const name = text(body.company_name);
+      if (!name) throw new ProfileError('company_name cannot be empty.');
+      user.companyName = name;
+    }
+    if (body.owner_type !== undefined) user.ownerType = id(body.owner_type);
+    if (body.years_of_experience !== undefined) user.yearsOfExperience = id(body.years_of_experience);
+    if (body.number_of_business_partners !== undefined) user.numberOfBusinessPartners = id(body.number_of_business_partners);
+    if (body.business_ownership_type !== undefined) user.businessOwnershipType = id(body.business_ownership_type);
+    if (body.business_category !== undefined) user.businessCategory = text(body.business_category);
+    if (body.company_date_establishment !== undefined) {
+      const date = text(body.company_date_establishment);
+      if (date && date > todayIso()) throw new ProfileError('company_date_establishment cannot be in the future.');
+      user.companyDateEstablishment = date;
+    }
+    if (body.state !== undefined) user.state = text(body.state);
+    if (body.city !== undefined) user.city = text(body.city);
+    if (body.pincode !== undefined) {
+      const pin = text(body.pincode);
+      if (pin && !/^\d{6}$/.test(pin)) throw new ProfileError('pincode must be 6 digits.');
+      user.pincode = pin;
+    }
+    if (body.business_address !== undefined) user.businessAddress = text(body.business_address);
   }
 
   async applyCustomerEdit(user, body) {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { apiRequest } from '../../utils/api';
 import {
   Menu,
@@ -232,9 +233,10 @@ export const Header = ({
           )}
         </div>
       </div>
-      {pw && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', zIndex: 200, display: 'grid', placeItems: 'center', padding: 16 }} onClick={() => setPw(null)}>
-          <div className="cranezo-card" style={{ width: 'min(420px, 100%)', padding: 22 }} onClick={(e) => e.stopPropagation()}>
+      {/* in the page body (not inside the sticky header) so the sidebar and cards can never cover it */}
+      {pw && createPortal(
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', zIndex: 9999, display: 'grid', placeItems: 'center', padding: 16, overflowY: 'auto' }} onClick={() => setPw(null)}>
+          <div className="cranezo-card" style={{ width: 'min(420px, 100%)', maxHeight: '92dvh', overflowY: 'auto', padding: 22 }} onClick={(e) => e.stopPropagation()}>
             <h3 className="cranezo-card-title" style={{ margin: '0 0 6px' }}>Change password</h3>
             <p style={{ margin: '0 0 14px', fontSize: 13, color: 'var(--dash-text-muted)' }}>At least 8 characters, with letters and numbers.</p>
             {pw.error && <div style={{ color: '#ef4444', fontSize: 13, marginBottom: 10 }}>{pw.error}</div>}
@@ -251,12 +253,13 @@ export const Header = ({
                 />
               </label>
             ))}
-            <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
+            <div style={{ display: 'flex', gap: 10, marginTop: 6, flexWrap: 'wrap' }}>
               <button type="button" className="cranezo-btn-primary-amber" disabled={pw.busy || !pw.current || !pw.next} onClick={savePassword}>{pw.busy ? 'Saving…' : 'Save password'}</button>
               <button type="button" className="cranezo-btn-secondary" onClick={() => setPw(null)}>Close</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );

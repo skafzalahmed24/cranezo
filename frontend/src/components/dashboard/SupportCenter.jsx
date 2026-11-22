@@ -73,8 +73,17 @@ const TicketDetail = ({ ticketId, onClose, onChanged }) => {
   }, [load]);
 
   useEffect(() => {
-    if (bottom.current) bottom.current.scrollIntoView({ behavior: 'smooth' });
+    if (bottom.current) bottom.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [ticket && ticket.messages.length]);
+
+  // phones: one column (chat, then the details), the whole panel scrolls
+  const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 760px)').matches);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 760px)');
+    const on = (e) => setNarrow(e.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
 
   const send = async () => {
     if (!reply.trim()) return;
@@ -112,7 +121,7 @@ const TicketDetail = ({ ticketId, onClose, onChanged }) => {
       onClick={(e) => e.target === e.currentTarget && onClose()}
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
-      <div style={{ ...card, width: 'min(860px, 96vw)', height: 'min(86vh, 760px)', display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ ...card, width: 'min(860px, 96vw)', height: narrow ? '94dvh' : 'min(86vh, 760px)', maxHeight: '94vh', display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--dash-border-subtle)', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <strong style={{ color: 'var(--dash-text-title)' }}>{ticket ? ticket.ticket_code : '...'}</strong>
           {ticket && <Badge status={ticket.status} text={ticket.status_label} />}
@@ -127,48 +136,88 @@ const TicketDetail = ({ ticketId, onClose, onChanged }) => {
         </div>
 
         {ticket && (
-          <div style={{ display: 'flex', flex: 1, minHeight: 0, flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 480px', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-              <div style={{ padding: '10px 18px', color: 'var(--dash-text-body)', fontSize: '13px' }}>
-                <strong>{ticket.category_label}:</strong> {ticket.subject}
+          <div style={{ display: 'flex', flex: 1, minHeight: 0, flexDirection: narrow ? 'column' : 'row', overflowY: narrow ? 'auto' : 'visible' }}>
+            <div style={narrow
+              ? { flex: '0 0 auto', height: '68dvh', display: 'flex', flexDirection: 'column', minHeight: 0 }
+              : { flex: '1 1 0', minWidth: 0, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+              <div style={{ padding: '10px 18px' }}>
+                <span style={{ display: 'inline-block', padding: '5px 12px', borderRadius: '999px', background: 'var(--dash-input-bg)', border: '1px solid var(--dash-border-subtle)', color: 'var(--dash-text-body)', fontSize: '12.5px' }}>
+                  <strong>{ticket.category_label}:</strong> {ticket.subject}
+                </span>
               </div>
-              <div style={{ flex: 1, overflowY: 'auto', padding: '8px 18px' }}>
-                {ticket.messages.map((m) => {
+              <div style={{ flex: 1, overflowY: 'auto', padding: '8px 18px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {ticket.messages.map((m, i) => {
                   const mine = m.sender_type === 'admin';
                   const system = m.sender_type === 'system';
-                  return (
-                    <div key={m.id} style={{ display: 'flex', justifyContent: system ? 'center' : mine ? 'flex-end' : 'flex-start', margin: '8px 0' }}>
-                      <div
-                        style={{
-                          maxWidth: '78%',
-                          padding: '9px 12px',
-                          borderRadius: '10px',
-                          fontSize: '13px',
-                          background: system ? 'transparent' : mine ? 'rgba(245,158,11,0.18)' : 'var(--dash-input-bg)',
-                          border: system ? 'none' : '1px solid var(--dash-border-subtle)',
-                          color: system ? 'var(--dash-text-subtle)' : 'var(--dash-text-body)',
-                          fontStyle: system ? 'italic' : 'normal',
-                        }}
-                      >
-                        {!system && <div style={{ fontSize: '11px', color: 'var(--dash-text-subtle)', marginBottom: '3px' }}>{m.sender_label} · {when(m.created_at)}</div>}
-                        <div style={{ whiteSpace: 'pre-wrap' }}>{m.body}</div>
-                        {m.attachments.map((url) => (
-                          <a key={url} href={fileUrl(url)} target="_blank" rel="noreferrer" style={{ display: 'block', color: '#f59e0b', fontSize: '12px', marginTop: '4px' }}>
-                            Attachment
-                          </a>
-                        ))}
-                      </div>
+                  // a date pill when the day changes
+                  const day = (m.created_at || '').slice(0, 10);
+                  const newDay = i === 0 || day !== (ticket.messages[i - 1].created_at || '').slice(0, 10);
+                  const dayPill = newDay && (
+                    <div style={{ alignSelf: 'center', fontSize: '11px', color: 'var(--dash-text-subtle)', background: 'var(--dash-input-bg)', borderRadius: '999px', padding: '3px 12px', margin: '4px 0' }}>
+                      {new Date(m.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </div>
+                  );
+                  if (system) {
+                    return (
+                      <React.Fragment key={m.id}>
+                        {dayPill}
+                        <div style={{ alignSelf: 'center', maxWidth: '90%', textAlign: 'center', fontSize: '12px', color: 'var(--dash-text-subtle)', background: 'var(--dash-input-bg)', borderRadius: '999px', padding: '5px 14px' }}>
+                          {m.body}
+                        </div>
+                      </React.Fragment>
+                    );
+                  }
+                  const initial = (m.sender_label || '?').trim().charAt(0).toUpperCase();
+                  return (
+                    <React.Fragment key={m.id}>
+                      {dayPill}
+                      <div style={{ display: 'flex', flexDirection: mine ? 'row-reverse' : 'row', alignItems: 'flex-end', gap: '8px' }}>
+                        <div style={{ flex: '0 0 30px', width: 30, height: 30, borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: '12px', fontWeight: 700, background: mine ? 'rgba(245,158,11,0.22)' : 'rgba(148,163,184,0.2)', color: mine ? '#f59e0b' : 'var(--dash-text-body)' }}>
+                          {initial}
+                        </div>
+                        <div
+                          style={{
+                            maxWidth: narrow ? '80%' : '70%',
+                            overflowWrap: 'anywhere',
+                            padding: '10px 14px',
+                            fontSize: '13.5px',
+                            lineHeight: 1.45,
+                            borderRadius: mine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                            background: mine ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'var(--dash-input-bg)',
+                            border: mine ? 'none' : '1px solid var(--dash-border-subtle)',
+                            color: mine ? '#1a1205' : 'var(--dash-text-body)',
+                            boxShadow: mine ? '0 2px 8px rgba(245,158,11,0.25)' : 'none',
+                          }}
+                        >
+                          {!mine && <div style={{ fontSize: '11px', fontWeight: 700, color: '#f59e0b', marginBottom: '2px' }}>{m.sender_label}</div>}
+                          <div style={{ whiteSpace: 'pre-wrap' }}>{m.body}</div>
+                          {m.attachments.map((url) => (
+                            /\.(png|jpe?g|gif|webp)$/i.test(url) ? (
+                              <a key={url} href={fileUrl(url)} target="_blank" rel="noreferrer">
+                                <img src={fileUrl(url)} alt="Attachment" style={{ display: 'block', maxWidth: '100%', maxHeight: 180, borderRadius: 12, marginTop: 6, objectFit: 'cover' }} />
+                              </a>
+                            ) : (
+                              <a key={url} href={fileUrl(url)} target="_blank" rel="noreferrer" style={{ display: 'block', color: mine ? '#1a1205' : '#f59e0b', textDecoration: 'underline', fontSize: '12px', marginTop: '4px' }}>
+                                Attachment
+                              </a>
+                            )
+                          ))}
+                          <div style={{ fontSize: '10.5px', textAlign: 'right', marginTop: '3px', opacity: 0.65 }}>
+                            {new Date(m.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </div>
+                      </div>
+                    </React.Fragment>
                   );
                 })}
                 <div ref={bottom} />
               </div>
               <div style={{ padding: '10px 18px 14px', borderTop: '1px solid var(--dash-border-subtle)' }}>
                 {error && <div style={{ color: '#ef4444', fontSize: '12px', marginBottom: '6px' }}>{error}</div>}
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
                   <textarea
                     rows={2}
-                    style={{ ...input, resize: 'none' }}
+                    style={{ ...input, resize: 'none', borderRadius: '18px', padding: '10px 14px' }}
                     placeholder={ticket.status === 3 ? 'This request is closed. Reopen it to reply.' : 'Write a reply to the user...'}
                     value={reply}
                     disabled={ticket.status === 3}
@@ -182,7 +231,12 @@ const TicketDetail = ({ ticketId, onClose, onChanged }) => {
               </div>
             </div>
 
-            <div style={{ flex: '0 0 250px', borderLeft: '1px solid var(--dash-border-subtle)', padding: '14px 16px', overflowY: 'auto', fontSize: '13px', color: 'var(--dash-text-body)' }}>
+            <div style={{
+              flex: narrow ? '0 0 auto' : '0 0 250px',
+              borderLeft: narrow ? 'none' : '1px solid var(--dash-border-subtle)',
+              borderTop: narrow ? '1px solid var(--dash-border-subtle)' : 'none',
+              padding: '14px 16px', overflowY: narrow ? 'visible' : 'auto', fontSize: '13px', color: 'var(--dash-text-body)',
+            }}>
               <div style={label}>User</div>
               <div><strong>{ticket.user.full_name || ticket.user.company_name || ticket.user.member_id}</strong></div>
               <div style={{ color: 'var(--dash-text-muted)' }}>{ticket.user.role_name} · {ticket.user.member_id}</div>

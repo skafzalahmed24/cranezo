@@ -69,7 +69,7 @@ export const AddCraneModal = ({ isOpen, onClose, onCraneAdded }) => {
         style={{
           width: '100%',
           maxWidth: '820px',
-          maxHeight: '90vh',
+          maxHeight: '92dvh',
           backgroundColor: '#080f20',
           border: '1px solid #142037',
           borderRadius: '16px',
@@ -120,13 +120,14 @@ export const AddCraneModal = ({ isOpen, onClose, onCraneAdded }) => {
         {/* Scrollable Form Body */}
         <form
           onSubmit={handleSubmit}
+          className="cranezo-crane-grid cranezo-crane-form"
           style={{
             padding: '24px',
             overflowY: 'auto',
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: '20px',
-            maxHeight: 'calc(90vh - 150px)',
+            maxHeight: 'calc(90dvh - 150px)',
           }}
         >
           {/* Left Column */}
@@ -165,7 +166,7 @@ export const AddCraneModal = ({ isOpen, onClose, onCraneAdded }) => {
                 </span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div className="cranezo-crane-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '11.5px', color: '#94a3b8', marginBottom: '6px' }}>
                     Crane Type <span style={{ color: '#ef4444' }}>*</span>
@@ -695,7 +696,7 @@ export const AddCraneModal = ({ isOpen, onClose, onCraneAdded }) => {
                 </span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div className="cranezo-crane-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '11.5px', color: '#94a3b8', marginBottom: '6px' }}>
                     Hourly Rate (₹) <span style={{ color: '#ef4444' }}>*</span>
@@ -787,7 +788,7 @@ export const AddCraneModal = ({ isOpen, onClose, onCraneAdded }) => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div className="cranezo-crane-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <button
                   type="button"
                   onClick={() => setAvailabilityStatus('Available')}
