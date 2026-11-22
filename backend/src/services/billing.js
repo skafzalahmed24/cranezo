@@ -90,6 +90,12 @@ const RULE_LIMITS = {
  */
 const arrivalCheckRequired = () => ['true', '1', 'yes', 'on'].includes(String(process.env.ARRIVAL_CHECK_REQUIRED || 'false').trim().toLowerCase());
 
+/**
+ * TESTING_RIDE_STATUS in .env (default false). true: while testing, the operator's "I have reached" button is always shown on the
+ * On the way screen and works without being near the site. false: the regular flow (within 50 m of the site).
+ */
+const testingRideStatus = () => ['true', '1', 'yes', 'on'].includes(String(process.env.TESTING_RIDE_STATUS || 'false').trim().toLowerCase());
+
 let rulesCache = null;
 async function bookingRules() {
   if (rulesCache && Date.now() - rulesCache.at < FEE_CACHE_MS) return rulesCache.value;
@@ -390,6 +396,7 @@ module.exports = {
   DEFAULT_RULES,
   bookingRules,
   arrivalCheckRequired,
+  testingRideStatus,
   setBookingRules,
   minHourlyFor,
   listMinimums,

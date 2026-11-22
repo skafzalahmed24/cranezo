@@ -210,6 +210,8 @@ class JobService {
       stage,
       stage_label: STAGE_LABELS[stage],
       next_action: nextAction(b, site.length),
+      // TESTING_RIDE_STATUS=true in .env: the app shows the "I have reached" test button on the On the way screen
+      testing_ride: billing.testingRideStatus(),
       operator_status: b.operatorStatus,
       requested_crane: {
         title: [capName, typeName].filter(Boolean).join(' '),
@@ -629,8 +631,8 @@ class JobService {
     if (b.arrivedAt) throw new ServiceError('You have already marked your arrival.', 409);
 
     const rules = await billing.bookingRules();
-    if (!billing.arrivalCheckRequired()) {
-      // ARRIVAL_CHECK_REQUIRED=false: no location check, the operator can mark arrival at any time
+    if (!billing.arrivalCheckRequired() || billing.testingRideStatus()) {
+      // ARRIVAL_CHECK_REQUIRED=false (or TESTING_RIDE_STATUS=true): no location check, the operator can mark arrival at any time
       await b.update({ arrivedAt: new Date() });
       await notificationService.notify(b.customerId, {
         type: NOTIFICATION_TYPES.OPERATOR_ARRIVED,
