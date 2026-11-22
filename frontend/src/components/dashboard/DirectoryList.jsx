@@ -61,6 +61,23 @@ const MobileBadge = ({ member }) => (
 
 const APPROVAL_CLASS = { 0: 'pending', 1: 'active', 2: 'blocked' };
 
+/** An owner's subscription in the owners list: the state, the plan and when it is due */
+const SUB_LABEL = { trial: 'Free trial', active: 'Active', grace: 'Overdue', expired: 'Expired', none: 'No plan' };
+const SUB_CLASS = { trial: 'active', active: 'active', grace: 'pending', expired: 'blocked', none: 'pending' };
+const SubscriptionCell = ({ member }) => {
+  const s = member.subscription || { state: 'none' };
+  return (
+    <div>
+      <span className={`cranezo-status-badge ${SUB_CLASS[s.state] || 'pending'}`}>{SUB_LABEL[s.state] || s.state}</span>
+      {s.plan_label && (
+        <div style={{ fontSize: '11px', color: 'var(--dash-text-subtle)', marginTop: 3 }}>
+          {s.plan_label}{s.due_at ? ` · due ${new Date(s.due_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}` : ''}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const memberCards = (noun) => (s) => [
   { label: `Total ${noun}`, value: s.total, icon: Users, boxClass: '' },
   { label: `Active ${noun}`, value: s.active, icon: UserCheck, boxClass: 'green' },
@@ -112,6 +129,7 @@ const KINDS = {
       { header: 'LOCATION', render: (m) => dash(m.location) },
       { header: 'CRANES', align: 'center', render: (m) => `${m.cranes_verified} / ${m.cranes_total}` },
       { header: 'BOOKINGS', align: 'center', render: (m) => m.bookings },
+      { header: 'SUBSCRIPTION', render: (m) => <SubscriptionCell member={m} /> },
       { header: 'MOBILE', render: (m) => <MobileBadge member={m} /> },
       { header: 'STATUS', render: (m) => <MemberStatus member={m} /> },
     ],

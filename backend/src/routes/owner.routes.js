@@ -3,10 +3,11 @@ const router = express.Router();
 const { successResponse } = require('../utils/apiResponse');
 const craneController = require('../controllers/crane.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
-const { authorize, ownerOrNewSignup } = require('../middlewares/role.middleware');
+const { authorize, ownerOrNewSignup, ownerSubscriptionGate } = require('../middlewares/role.middleware');
 const { ROLES } = require('../constants/roles');
 
-const ownerOnly = [authenticate, authorize(ROLES.CRANE_OWNER)];
+// owners only, and an owner whose subscription has expired can do nothing here until it is renewed
+const ownerOnly = [authenticate, authorize(ROLES.CRANE_OWNER), ownerSubscriptionGate];
 const bookingController = require('../controllers/booking.controller');
 
 // Incoming crane requests (the buzzer opens these). All POST with a JSON payload.

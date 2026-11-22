@@ -12,9 +12,11 @@ const { parseRange } = require('../utils/range');
  *   - the first month is a free trial (days are a Super Admin setting)
  *   - then a monthly or a yearly plan, paid online with Razorpay; the online payment fee (the same % as for
  *     bookings) is added to the price the owner pays
- *   - paying extends the due date from the old due date (not from the day of payment), so nobody loses or gains days;
- *     a payment after the grace period starts a new period from today
- *   - after the due date there are a few grace days; then the owner stops receiving and accepting requests
+ *   - ONE subscription at a time: while the free trial or a plan is running it cannot be bought again or changed;
+ *     a new plan can be bought only after the due date. The free trial is one time only, for an owner who has never had a plan.
+ *   - a payment in the grace days continues from the old due date (no days lost); after the grace days a new period starts today
+ *   - after the due date there are a few grace days (an admin setting, 0 = none); then the owner is locked out of every action
+ *     except renewing, and the cranes are hidden from customers until the plan is renewed
  */
 const DAY = 24 * 60 * 60 * 1000;
 const KEY = 'subscription_plans';
@@ -139,9 +141,12 @@ class SubscriptionService {
     let row = await this.rowOf(ownerId);
     if (!row && autoTrial) row = await this.createTrial(ownerId, s).catch(() => this.rowOf(ownerId));
     const st = stateOf(row, s);
-    if (!row) return { state: 'none', allowed: true, level: 'ok', message: null, plan: null, offer: await this.offer() };
+    if (!row) return { state: 'none', allowed: true, can_buy: true, can_start_trial: true, level: 'ok', message: null, plan: null, offer: await this.offer() };
     return {
       ...st,
+      // a plan can be bought only when none is running (after the due date); the free trial is only for an owner who has never had a plan
+      can_buy: st.state === 'grace' || st.state === 'expired',
+      can_start_trial: false,
       plan: row.plan,
       plan_label: PLAN_LABELS[row.plan],
       started_at: iso(row.startedAt),
@@ -171,6 +176,16 @@ class SubscriptionService {
   async order(ownerId, input = {}) {
     const plan = String(input.plan || '');
     if (!['monthly', 'yearly'].includes(plan)) throw new ServiceError('plan must be monthly or yearly.');
+    // One subscription at a time: while a plan (or the free trial) is running, it cannot be bought again or changed.
+    // A new plan can be bought only after the due date has passed (in the grace days, or after expiry).
+    const running = await this.rowOf(ownerId);
+    if (running) {
+      const st = stateOf(running, await plans());
+      if (st.state === 'trial' || st.state === 'active') {
+        const until = new Date(running.dueAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        throw new ServiceError(`Your ${PLAN_LABELS[running.plan].toLowerCase()} plan is active until ${until}. You can renew after it ends.`, 409);
+      }
+    }
     const q = await quote(plan);
     if (!(q.price > 0)) throw new ServiceError('This plan is not available yet.', 409);
     const payment = await SubscriptionPayment.create({
@@ -281,6 +296,58 @@ class SubscriptionService {
   async assertActive(ownerId) {
     const blocked = await this.blockedOwnerIds([ownerId]);
     if (blocked.has(ownerId)) throw new ServiceError('Your subscription has expired. Renew it to accept booking requests.', 409);
+  }
+
+  /** Owners whose due date plus the grace days is before this moment are expired (used in SQL by the crane search) */
+  async expiryCutoff() {
+    const s = await plans();
+    return new Date(Date.now() - s.grace_days * DAY);
+  }
+
+  /** Admin: a short subscription status for several owners at once (the owners list): Map(ownerId -> status) */
+  async briefFor(ownerIds) {
+    const result = new Map();
+    if (!ownerIds.length) return result;
+    const s = await plans();
+    const rows = await OwnerSubscription.findAll({ where: { ownerId: ownerIds } });
+    rows.forEach((r) => {
+      const st = stateOf(r, s);
+      result.set(r.ownerId, {
+        state: st.state,
+        level: st.level,
+        plan: r.plan,
+        plan_label: PLAN_LABELS[r.plan],
+        from_date: iso(r.periodStart),
+        due_at: iso(r.dueAt),
+        days_left: st.days_left,
+        grace_ends_at: st.grace_ends_at,
+        started_at: iso(r.startedAt),
+        last_paid_at: iso(r.lastPaidAt)
+      });
+    });
+    return result;
+  }
+
+  /** Admin: one owner's subscription with the payment history (the owner details page) */
+  async detailFor(ownerId) {
+    const brief = (await this.briefFor([ownerId])).get(ownerId) || { state: 'none', level: 'ok', plan: null, plan_label: null };
+    const payments = await SubscriptionPayment.findAll({ where: { ownerId }, order: [['createdAt', 'DESC']], limit: 20 });
+    return {
+      ...brief,
+      // the lock the owner is under right now: no actions and the cranes hidden from customers
+      locked: brief.state === 'expired',
+      payments: payments.map((p) => ({
+        id: p.id,
+        code: p.paymentCode,
+        plan_label: PLAN_LABELS[p.plan] || p.plan,
+        total: Number(p.totalAmount),
+        status: p.status,
+        period_start: iso(p.periodStart),
+        period_end: iso(p.periodEnd),
+        paid_at: p.status === 'success' ? iso(p.updatedAt) : null,
+        created_at: iso(p.createdAt)
+      }))
+    };
   }
 
   /** Admin: every owner with the plan, from date, due date and state */

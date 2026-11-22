@@ -354,6 +354,38 @@ export const MemberDetails = ({ userId, onBack, onSelectCrane }) => {
                     { label: 'Total Bookings', value: stats.total_bookings || 0, icon: Calendar },
                     { label: 'Total Earnings', value: inr(stats.total_earnings), icon: Wallet },
                   ]} />
+                  {m.subscription && (
+                    <Section
+                      title="Subscription"
+                      icon={Wallet}
+                      right={
+                        <span className={`cranezo-status-badge ${{ trial: 'active', active: 'active', grace: 'pending', expired: 'blocked', none: 'pending' }[m.subscription.state] || 'pending'}`}>
+                          {{ trial: 'Free trial', active: 'Active', grace: 'Overdue', expired: 'Expired', none: 'No plan' }[m.subscription.state] || m.subscription.state}
+                        </span>
+                      }
+                    >
+                      <InfoRows items={[
+                        ['Plan', m.subscription.plan_label || 'None'],
+                        ['From', date(m.subscription.from_date)],
+                        ['Due date', date(m.subscription.due_at)],
+                        ['Days left', m.subscription.state === 'none' ? '-' : (m.subscription.days_left < 0 ? 'Overdue' : m.subscription.days_left)],
+                        ['Last payment', date(m.subscription.last_paid_at)],
+                        ['Owner access', m.subscription.locked ? 'Locked: cannot act, cranes hidden from customers' : 'Open'],
+                      ]} />
+                      <div style={{ fontSize: 12, color: 'var(--dash-text-subtle)', margin: '14px 0 6px' }}>Payments</div>
+                      <MiniTable
+                        headers={['Code', 'Plan', 'Amount', 'Period', 'Status']}
+                        rows={m.subscription.payments.map((p) => [
+                          p.code,
+                          p.plan_label,
+                          inr(p.total),
+                          p.period_start ? `${date(p.period_start)} - ${date(p.period_end)}` : '-',
+                          <span key="s" className={`cranezo-status-badge ${p.status === 'success' ? 'active' : p.status === 'failed' ? 'blocked' : 'pending'}`}>{p.status === 'success' ? 'Paid' : p.status === 'failed' ? 'Failed' : 'Not paid'}</span>,
+                        ])}
+                        empty="No subscription payments yet."
+                      />
+                    </Section>
+                  )}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
                     <Section title="Business Information" icon={Briefcase}>
                       <InfoRows items={[['Company', m.company_name], ['Contact Person', m.full_name], ['Email', m.user_email], ['Phone', m.contact], ['Address', [m.business_address, m.city, m.pincode].filter(Boolean).join(', ')], ['Experience', m.years_of_experience], ['Partners', m.number_of_business_partners], ['Category', m.business_category]]} />

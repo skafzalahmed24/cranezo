@@ -141,9 +141,13 @@ class MemberService {
     const ids = rows.map((u) => u.id);
     const craneStats = await this.craneStatsFor(roleId, ids);
 
+    // owners: their subscription (plan, due date, state) shows in the list
+    const subs = roleId === 1 ? await require('./subscription.service').subscriptionService.briefFor(ids) : new Map();
+
     const items = rows.map((u) => {
       const item = baseMember(u);
       if (roleId === 1) {
+        item.subscription = subs.get(u.id) || { state: 'none', level: 'ok', plan: null, plan_label: null };
         const s = craneStats.get(u.id) || { total: 0, verified: 0 };
         item.cranes_total = s.total;
         item.cranes_verified = s.verified;
@@ -234,6 +238,7 @@ class MemberService {
         include: craneInclude,
         order: [['createdAt', 'DESC']]
       });
+      profile.subscription = await require('./subscription.service').subscriptionService.detailFor(user.id);
       profile.cranes = cranes.map(craneSummary);
       profile.cranes_total = cranes.length;
       profile.cranes_verified = cranes.filter((c) => c.approvalStatus === 1).length;

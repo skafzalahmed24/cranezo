@@ -362,6 +362,9 @@ const bookableCheck = async (crane, { latitude, longitude, startAt, endAt, custo
   if (!crane.owner || crane.owner.isDeleted === 1 || crane.owner.isActive === 1) {
     return { ok: false, reason: 'This crane is not available for booking.' };
   }
+  // the owner's subscription has expired: the crane cannot be booked until it is renewed
+  const expiredOwners = await require('./subscription.service').subscriptionService.blockedOwnerIds([crane.ownerId]);
+  if (expiredOwners.has(crane.ownerId)) return { ok: false, reason: 'This crane is not available for booking.' };
   if (customerId) {
     const { samePerson } = require('../utils/person');
     if (await samePerson(crane.ownerId, customerId)) return { ok: false, reason: 'You cannot book your own crane.' };
@@ -461,7 +464,10 @@ class BookingService {
 
     const latDelta = radius / 111;
     const lngDelta = radius / (111 * Math.max(Math.cos((req.latitude * Math.PI) / 180), 0.01));
+    // cranes of owners whose subscription has expired are not shown to customers
+    const subCutoff = await require('./subscription.service').subscriptionService.expiryCutoff();
     const replacements = {
+      subCutoff,
       lat: req.latitude,
       lng: req.longitude,
       minLat: req.latitude - latDelta,
@@ -492,6 +498,7 @@ class BookingService {
         AND c.latitude IS NOT NULL AND c.longitude IS NOT NULL
         AND c.latitude BETWEEN :minLat AND :maxLat AND c.longitude BETWEEN :minLng AND :maxLng
         AND o.is_deleted = 0 AND o.is_active = 0 AND c.owner_id <> :customerId
+        AND NOT EXISTS (SELECT 1 FROM owner_subscriptions os WHERE os.owner_id = c.owner_id AND os.due_at < :subCutoff)
         AND NOT EXISTS (
           SELECT 1 FROM bookings b
           WHERE b.crane_id = c.id AND b.status IN (:blocking) AND b.start_at < :endAt AND b.end_at > :startAt)`;
