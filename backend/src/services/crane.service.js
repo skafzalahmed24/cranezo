@@ -13,7 +13,7 @@ const {
 } = require('../constants/roles');
 
 const OPERATOR_ROLE_ID = 2;
-const OPERATOR_ATTRS = ['id', 'memberId', 'fullName', 'mobileNumber', 'countryCode', 'userEmail', 'profileImage', 'ownerId', 'isMobileVerified', 'isOnline', 'monthlySalary'];
+const OPERATOR_ATTRS = ['id', 'memberId', 'fullName', 'mobileNumber', 'countryCode', 'userEmail', 'profileImage', 'ownerId', 'isMobileVerified', 'isOnline', 'monthlySalary', 'salaryType', 'dailyWage', 'batta'];
 
 class ServiceError extends Error {
   constructor(message, statusCode = 400) {
@@ -318,8 +318,13 @@ class CraneService {
       is_mobile_verified: o.isMobileVerified === 0,
       // the operator's Online / Offline button; an offline operator cannot be given a job
       is_online: o.isOnline === true,
+      // how the owner pays this operator: monthly, daily or per_job (the commission chosen with each job)
+      salary_type: o.salaryType || 'monthly',
       // the monthly wage the owner pays this operator (0 = paid per job)
-      monthly_salary: Number(o.monthlySalary || 0)
+      monthly_salary: Number(o.monthlySalary || 0),
+      daily_wage: Number(o.dailyWage || 0),
+      // the daily allowance (batta) on top, for site days
+      batta: Number(o.batta || 0)
     };
   }
 
@@ -360,13 +365,20 @@ class CraneService {
   async setOperatorSalary(ownerId, body = {}) {
     const operator = await User.findOne({ where: { id: String(body.operator_id || ''), roleId: OPERATOR_ROLE_ID, ownerId, isDeleted: 0 }, attributes: OPERATOR_ATTRS });
     if (!operator) throw new ServiceError('This operator is not in your team.', 404);
-    await operator.update({ monthlySalary: this.cleanSalary(body.monthly_salary) });
+    // the pay terms: monthly, daily or per job, with an optional daily allowance (batta)
+    const terms = require('./operatorTeam.service').cleanTerms(body);
+    await operator.update(terms);
     return this.formatOperator(operator);
   }
 
   async createOperator(ownerId, body) {
-    // an operator who registered on their own: the owner types the operator ID (like OP754197), the record is fetched and added to the team
+    // An operator who registered on their own is no longer added straight away: the owner sends a request (with the pay terms)
+    // and the operator accepts. See operatorTeam.service. The old direct-add code stays below, switched off.
     if (body.operator_id) {
+      return require('./operatorTeam.service').operatorTeamService.invite(ownerId, body);
+    }
+    // eslint-disable-next-line no-constant-condition
+    if (false && body.operator_id) {
       const memberId = String(body.operator_id).trim().toUpperCase();
       const found = await User.findOne({ where: { memberId, roleId: OPERATOR_ROLE_ID, isDeleted: 0 }, attributes: [...OPERATOR_ATTRS, 'isActive'] });
       if (!found) throw new ServiceError('No operator found with this operator ID.', 404);
@@ -396,7 +408,7 @@ class CraneService {
       roleId: OPERATOR_ROLE_ID,
       memberId: await generateUniqueMemberId(OPERATOR_ROLE_ID, User),
       ownerId,
-      monthlySalary: this.cleanSalary(body.monthly_salary),
+      ...require('./operatorTeam.service').cleanTerms(body),
       isMobileVerified: 1,
       isActive: 0,
       isDeleted: 0

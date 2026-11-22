@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Plus, Pencil, Check, X } from 'lucide-react';
 import { apiRequest, fileUrl } from '../../utils/api';
+import { ProtectedImage } from '../ProtectedFile';
 import ImageUpload from './ImageUpload';
 
 /**
@@ -175,7 +176,7 @@ export const SettingsDropdowns = () => {
                     {editingId === item.id ? (
                       <ImageUpload value={edit.image} onChange={(image) => setEdit({ ...edit, image })} width={90} height={60} label="Picture" />
                     ) : item.image ? (
-                      <img src={fileUrl(item.image)} alt="" style={{ width: 72, height: 48, objectFit: 'cover', borderRadius: 6 }} />
+                      <ProtectedImage src={item.image} alt="" style={{ width: 72, height: 48, objectFit: 'cover', borderRadius: 6 }} />
                     ) : (
                       <span style={{ color: 'var(--dash-text-subtle)', fontSize: 12 }}>none</span>
                     )}

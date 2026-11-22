@@ -102,6 +102,15 @@ async function applyOperatorProfile(user, input) {
  * or business user (company, constitution, GST, directors ...).
  */
 async function applyCustomerProfile(user, input) {
+  // New customers are all individual users (the app no longer asks for a user type): without one, it is "Individual User".
+  // An older business customer keeps the type they have.
+  if (isBlank(input.customer_type)) {
+    const individual = await StaticDropdown.findOne({
+      where: { dropdownType: DROPDOWN_TYPES.CUSTOMER_TYPE, dropdownName: 'Individual User', dropdownTypeStatus: 0 },
+      attributes: ['id']
+    });
+    if (individual) input = { ...input, customer_type: individual.id };
+  }
   requireFields(input, [['customer_type', 'customer_type']]);
   const customerType = await requireDropdown(input.customer_type, DROPDOWN_TYPES.CUSTOMER_TYPE, 'customer_type');
   user.customerType = customerType.id;

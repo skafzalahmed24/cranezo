@@ -31,6 +31,8 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static public assets (e.g. /public/roles/...). Never serve key / config files from here,
 // even if one is copied into the folder by mistake (e.g. a Firebase service account .json).
 app.use('/public', (req, res, next) => (/\.(json|env|pem|key)$/i.test(req.path) || /adminsdk/i.test(req.path) ? res.status(404).end() : next()));
+// Uploaded photos and documents are private: a copied link shows a security error; the apps send their login token
+app.use('/public/uploads', require('./middlewares/uploadAccess.middleware').requireSignedInForUploads);
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Separate Swagger docs: /api/docs/auth, /api/docs/admin, /api/docs/user (+ .json)

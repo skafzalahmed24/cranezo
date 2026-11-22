@@ -139,14 +139,8 @@ class MyProfileService {
         ['License (front)', u.operatorLicenseFront], ['License (back)', u.operatorLicenseBack], ['Voter ID', u.voterIdFile]
       ];
     } else {
-      const business = !!u.customerTypeInfo && u.customerTypeInfo.dropdownName === 'Business User';
-      fields = business
-        ? [
-          ...common,
-          ['Company name', u.companyName], ['Company address', u.businessAddress], ['Constitution', u.constitution],
-          ['Established on', u.companyDateEstablishment], ['GST number', u.gstNumber], ['Nature of business', u.natureOfBusiness]
-        ]
-        : [...common, ['Aadhar number', u.aadharNumber], ['PAN number', u.panNumber], ['City', u.city], ['State', u.stateId || u.state]];
+      // customers are all individual users now: what is asked at sign-up is the city and the state
+      fields = [...common, ['City', u.city], ['State', u.stateId || u.state]];
     }
     const missing = fields.filter(([, v]) => !isFilled(v)).map(([label]) => label);
     const total = fields.length;

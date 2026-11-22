@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { CheckCircle2, XCircle, Clock, Search, FileText, X } from 'lucide-react';
 import { apiRequest, fileUrl } from '../../utils/api';
+import { ProtectedImage, ProtectedLink } from '../ProtectedFile';
 
 const STATUS_TABS = [
   { id: '', label: 'All' },
@@ -291,9 +292,9 @@ export const CraneApprovals = ({ onReviewed }) => {
             {selected.photos.length > 0 && (
               <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', marginBottom: '16px' }}>
                 {selected.photos.map((photo) => (
-                  <img
+                  <ProtectedImage
                     key={photo.id}
-                    src={fileUrl(photo.photo_url)}
+                    src={photo.photo_url}
                     alt="Crane"
                     style={{ height: '110px', borderRadius: '8px', objectFit: 'cover' }}
                   />
@@ -334,14 +335,12 @@ export const CraneApprovals = ({ onReviewed }) => {
                 <span style={{ color: 'var(--dash-text-subtle)', fontSize: '12px' }}>
                   Expiry: {doc.expiry_date || '-'}
                 </span>
-                <a
-                  href={fileUrl(doc.file_url)}
-                  target="_blank"
-                  rel="noreferrer"
+                <ProtectedLink
+                  path={doc.file_url}
                   style={{ marginLeft: 'auto', color: '#f59e0b', fontSize: '13px' }}
                 >
                   View
-                </a>
+                </ProtectedLink>
               </div>
             ))}
 

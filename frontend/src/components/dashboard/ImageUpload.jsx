@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { ImagePlus, X } from 'lucide-react';
 import { uploadFile, fileUrl } from '../../utils/api';
+import { ProtectedImage } from '../ProtectedFile';
 
 /**
  * Picks an image, uploads it to the server and reports the stored path (/public/uploads/...).
@@ -46,7 +47,7 @@ export const ImageUpload = ({ value, onChange, width = 160, height = 90, label =
         title={label}
       >
         {value ? (
-          <img src={fileUrl(value)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <ProtectedImage src={value} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
           <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, color: 'var(--dash-text-subtle)', fontSize: 11 }}>
             <ImagePlus size={20} />

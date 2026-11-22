@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Search, X, Send, UserCheck, MapPin, Plus, Pencil, Check } from 'lucide-react';
 import { apiRequest, fileUrl } from '../../utils/api';
+import { ProtectedImage, ProtectedLink } from '../ProtectedFile';
 
 const PAGE_SIZE = 10;
 
@@ -193,13 +194,13 @@ const TicketDetail = ({ ticketId, onClose, onChanged }) => {
                           <div style={{ whiteSpace: 'pre-wrap' }}>{m.body}</div>
                           {m.attachments.map((url) => (
                             /\.(png|jpe?g|gif|webp)$/i.test(url) ? (
-                              <a key={url} href={fileUrl(url)} target="_blank" rel="noreferrer">
-                                <img src={fileUrl(url)} alt="Attachment" style={{ display: 'block', maxWidth: '100%', maxHeight: 180, borderRadius: 12, marginTop: 6, objectFit: 'cover' }} />
-                              </a>
+                              <ProtectedLink key={url} path={url}>
+                                <ProtectedImage src={url} alt="Attachment" style={{ display: 'block', maxWidth: '100%', maxHeight: 180, borderRadius: 12, marginTop: 6, objectFit: 'cover' }} />
+                              </ProtectedLink>
                             ) : (
-                              <a key={url} href={fileUrl(url)} target="_blank" rel="noreferrer" style={{ display: 'block', color: mine ? '#1a1205' : '#f59e0b', textDecoration: 'underline', fontSize: '12px', marginTop: '4px' }}>
+                              <ProtectedLink key={url} path={url} style={{ display: 'block', color: mine ? '#1a1205' : '#f59e0b', textDecoration: 'underline', fontSize: '12px', marginTop: '4px' }}>
                                 Attachment
-                              </a>
+                              </ProtectedLink>
                             )
                           ))}
                           <div style={{ fontSize: '10.5px', textAlign: 'right', marginTop: '3px', opacity: 0.65 }}>

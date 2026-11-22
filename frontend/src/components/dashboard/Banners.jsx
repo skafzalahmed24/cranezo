@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Plus, Pencil, ArrowUp, ArrowDown, Eye, EyeOff } from 'lucide-react';
 import { apiRequest, fileUrl } from '../../utils/api';
+import { ProtectedImage } from '../ProtectedFile';
 import ImageUpload from './ImageUpload';
 
 const card = { background: 'var(--dash-card)', border: '1px solid var(--dash-border)', borderRadius: '12px', padding: '16px 18px' };
@@ -214,7 +215,7 @@ export const Banners = () => {
 
       {banners.map((b, index) => (
         <div key={b.id} style={{ ...card, marginBottom: 12, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', opacity: b.is_active ? 1 : 0.6 }}>
-          <img src={fileUrl(b.image)} alt="" style={{ width: 200, height: 100, objectFit: 'cover', borderRadius: 8, background: 'var(--dash-input-bg)' }} />
+          <ProtectedImage src={b.image} alt="" style={{ width: 200, height: 100, objectFit: 'cover', borderRadius: 8, background: 'var(--dash-input-bg)' }} />
           <div style={{ flex: 1, minWidth: 220 }}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               <strong style={{ color: 'var(--dash-text-title)' }}>{b.title || '(image only)'}</strong>

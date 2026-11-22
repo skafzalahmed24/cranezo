@@ -17,6 +17,10 @@ router.post('/home', operatorOnly, jobController.home);
 router.post('/ratings', operatorOnly, require('../controllers/myRatings.controller').list);
 router.post('/status', verifiedOperator, jobController.setOnline);
 router.post('/location', operatorOnly, jobController.updateLocation);
+// owners asking this operator to join their team
+const operatorTeam = require('../controllers/operatorTeam.controller');
+router.post('/invites', operatorOnly, operatorTeam.received);
+router.post('/invites/respond', operatorOnly, operatorTeam.respond);
 
 router.post('/jobs/list', operatorOnly, jobController.list);
 router.post('/jobs/get', operatorOnly, jobController.get);

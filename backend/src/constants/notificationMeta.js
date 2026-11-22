@@ -10,6 +10,10 @@ const META = {
   account_status: { category: 'general', icon: 'bell', screen: null },
   subscription_due: { category: 'payment', icon: 'payment', screen: 'subscription' },
   subscription_paid: { category: 'payment', icon: 'payment', screen: 'subscription' },
+  // an owner asks a registered operator to join the team, and the operator's answer
+  operator_invite: { category: 'general', icon: 'bell', screen: 'operator_invites' },
+  operator_invite_accepted: { category: 'general', icon: 'check', screen: 'my_operators' },
+  operator_invite_declined: { category: 'general', icon: 'alert', screen: 'my_operators' },
   booking_request: { category: 'booking', icon: 'booking', screen: 'owner_request' },
   crane_request: { category: 'booking', icon: 'booking', screen: 'owner_crane_requests' },
   // the customer raised the price of a request the owner already got (no buzzer, it is not a new request)

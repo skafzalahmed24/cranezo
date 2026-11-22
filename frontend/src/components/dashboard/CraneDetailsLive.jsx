@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft, CheckCircle2, XCircle, FileText } from 'lucide-react';
 import { apiRequest, fileUrl } from '../../utils/api';
+import { ProtectedImage, ProtectedLink } from '../ProtectedFile';
 
 const dash = (value) => (value === null || value === undefined || value === '' ? '-' : value);
 const dateTime = (value) => (value ? new Date(value).toLocaleString('en-IN') : '-');
@@ -143,7 +144,7 @@ export const CraneDetailsLive = ({ craneId, onBack, onSelectMember, onReviewed }
             <Section title="Photos">
               <div style={{ display: 'flex', gap: '10px', overflowX: 'auto' }}>
                 {crane.photos.map((p) => (
-                  <img key={p.id} src={fileUrl(p.photo_url)} alt="Crane" style={{ height: '140px', borderRadius: '8px', objectFit: 'cover' }} />
+                  <ProtectedImage key={p.id} src={p.photo_url} alt="Crane" style={{ height: '140px', borderRadius: '8px', objectFit: 'cover' }} />
                 ))}
               </div>
             </Section>
@@ -203,9 +204,9 @@ export const CraneDetailsLive = ({ craneId, onBack, onSelectMember, onReviewed }
                   <span style={{ color: expired ? '#ef4444' : 'var(--dash-text-subtle)', fontSize: '12px' }}>
                     Expiry: {dash(doc.expiry_date)}{expired ? ' (expired)' : ''}
                   </span>
-                  <a href={fileUrl(doc.file_url)} target="_blank" rel="noreferrer" style={{ marginLeft: 'auto', color: '#f59e0b', fontSize: '13px' }}>
+                  <ProtectedLink path={doc.file_url} style={{ marginLeft: 'auto', color: '#f59e0b', fontSize: '13px' }}>
                     View
-                  </a>
+                  </ProtectedLink>
                 </div>
               );
             })}

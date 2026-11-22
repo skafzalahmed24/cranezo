@@ -175,6 +175,10 @@ module.exports = (sequelize) => {
     // operator conduct: last time the app was used, when it was removed, red-card restriction and the penalty to clear
     // operator: the monthly wage the owner pays (0 = paid per job)
     monthlySalary: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0, field: 'monthly_salary' },
+    // how the owner pays this operator: monthly, daily or per_job; the daily wage and the daily allowance (batta)
+    salaryType: { type: DataTypes.STRING(10), allowNull: false, defaultValue: 'monthly', field: 'salary_type' },
+    dailyWage: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0, field: 'daily_wage' },
+    batta: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0 },
     lastActiveAt: { type: DataTypes.DATE, allowNull: true, field: 'last_active_at' },
     appRemovedAt: { type: DataTypes.DATE, allowNull: true, field: 'app_removed_at' },
     penaltyDue: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0, field: 'penalty_due' },

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { API_BASE, call, inr, uploadFile } from './ownerApi';
+import { ProtectedImage } from '../components/ProtectedFile';
 
 const emptyForm = {
   crane_type: '', capacity: '', fuel_type: '', model_name: '', registration_number: '', location: '',
@@ -118,7 +119,7 @@ export function OwnerCranes() {
               <div className="wide">
                 <strong>Photos</strong> <span className="op-muted small">(at least one)</span>
                 <div className="op-thumbs">
-                  {photos.map((p) => <img key={p} src={imgUrl(p)} alt="" />)}
+                  {photos.map((p) => <ProtectedImage key={p} src={p} alt="" />)}
                   <label className="op-add-photo">+<input type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={async (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) { const url = await upload(f); if (url) setPhotos((x) => [...x, url]); } }} /></label>
                 </div>
               </div>

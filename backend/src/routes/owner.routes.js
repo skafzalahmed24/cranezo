@@ -77,6 +77,12 @@ router.post('/cranes/form-options', ownerOnly, craneController.getFormOptions);
 router.post('/operators', ownerOnly, craneController.listOperators);
 router.post('/operators/add', ownerOnly, craneController.addOperator);
 router.post('/operators/salary', ownerOnly, craneController.setOperatorSalary);
+// ask a registered operator to join the team (the operator accepts or declines)
+const operatorTeam = require('../controllers/operatorTeam.controller');
+router.post('/operators/search', ownerOnly, operatorTeam.search);
+router.post('/operators/invite', ownerOnly, operatorTeam.invite);
+router.post('/operators/invites', ownerOnly, operatorTeam.sent);
+router.post('/operators/invites/cancel', ownerOnly, operatorTeam.cancel);
 router.post('/salary/list', ownerOnly, require('../controllers/finance.controller').ownerSalaryList);
 router.post('/salary/pay', ownerOnly, require('../controllers/finance.controller').ownerPaySalary);
 router.post('/cranes', ownerOnly, craneController.createCrane);

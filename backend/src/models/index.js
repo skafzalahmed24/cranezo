@@ -30,6 +30,7 @@ const defineComplaintUpdate = require('./ComplaintUpdate');
 const defineCraneRequest = require('./CraneRequest');
 const definePriceMinimum = require('./PriceMinimum');
 const defineOwnerSubscription = require('./OwnerSubscription');
+const defineOperatorInvite = require('./OperatorInvite');
 const defineAdminAccessRole = require('./AdminAccessRole');
 const defineOwnerStaff = require('./OwnerStaff');
 const defineOperatorCard = require('./OperatorCard');
@@ -67,6 +68,7 @@ const ComplaintUpdate = defineComplaintUpdate(sequelize);
 const CraneRequest = defineCraneRequest(sequelize);
 const PriceMinimum = definePriceMinimum(sequelize);
 const OwnerSubscription = defineOwnerSubscription(sequelize);
+const OperatorInvite = defineOperatorInvite(sequelize);
 const AdminAccessRole = defineAdminAccessRole(sequelize);
 const OwnerStaff = defineOwnerStaff(sequelize);
 const OperatorCard = defineOperatorCard(sequelize);
@@ -167,6 +169,7 @@ module.exports = {
   OperatorCard,
   Lead,
   OwnerSubscription,
+  OperatorInvite,
   SubscriptionPayment,
   Role,
   Admin,

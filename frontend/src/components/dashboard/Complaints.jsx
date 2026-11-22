@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { apiRequest, fileUrl } from '../../utils/api';
+import { ProtectedImage, ProtectedLink } from '../ProtectedFile';
 import { PageHeader, Section, Stats, Table, Badge, ErrorBox, Pager, card, input, label, muted, inr, when } from './financeUi';
 
 const SIZE = 20;
@@ -172,7 +173,7 @@ const ComplaintDetail = ({ id, onBack }) => {
             {c.attachments.length > 0 && (
               <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
                 {c.attachments.map((a) => (
-                  <a key={a} href={fileUrl(a)} target="_blank" rel="noreferrer" style={{ color: '#f59e0b', fontSize: 13 }}>View attachment</a>
+                  <ProtectedLink key={a} path={a} style={{ color: '#f59e0b', fontSize: 13 }}>View attachment</ProtectedLink>
                 ))}
               </div>
             )}

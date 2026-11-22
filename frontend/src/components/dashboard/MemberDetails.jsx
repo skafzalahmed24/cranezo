@@ -3,6 +3,7 @@ import {
   ArrowLeft, Ban, RotateCcw, FileText, Phone, Mail, MapPin, Briefcase, Construction, Users, Calendar, Wallet, CheckCircle2, XCircle, HardHat, ClipboardList,
 } from 'lucide-react';
 import { apiRequest, fileUrl } from '../../utils/api';
+import { ProtectedImage, ProtectedLink } from '../ProtectedFile';
 
 const dash = (value) => (value === null || value === undefined || value === '' ? '-' : value);
 const date = (value) => (value ? new Date(value).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-');
@@ -194,9 +195,9 @@ export const MemberDetails = ({ userId, onBack, onSelectCrane }) => {
           <span className={`cranezo-status-badge ${{ 0: 'pending', 1: 'active', 2: 'blocked' }[d.status] || ''}`}>{d.status_label}</span>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12, fontSize: 13 }}>
             {d.files.filter((x) => x.file_url).map((x) => (
-              <a key={x.label} href={fileUrl(x.file_url)} target="_blank" rel="noreferrer" style={{ color: '#f59e0b' }}>
+              <ProtectedLink key={x.label} path={x.file_url} style={{ color: '#f59e0b' }}>
                 {d.files.length > 1 ? `View ${x.label}` : 'View'}
-              </a>
+              </ProtectedLink>
             ))}
             {d.uploaded && d.status !== 1 && (
               <button type="button" className="cranezo-btn-primary-amber" style={{ padding: '4px 12px', fontSize: 12 }} onClick={() => setDocumentStatus(d, 1)}>Approve</button>
@@ -263,7 +264,7 @@ export const MemberDetails = ({ userId, onBack, onSelectCrane }) => {
           <div className="cranezo-card" style={{ padding: 20, marginBottom: 16 }}>
             <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
               {m.profile_image ? (
-                <img src={fileUrl(m.profile_image)} alt="" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }} />
+                <ProtectedImage src={m.profile_image} alt="" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }} />
               ) : (
                 <div className="cranezo-table-avatar" style={{ width: 64, height: 64, fontSize: 22 }}>{initials(m.full_name || m.company_name)}</div>
               )}
